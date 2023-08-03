@@ -39,13 +39,13 @@ endif()
 message(STATUS "CMake Version: ${CMAKE_VERSION}")
 
 project(CUTLASS VERSION 2.9.0 LANGUAGES CXX)
-include(${CMAKE_CURRENT_SOURCE_DIR}/CUDA.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/HIP.cmake)
 
-if (CUDA_VERSION VERSION_LESS 10.2)
-  message(WARNING "CUTLASS ${CUTLASS_VERSION} requires CUDA 10.2 or higher, and strongly recommends CUDA 11.0 or higher.")
-elseif (CUDA_VERSION VERSION_LESS 11.0)
-  message(WARNING "CUTLASS ${CUTLASS_VERSION} support for CUDA ${CUDA_VERSION} is deprecated, please use CUDA 11.0 or higher.")
-endif()
+# if (CUDA_VERSION VERSION_LESS 10.2)
+#   message(WARNING "CUTLASS ${CUTLASS_VERSION} requires CUDA 10.2 or higher, and strongly recommends CUDA 11.0 or higher.")
+# elseif (CUDA_VERSION VERSION_LESS 11.0)
+#   message(WARNING "CUTLASS ${CUTLASS_VERSION} support for CUDA ${CUDA_VERSION} is deprecated, please use CUDA 11.0 or higher.")
+# endif()
 
 find_package(Doxygen QUIET)
 
@@ -56,13 +56,13 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if(CUTLASS_NATIVE_CUDA)
-  set(CMAKE_CUDA_STANDARD 11)
-  set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-else()
-  list(APPEND CUTLASS_CUDA_NVCC_FLAGS --std=c++11)
-endif()
-
+# if(CUTLASS_NATIVE_CUDA)
+#   set(CMAKE_CUDA_STANDARD 11)
+#   set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+# else()
+#   list(APPEND CUTLASS_HIPCC_FLAGS --std=c++11)
+# endif()
+list(APPEND CUTLASS_HIPCC_FLAGS --std=c++11)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(CMAKE_INSTALL_PREFIX install CACHE PATH "Default installation location." FORCE)
 endif()
@@ -89,7 +89,7 @@ set(CUTLASS_ENABLE_LIBRARY ${CUTLASS_ENABLE_LIBRARY_INIT} CACHE BOOL "Enable CUT
 set(CUTLASS_ENABLE_PROFILER ${CUTLASS_ENABLE_LIBRARY} CACHE BOOL "Enable CUTLASS Profiler")
 
 if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-  set(CUTLASS_ENABLE_TESTS_INIT ${CUTLASS_ENABLE_LIBRARY}})
+  set(CUTLASS_ENABLE_TESTS_INIT ${CUTLASS_ENABLE_LIBRARY})
 else()
   set(CUTLASS_ENABLE_TESTS_INIT OFF)
 endif()
@@ -100,30 +100,30 @@ if (CUTLASS_ENABLE_TESTS)
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/googletest.cmake)
 endif()
 
-set(CUTLASS_NVCC_ARCHS_SUPPORTED "")
-if (NOT CUDA_VERSION VERSION_LESS 7.5)
-  list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 53)
-endif()
-if (NOT CUDA_VERSION VERSION_LESS 8.0)
-  list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 60 61)
-endif()
-if (NOT CUDA_VERSION VERSION_LESS 9.0)
-  list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 70)
-endif()
-if (NOT CUDA_VERSION VERSION_LESS 9.2)
-  list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 72)
-endif()
-if (NOT CUDA_VERSION VERSION_LESS 10.0)
-  list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 75)
-endif()
-if (NOT CUDA_VERSION VERSION_LESS 11.0)
-  list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 80)
-endif()
-if (NOT CUDA_VERSION VERSION_LESS 11.1 AND NOT CUDA_COMPILER MATCHES "[Cc]lang")
-  list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 86)
-endif()
-set(CUTLASS_NVCC_ARCHS ${CUTLASS_NVCC_ARCHS_SUPPORTED} CACHE STRING "The SM architectures requested.")
-set(CUTLASS_NVCC_ARCHS_ENABLED ${CUTLASS_NVCC_ARCHS} CACHE STRING "The SM architectures to build code for.")
+# set(CUTLASS_NVCC_ARCHS_SUPPORTED "")
+# if (NOT CUDA_VERSION VERSION_LESS 7.5)
+#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 53)
+# endif()
+# if (NOT CUDA_VERSION VERSION_LESS 8.0)
+#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 60 61)
+# endif()
+# if (NOT CUDA_VERSION VERSION_LESS 9.0)
+#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 70)
+# endif()
+# if (NOT CUDA_VERSION VERSION_LESS 9.2)
+#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 72)
+# endif()
+# if (NOT CUDA_VERSION VERSION_LESS 10.0)
+#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 75)
+# endif()
+# if (NOT CUDA_VERSION VERSION_LESS 11.0)
+#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 80)
+# endif()
+# if (NOT CUDA_VERSION VERSION_LESS 11.1 AND NOT CUDA_COMPILER MATCHES "[Cc]lang")
+#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 86)
+# endif()
+# set(CUTLASS_NVCC_ARCHS ${CUTLASS_NVCC_ARCHS_SUPPORTED} CACHE STRING "The SM architectures requested.")
+# set(CUTLASS_NVCC_ARCHS_ENABLED ${CUTLASS_NVCC_ARCHS} CACHE STRING "The SM architectures to build code for.")
 
 # Special policy introduced in CMake 3.13
 if (POLICY CMP0076)
@@ -132,7 +132,7 @@ endif()
 
 include(GNUInstallDirs)
 
-link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib64/stubs)
+# link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib64/stubs)
 
 ###################################################################################################
 #
@@ -140,7 +140,7 @@ link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib64/stubs)
 #
 ###################################################################################################
 
-message(STATUS "CUDA Compilation Architectures: ${CUTLASS_NVCC_ARCHS_ENABLED}")
+message(STATUS "HIP Compilation Architectures: ${AMDGPU_TARGETS}")
 
 if (NOT (CMAKE_BUILD_TYPE OR CONFIGURATION_TYPES))
   # By default we want to build in Release mode to ensure that we're getting best performance.
@@ -161,28 +161,28 @@ if(WIN32)
   set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib" FORCE)
 endif()
 
-if (WIN32)
-  # Enable more warnings and treat as errors
-  list(APPEND CUTLASS_CUDA_NVCC_FLAGS -Xcompiler=/W3 -Xcompiler=/WX)
+# if (WIN32)
+#   # Enable more warnings and treat as errors
+#   list(APPEND CUTLASS_HIPCC_FLAGS -Xcompiler=/W3 -Xcompiler=/WX)
 
-  # Disable warning on Unicode characters
-  list(APPEND CUTLASS_CUDA_NVCC_FLAGS -Xcompiler=/wd4819)
+#   # Disable warning on Unicode characters
+#   list(APPEND CUTLASS_HIPCC_FLAGS -Xcompiler=/wd4819)
 
-  # Disable excess x86 floating point precision that can lead to results being labeled incorrectly
-  list(APPEND CUTLASS_CUDA_NVCC_FLAGS -Xcompiler=/fp:strict)
-endif(WIN32)
+#   # Disable excess x86 floating point precision that can lead to results being labeled incorrectly
+#   list(APPEND CUTLASS_HIPCC_FLAGS -Xcompiler=/fp:strict)
+# endif(WIN32)
 
-if (${CUTLASS_NVCC_VERBOSE})
-  list(APPEND CUTLASS_CUDA_NVCC_FLAGS -v)
-endif()
+# if (${CUTLASS_NVCC_VERBOSE})
+#   list(APPEND CUTLASS_HIPCC_FLAGS -v)
+# endif()
 
 #
 # CUTLASS NAMESPACE 
 #
 set(CUTLASS_NAMESPACE "cutlass" CACHE STRING "Top level namespace of CUTLASS")
 
-set(CUTLASS_NVCC_EMBED_CUBIN ON CACHE BOOL "Embed compiled CUDA kernel binaries into executables.")
-set(CUTLASS_NVCC_EMBED_PTX ON CACHE BOOL "Embed compiled PTX into executables.")
+set(CUTLASS_NVCC_EMBED_CUBIN OFF CACHE BOOL "Embed compiled CUDA kernel binaries into executables.")
+set(CUTLASS_NVCC_EMBED_PTX OFF CACHE BOOL "Embed compiled PTX into executables.")
 set(CUTLASS_NVCC_KEEP OFF CACHE BOOL "Keep intermediate files generated by NVCC.")
 set(CUTLASS_ENABLE_F16C OFF CACHE BOOL "Enable F16C x86 extensions in host code.")
 
@@ -199,34 +199,29 @@ set(CUTLASS_TEST_LEVEL "0" CACHE STRING "Level of tests to compile.")
 set(CUTLASS_TEST_ENABLE_CACHED_RESULTS ON CACHE BOOL "Enable caching and reuse of test results in unit tests")
 
 set_property(CACHE CUTLASS_TEST_LEVEL PROPERTY STRINGS 0 1 2)
-list(APPEND CUTLASS_CUDA_NVCC_FLAGS -DCUTLASS_TEST_LEVEL=${CUTLASS_TEST_LEVEL})
-list(APPEND CUTLASS_CUDA_CLANG_FLAGS -DCUTLASS_TEST_LEVEL=${CUTLASS_TEST_LEVEL})
+list(APPEND CUTLASS_HIPCC_FLAGS -DCUTLASS_TEST_LEVEL=${CUTLASS_TEST_LEVEL})
 
 if (CUTLASS_TEST_ENABLE_CACHED_RESULTS)
   message(STATUS "Enable caching of reference results in conv unit tests")
-  list(APPEND CUTLASS_CUDA_NVCC_FLAGS -DCUTLASS_TEST_ENABLE_CACHED_RESULTS=1)
+  list(APPEND CUTLASS_HIPCC_FLAGS -DCUTLASS_TEST_ENABLE_CACHED_RESULTS=1)
 endif()
 
 set(CUTLASS_CONV_UNIT_TEST_RIGOROUS_SIZE_ENABLED ON CACHE BOOL "Enable/Disable rigorous conv problem sizes in conv unit tests")
 
 if (CUTLASS_CONV_UNIT_TEST_RIGOROUS_SIZE_ENABLED)
   message(STATUS "Enable rigorous conv problem sizes in conv unit tests")
-  list(APPEND CUTLASS_CUDA_NVCC_FLAGS -DCUTLASS_CONV_UNIT_TEST_RIGOROUS_SIZE_ENABLED=1)
+  list(APPEND CUTLASS_HIPCC_FLAGS -DCUTLASS_CONV_UNIT_TEST_RIGOROUS_SIZE_ENABLED=1)
 endif()
 
 #
 # CUDA 10.1 introduces "mma" in PTX performing collective matrix multiply operations.
 #
-
-if (CUDA_VERSION VERSION_LESS 10.1)
-  set(CUTLASS_ENABLE_TENSOR_CORE_MMA_DEFAULT OFF)
-else()
-  set(CUTLASS_ENABLE_TENSOR_CORE_MMA_DEFAULT ON)
-endif()
+## disable mma
+set(CUTLASS_ENABLE_TENSOR_CORE_MMA_DEFAULT OFF)
 
 # Trace levels for debugging
 set(CUTLASS_DEBUG_TRACE_LEVEL "0" CACHE STRING "Level of debug tracing to perform.")
-list(APPEND CUTLASS_CUDA_NVCC_FLAGS -DCUTLASS_DEBUG_TRACE_LEVEL=${CUTLASS_DEBUG_TRACE_LEVEL})
+list(APPEND CUTLASS_HIPCC_FLAGS -DCUTLASS_DEBUG_TRACE_LEVEL=${CUTLASS_DEBUG_TRACE_LEVEL})
 
 set(CUTLASS_ENABLE_TENSOR_CORE_MMA ${CUTLASS_ENABLE_TENSOR_CORE_MMA_DEFAULT} CACHE BOOL
   "Enable PTX mma instruction for collective matrix multiply operations.")
@@ -244,7 +239,7 @@ set(CUTLASS_ENABLE_TENSOR_CORE_MMA ${CUTLASS_ENABLE_TENSOR_CORE_MMA_DEFAULT} CAC
 #  ...
 #
 if(ENABLE_ASAN)  # https://github.com/google/sanitizers/wiki/AddressSanitizer
-  list(APPEND CUTLASS_CUDA_NVCC_FLAGS --compiler-options=-fsanitize=address --compiler-options=-fno-omit-frame-pointer)
+  list(APPEND CUTLASS_HIPCC_FLAGS --compiler-options=-fsanitize=address --compiler-options=-fno-omit-frame-pointer)
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -fsanitize=address")
 endif()
 
@@ -266,40 +261,40 @@ if (NOT MSVC AND CUTLASS_NVCC_KEEP)
   # MSVC flow handles caching already, but for other generators we handle it here.
   set(CUTLASS_NVCC_KEEP_DIR ${CMAKE_CURRENT_BINARY_DIR}/tmp CACHE PATH "Location to store NVCC scratch files")
   file(MAKE_DIRECTORY ${CUTLASS_NVCC_KEEP_DIR})
-  list(APPEND CUTLASS_CUDA_NVCC_FLAGS --keep -v) # --keep-dir may not work with nvcc for some directories.
+  list(APPEND CUTLASS_HIPCC_FLAGS --keep -v) # --keep-dir may not work with nvcc for some directories.
   list(APPEND CUTLASS_CUDA_CLANG_FLAGS -save-temps=${CUTLASS_NVCC_KEEP_DIR})
 endif()
 
 if (CUTLASS_ENABLE_F16C AND NOT CMAKE_CROSSCOMPILING)
-  list(APPEND CUTLASS_CUDA_FLAGS -DCUTLASS_ENABLE_F16C=1)
+  list(APPEND CUTLASS_HIPCC_FLAGS -DCUTLASS_ENABLE_F16C=1)
   if ((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
-    list(APPEND CUTLASS_CUDA_NVCC_FLAGS -Xcompiler=-mf16c)
+    list(APPEND CUTLASS_HIPCC_FLAGS -Xcompiler=-mf16c)
   elseif((CMAKE_CXX_COMPILER_ID MATCHES "MSVC"))
-    list(APPEND CUTLASS_CUDA_NVCC_FLAGS -Xcompiler=/arch:AVX2)
+    list(APPEND CUTLASS_HIPCC_FLAGS -Xcompiler=/arch:AVX2)
   endif()
 endif()
 
-list(APPEND CUTLASS_CUDA_NVCC_FLAGS $<$<BOOL:${UNIX}>:-Xcompiler=-Wconversion>)
-list(APPEND CUTLASS_CUDA_NVCC_FLAGS $<$<BOOL:${UNIX}>:-Xcompiler=-fno-strict-aliasing>)
+list(APPEND CUTLASS_HIPCC_FLAGS $<$<BOOL:${UNIX}>:-Xcompiler=-Wconversion>)
+list(APPEND CUTLASS_HIPCC_FLAGS $<$<BOOL:${UNIX}>:-Xcompiler=-fno-strict-aliasing>)
 
 # Don't leak lineinfo in release builds
 if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
   list(APPEND CUTLASS_CUDA_CLANG_FLAGS -gmlt)
-  list(APPEND CUTLASS_CUDA_NVCC_FLAGS -lineinfo)
+  list(APPEND CUTLASS_HIPCC_FLAGS -lineinfo)
 endif()
 
 #Report CUDA build flags
-if (CUDA_COMPILER MATCHES "[Cc]lang")
+if (CMAKE_CXX_COMPILER MATCHES "[Cc]lang")
+  if(CUTLASS_HIPCC_FLAGS)
+    message(STATUS "Using NVCC flags: ${CUTLASS_HIPCC_FLAGS}")
+  endif()
+else()
   if(CUTLASS_CUDA_CLANG_FLAGS)
     message(STATUS "Using CLANG flags: ${CUTLASS_CUDA_CLANG_FLAGS}")
   endif()
-else()
-  if(CUTLASS_CUDA_NVCC_FLAGS)
-    message(STATUS "Using NVCC flags: ${CUTLASS_CUDA_NVCC_FLAGS}")
-  endif()
 endif()
 
-if(CUDA_COMPILER MATCHES "[Cc]lang")
+if(CMAKE_CXX_COMPILER MATCHES "[Cc]lang")
   if( NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
     message(FATAL_ERROR "Clang CUDA compilation requires Clang CXX compilation. Currently CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER_ID}" )
   endif()
@@ -347,41 +342,14 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18)
 endif()
 
 function(cutlass_apply_cuda_gencode_flags TARGET)
-
-  set(NVCC_FLAGS)
   set(CLANG_FLAGS)
-  set(__CMAKE_CUDA_ARCHS)
-  foreach(ARCH ${CUTLASS_NVCC_ARCHS_ENABLED})
-    list(APPEND CLANG_FLAGS --cuda-gpu-arch=sm_${ARCH})
-    set(CODES)
-    if(CUTLASS_NVCC_EMBED_CUBIN)
-      list(APPEND CODES sm_${ARCH})
-      list(APPEND __CMAKE_CUDA_ARCHS ${ARCH}-real)
-    endif()
-    if(CUTLASS_NVCC_EMBED_PTX)
-      list(APPEND CODES compute_${ARCH})
-      list(APPEND __CMAKE_CUDA_ARCHS ${ARCH}-virtual)
-    endif()
-    list(JOIN CODES "," CODES_STR)
-    list(APPEND NVCC_FLAGS -gencode=arch=compute_${ARCH},code=[${CODES_STR}])
-  endforeach()
-
-  if (CUDA_COMPILER MATCHES "[Cc]lang")
+  if (CMAKE_CXX_COMPILER MATCHES "[Cc]lang")
     target_compile_options(
       ${TARGET}
       PRIVATE
       $<$<COMPILE_LANGUAGE:CXX>:${CLANG_FLAGS}>
       )
-  elseif(CMAKE_VERSION GREATER_EQUAL 3.18)
-    set_property(TARGET ${TARGET} PROPERTY CUDA_ARCHITECTURES ${__CMAKE_CUDA_ARCHS})
-  else()
-    target_compile_options(
-      ${TARGET}
-      PRIVATE
-      $<$<COMPILE_LANGUAGE:CUDA>:${NVCC_FLAGS}>
-      )
   endif()
-
 endfunction()
 
 # Cache the flags so they are available when the function below is called anywhere globally. 
@@ -394,10 +362,10 @@ set(__CUTLASS_CUDA_CLANG_FLAGS ${CUTLASS_CUDA_CLANG_FLAGS} CACHE INTERNAL "")
 set(__CUTLASS_CUDA_CLANG_FLAGS_RELEASE ${CUTLASS_CUDA_CLANG_FLAGS_RELEASE} CACHE INTERNAL "")
 set(__CUTLASS_CUDA_CLANG_FLAGS_RELWITHDEBINFO ${CUTLASS_CUDA_CLANG_FLAGS_RELWITHDEBINFO} CACHE INTERNAL "")
 set(__CUTLASS_CUDA_CLANG_FLAGS_DEBUG ${CUTLASS_CUDA_CLANG_FLAGS_DEBUG} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_NVCC_FLAGS ${CUTLASS_CUDA_NVCC_FLAGS} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_NVCC_FLAGS_RELEASE ${CUTLASS_CUDA_NVCC_FLAGS_RELEASE} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_NVCC_FLAGS_RELWITHDEBINFO ${CUTLASS_CUDA_NVCC_FLAGS_RELWITHDEBINFO} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_NVCC_FLAGS_DEBUG ${CUTLASS_CUDA_NVCC_FLAGS_DEBUG} CACHE INTERNAL "")
+set(__CUTLASS_HIPCC_FLAGS ${CUTLASS_HIPCC_FLAGS} CACHE INTERNAL "")
+set(__CUTLASS_HIPCC_FLAGS_RELEASE ${CUTLASS_HIPCC_FLAGS_RELEASE} CACHE INTERNAL "")
+set(__CUTLASS_HIPCC_FLAGS_RELWITHDEBINFO ${CUTLASS_HIPCC_FLAGS_RELWITHDEBINFO} CACHE INTERNAL "")
+set(__CUTLASS_HIPCC_FLAGS_DEBUG ${CUTLASS_HIPCC_FLAGS_DEBUG} CACHE INTERNAL "")
 
 function(cutlass_apply_standard_compile_options TARGET)
 
@@ -409,10 +377,10 @@ function(cutlass_apply_standard_compile_options TARGET)
     set(_FLAGS_DEBUG ${__CUTLASS_CUDA_FLAGS_DEBUG} ${__CUTLASS_CUDA_CLANG_FLAGS_DEBUG})
   else()
     set(CUDA_COMPILE_LANGUAGE CUDA)
-    set(_FLAGS ${__CUTLASS_CUDA_FLAGS} ${__CUTLASS_CUDA_NVCC_FLAGS})
-    set(_FLAGS_RELEASE ${__CUTLASS_CUDA_FLAGS_RELEASE} ${__CUTLASS_CUDA_NVCC_FLAGS_RELEASE})
-    set(_FLAGS_RELWITHDEBINFO ${__CUTLASS_CUDA_FLAGS_RELWITHDEBINFO} ${__CUTLASS_CUDA_NVCC_FLAGS_RELWITHDEBINFO})
-    set(_FLAGS_DEBUG ${__CUTLASS_CUDA_FLAGS_DEBUG} ${__CUTLASS_CUDA_NVCC_FLAGS_DEBUG})
+    set(_FLAGS ${__CUTLASS_CUDA_FLAGS} ${__CUTLASS_HIPCC_FLAGS})
+    set(_FLAGS_RELEASE ${__CUTLASS_CUDA_FLAGS_RELEASE} ${__CUTLASS_HIPCC_FLAGS_RELEASE})
+    set(_FLAGS_RELWITHDEBINFO ${__CUTLASS_CUDA_FLAGS_RELWITHDEBINFO} ${__CUTLASS_HIPCC_FLAGS_RELWITHDEBINFO})
+    set(_FLAGS_DEBUG ${__CUTLASS_CUDA_FLAGS_DEBUG} ${__CUTLASS_HIPCC_FLAGS_DEBUG})
   endif()
 
   target_link_libraries(${TARGET} PRIVATE CUTLASS)
@@ -569,16 +537,16 @@ install(DIRECTORY DESTINATION ${CUTLASS_TEST_INSTALL_PREFIX}/ctest)
 
 ################################################################################
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/cuBLAS.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/hipBLAS.cmake)
 
-if (CUTLASS_ENABLE_CUBLAS)
-  target_compile_definitions(CUTLASS INTERFACE CUTLASS_ENABLE_CUBLAS=1)
+if (CUTLASS_ENABLE_HIPBLAS)
+  target_compile_definitions(CUTLASS INTERFACE CUTLASS_ENABLE_HIPBLAS=1)
 endif()
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/cuDNN.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/hipDNN.cmake)
 
-if (CUTLASS_ENABLE_CUDNN)
-  target_compile_definitions(CUTLASS INTERFACE CUTLASS_ENABLE_CUDNN=1)
+if (CUTLASS_ENABLE_HIPDNN)
+  target_compile_definitions(CUTLASS INTERFACE CUTLASS_ENABLE_HIPDNN=1)
 endif()
 
 ################################################################################
