@@ -557,8 +557,8 @@ bool SymmOperationProfiler::verify_cutlass(
     return false;
   }
 
-  cudaError_t result = cudaDeviceSynchronize();
-  if (result != cudaSuccess) {
+  hipError_t result = hipDeviceSynchronize();
+  if (result != hipSuccess) {
     results_.back().disposition = Disposition::kFailed;
     return false;
   }
@@ -572,7 +572,7 @@ bool SymmOperationProfiler::verify_cutlass(
 
   if (options.verification.enabled) {
 
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
     if (options.verification.provider_enabled(library::Provider::kCUBLAS)) {
 
       // Guard against unsupported cases
@@ -595,7 +595,7 @@ bool SymmOperationProfiler::verify_cutlass(
         results_.back().verification_map[library::Provider::kCUBLAS] = Disposition::kNotSupported;
       }
     }
-#endif // #if CUTLASS_ENABLE_CUBLAS
+#endif // #if CUTLASS_ENABLE_HIPBLAS
     
     // Update disposition to worst case verification outcome among all 
     // verification providers which are supported
@@ -631,7 +631,7 @@ bool SymmOperationProfiler::verify_with_cublas_(
   ProblemSpace::Problem const &problem) {
 
 
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
 
   library::SymmDescription const &symm_desc = 
     static_cast<library::SymmDescription const &>(operation->description());
@@ -641,9 +641,9 @@ bool SymmOperationProfiler::verify_with_cublas_(
   //
     
   CublasCreate handle;
-  cublasStatus_t status = handle.get_cublas_create_status();
+  hipblasStatus_t status = handle.get_cublas_create_status();
 
-  if (status != CUBLAS_STATUS_SUCCESS) {
+  if (status != HIPBLAS_STATUS_SUCCESS) {
 
     results_.back().verification_map[library::Provider::kCUBLAS] = Disposition::kFailed;
     return true;
@@ -684,7 +684,7 @@ bool SymmOperationProfiler::verify_with_cublas_(
     status = symm_op(handle);
 
     // Handle errors
-    if (status != CUBLAS_STATUS_SUCCESS) {
+    if (status != HIPBLAS_STATUS_SUCCESS) {
 
       results_.back().verification_map[library::Provider::kCUBLAS] = Disposition::kFailed;
       return true;

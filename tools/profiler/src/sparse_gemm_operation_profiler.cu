@@ -487,8 +487,8 @@ bool SparseGemmOperationProfiler::verify_cutlass(
     return false;
   }
 
-  cudaError_t result = cudaDeviceSynchronize();
-  if (result != cudaSuccess) {
+  hipError_t result = hipDeviceSynchronize();
+  if (result != hipSuccess) {
     results_.back().disposition = Disposition::kFailed;
     return false;
   }

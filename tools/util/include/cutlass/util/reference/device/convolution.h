@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1015,7 +1016,7 @@ Status Conv2dFprop(
   TensorRef<ElementC, LayoutC> tensor_y_out,
   ElementCompute alpha,
   ElementCompute beta,
-  cudaStream_t stream = nullptr,
+  hipStream_t stream = nullptr,
   TensorRef<ElementCompute, layout::RowMajor> tensor_scale = TensorRef<ElementCompute, layout::RowMajor>(),
   TensorRef<ElementCompute, layout::RowMajor> tensor_bias = TensorRef<ElementCompute, layout::RowMajor>() ) {
 
@@ -1061,8 +1062,8 @@ Status Conv2dFprop(
     tensor_bias
   );
 
-  cudaError_t result = cudaPeekAtLastError();
-  if (result != cudaSuccess) {
+  hipError_t result = hipPeekAtLastError();
+  if (result != hipSuccess) {
     return Status::kErrorInternal;
   }
 
@@ -1090,7 +1091,7 @@ Status Conv3dFprop(
   TensorRef<ElementC, LayoutC> tensor_y_out,
   ElementCompute alpha,
   ElementCompute beta,
-  cudaStream_t stream = nullptr) {
+  hipStream_t stream = nullptr) {
 
   //
   // Blocking factors improve performance of reference implementation
@@ -1132,8 +1133,8 @@ Status Conv3dFprop(
     beta
   );
 
-  cudaError_t result = cudaPeekAtLastError();
-  if (result != cudaSuccess) {
+  hipError_t result = hipPeekAtLastError();
+  if (result != hipSuccess) {
     return Status::kErrorInternal;
   }
 
@@ -1161,7 +1162,7 @@ Status Conv2dDgrad(
   TensorRef<ElementC, LayoutC> tensor_dx_out,
   ElementCompute alpha,
   ElementCompute beta,
-  cudaStream_t stream = nullptr) {
+  hipStream_t stream = nullptr) {
 
   //
   // Blocking factors improve performance of reference implementation
@@ -1203,8 +1204,8 @@ Status Conv2dDgrad(
     beta
   );
 
-  cudaError_t result = cudaPeekAtLastError();
-  if (result != cudaSuccess) {
+  hipError_t result = hipPeekAtLastError();
+  if (result != hipSuccess) {
     return Status::kErrorInternal;
   }
 
@@ -1232,7 +1233,7 @@ Status Conv3dDgrad(
   TensorRef<ElementC, LayoutC> tensor_dx_out,
   ElementCompute alpha,
   ElementCompute beta,
-  cudaStream_t stream = nullptr) {
+  hipStream_t stream = nullptr) {
 
   //
   // Blocking factors improve performance of reference implementation
@@ -1274,8 +1275,8 @@ Status Conv3dDgrad(
     beta
   );
 
-  cudaError_t result = cudaPeekAtLastError();
-  if (result != cudaSuccess) {
+  hipError_t result = hipPeekAtLastError();
+  if (result != hipSuccess) {
     return Status::kErrorInternal;
   }
 
@@ -1303,7 +1304,7 @@ Status Conv2dWgrad(
   TensorRef<ElementC, LayoutC> tensor_dw_out,
   ElementCompute alpha,
   ElementCompute beta,
-  cudaStream_t stream = nullptr) {
+  hipStream_t stream = nullptr) {
 
   //
   // Blocking factors improve performance of reference implementation
@@ -1345,8 +1346,8 @@ Status Conv2dWgrad(
     beta
   );
 
-  cudaError_t result = cudaPeekAtLastError();
-  if (result != cudaSuccess) {
+  hipError_t result = hipPeekAtLastError();
+  if (result != hipSuccess) {
     return Status::kErrorInternal;
   }
 
@@ -1374,7 +1375,7 @@ Status Conv3dWgrad(
   TensorRef<ElementC, LayoutC> tensor_dw_out,
   ElementCompute alpha,
   ElementCompute beta,
-  cudaStream_t stream = nullptr) {
+  hipStream_t stream = nullptr) {
 
   //
   // Blocking factors improve performance of reference implementation
@@ -1416,8 +1417,8 @@ Status Conv3dWgrad(
     beta
   );
 
-  cudaError_t result = cudaPeekAtLastError();
-  if (result != cudaSuccess) {
+  hipError_t result = hipPeekAtLastError();
+  if (result != hipSuccess) {
     return Status::kErrorInternal;
   }
 
@@ -1448,7 +1449,7 @@ Status Conv2d(
   TensorRef<ElementC, LayoutC> tensor_D,
   ElementCompute alpha,
   ElementCompute beta,
-  cudaStream_t stream = nullptr,
+  hipStream_t stream = nullptr,
   TensorRef<ElementCompute, layout::RowMajor> tensor_scale = TensorRef<ElementCompute, layout::RowMajor>(),
   TensorRef<ElementCompute, layout::RowMajor> tensor_bias = TensorRef<ElementCompute, layout::RowMajor>() ) {
   
@@ -1514,7 +1515,7 @@ Status Conv3d(
   TensorRef<ElementC, LayoutC> tensor_D,
   ElementCompute alpha,
   ElementCompute beta,
-  cudaStream_t stream = nullptr) {
+  hipStream_t stream = nullptr) {
   
   switch (convolutional_operator) {
   case conv::Operator::kFprop:

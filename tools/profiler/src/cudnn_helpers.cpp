@@ -31,7 +31,7 @@
 /* \file
    \brief Helper functions for mapping CUTLASS concepts to cuDNN.
 */
-#if CUTLASS_ENABLE_CUDNN
+#if CUTLASS_ENABLE_HIPDNN
 
 #include <stdexcept>
 
@@ -42,34 +42,34 @@ namespace profiler {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /// Converts a cuDNN status to cutlass::Status
-Status get_cutlass_status(cudnnStatus_t cudnn_status) {
+Status get_cutlass_status(hipdnnStatus_t cudnn_status) {
 
-  if (cudnn_status == CUDNN_STATUS_SUCCESS) {
+  if (cudnn_status == HIPDNN_STATUS_SUCCESS) {
     return Status::kSuccess;
   }
-  else if (cudnn_status == CUDNN_STATUS_INVALID_VALUE) {
+  else if (cudnn_status == HIPDNN_STATUS_INVALID_VALUE) {
     return Status::kErrorInvalidProblem;
   }
-  if (cudnn_status == CUDNN_STATUS_NOT_SUPPORTED) {
+  if (cudnn_status == HIPDNN_STATUS_NOT_SUPPORTED) {
     return Status::kErrorNotSupported;
   }
   return Status::kErrorInternal;
 }
 
 /// Converts a cuDNN status to cutlass::profiler::Disposition
-Disposition get_cutlass_disposition(cudnnStatus_t cudnn_status) {
+Disposition get_cutlass_disposition(hipdnnStatus_t cudnn_status) {
 
-  if (cudnn_status == CUDNN_STATUS_INVALID_VALUE) {
+  if (cudnn_status == HIPDNN_STATUS_INVALID_VALUE) {
     return Disposition::kInvalidProblem;
   }
-  else if (cudnn_status == CUDNN_STATUS_NOT_SUPPORTED) {
+  else if (cudnn_status == HIPDNN_STATUS_NOT_SUPPORTED) {
     return Disposition::kNotSupported;
   }
   return Disposition::kFailed;
 }
 
-/// Checks cudnnStatus_t converts to cutlas status and returns if Status::kSuccess o.w. throws exception
-Status checkCudnnErr(cudnnStatus_t cudnn_status) {
+/// Checks hipdnnStatus_t converts to cutlas status and returns if Status::kSuccess o.w. throws exception
+Status checkCudnnErr(hipdnnStatus_t cudnn_status) {
   Status cutlass_status = get_cutlass_status(cudnn_status);
   if(cutlass_status != Status::kSuccess) {
     throw std::runtime_error("checkCudnnErr failed");
@@ -77,50 +77,50 @@ Status checkCudnnErr(cudnnStatus_t cudnn_status) {
   return cutlass_status;
 }
 
-/// Maps a CUTLASS conv mode to a cuDNN cudnnConvolutionMode_t
-bool get_cudnn_conv_mode(cudnnConvolutionMode_t &cudnn_conv_mode, conv::Mode conv_mode) {
+/// Maps a CUTLASS conv mode to a cuDNN hipdnnConvolutionMode_t
+bool get_cudnn_conv_mode(hipdnnConvolutionMode_t &cudnn_conv_mode, conv::Mode conv_mode) {
   switch (conv_mode) {
     case conv::Mode::kCrossCorrelation:
-      cudnn_conv_mode = CUDNN_CROSS_CORRELATION;
+      cudnn_conv_mode = HIPDNN_CROSS_CORRELATION;
       return true;
     case conv::Mode::kConvolution:
-      cudnn_conv_mode = CUDNN_CONVOLUTION;
+      cudnn_conv_mode = HIPDNN_CONVOLUTION;
       return true;
     default: break;
   }
   return false;
 }
 
-/// Maps a CUTLASS tensor layout to a cuDNN cudnnTensorFormat_t
-bool get_cudnn_layout(cudnnTensorFormat_t &cudnn_layout, library::LayoutTypeID layout) {
+/// Maps a CUTLASS tensor layout to a cuDNN hipdnnTensorFormat_t
+bool get_cudnn_layout(hipdnnTensorFormat_t &cudnn_layout, library::LayoutTypeID layout) {
   switch (layout) {
     // cudnn uses the same enum for TensorNC*HW along nDim (ConvDescription::conv_dim)
     case library::LayoutTypeID::kTensorNCHW:
     case library::LayoutTypeID::kTensorNCDHW:
-      cudnn_layout = CUDNN_TENSOR_NCHW;
+      cudnn_layout = HIPDNN_TENSOR_NCHW;
       return true;
     case library::LayoutTypeID::kTensorNHWC:
     case library::LayoutTypeID::kTensorNDHWC:
-      cudnn_layout = CUDNN_TENSOR_NHWC;
+      cudnn_layout = HIPDNN_TENSOR_NHWC;
       return true;
     default: break;
   }
   return false;
 }
 
-/// Maps a CUTLASS numeric type to a cuDNN cudnnDataType_t
-bool get_cudnn_datatype(cudnnDataType_t &cudnn_element_type, library::NumericTypeID element_type) {
+/// Maps a CUTLASS numeric type to a cuDNN hipdnnDataType_t
+bool get_cudnn_datatype(hipdnnDataType_t &cudnn_element_type, library::NumericTypeID element_type) {
   switch (element_type) {
     case library::NumericTypeID::kF16:
-      cudnn_element_type = CUDNN_DATA_HALF;
+      cudnn_element_type = HIPDNN_DATA_HALF;
       return true;
 
     case library::NumericTypeID::kF32:
-      cudnn_element_type = CUDNN_DATA_FLOAT;
+      cudnn_element_type = HIPDNN_DATA_FLOAT;
       return true;
     
     case library::NumericTypeID::kF64: 
-      cudnn_element_type = CUDNN_DATA_DOUBLE;
+      cudnn_element_type = HIPDNN_DATA_DOUBLE;
       return true;
     
     case library::NumericTypeID::kS2: 
@@ -130,14 +130,14 @@ bool get_cudnn_datatype(cudnnDataType_t &cudnn_element_type, library::NumericTyp
       break;
   
     case library::NumericTypeID::kS8: 
-      cudnn_element_type = CUDNN_DATA_INT8;
+      cudnn_element_type = HIPDNN_DATA_INT8;
       return true;
 
     case library::NumericTypeID::kS16: 
       break;
  
     case library::NumericTypeID::kS32: 
-      cudnn_element_type = CUDNN_DATA_INT32;
+      cudnn_element_type = HIPDNN_DATA_INT32;
       return true;
 
     case library::NumericTypeID::kS64: 
@@ -175,13 +175,13 @@ bool get_cudnn_datatype(cudnnDataType_t &cudnn_element_type, library::NumericTyp
 }
 
 /// Maps CUTLASS math OpcodeClassID and MathOperationID to cuDNN math_type
-bool get_cudnn_mathtype(cudnnMathType_t &cudnn_math_type, library::ConvDescription const &conv_desc) {
+bool get_cudnn_mathtype(hipdnnMathType_t &cudnn_math_type, library::ConvDescription const &conv_desc) {
 
   switch (conv_desc.tile_description.math_instruction.opcode_class) {
 
     case library::OpcodeClassID::kTensorOp:
     {
-      cudnn_math_type = CUDNN_TENSOR_OP_MATH;
+      cudnn_math_type = HIPDNN_TENSOR_OP_MATH;
 
       library::MathOperationID math_op = conv_desc.tile_description.math_instruction.math_operation;
       

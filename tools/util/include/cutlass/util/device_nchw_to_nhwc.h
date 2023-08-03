@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /******************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -52,7 +53,7 @@ void nchw_to_nhwc(cutlass::Tensor4DCoord input_tensor_size,
                   cutlass::Tensor4DCoord output_tensor_size,
                   TensorRef<T, layout::TensorNCHW> ref_input,
                   TensorRef<T, layout::TensorNHWC> ref_output,
-                  cudaStream_t stream);
+                  hipStream_t stream);
 
 template <typename T>
 __global__ void nchw_to_nhwc_kernel(T *output, 
@@ -119,7 +120,7 @@ void nchw_to_nhwc(cutlass::Tensor4DCoord input_tensor_size,
                   cutlass::Tensor4DCoord output_tensor_size,
                   TensorRef<T, layout::TensorNCHW> ref_input,
                   TensorRef<T, layout::TensorNHWC> ref_output,
-                  cudaStream_t stream) {
+                  hipStream_t stream) {
   
   assert(
     input_tensor_size.n() == output_tensor_size.n() &&

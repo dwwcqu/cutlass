@@ -301,9 +301,9 @@ DeviceAllocation::DeviceAllocation(
   type_(type), batch_stride_(capacity), capacity_(capacity), pointer_(nullptr), 
   layout_(library::LayoutTypeID::kUnknown), batch_count_(1) {
 
-  cudaError_t result = cudaMalloc((void **)&pointer_, bytes(type, capacity));
+  hipError_t result = hipMalloc((void **)&pointer_, bytes(type, capacity));
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     type_ = library::NumericTypeID::kInvalid;
     capacity_ = 0;
     pointer_ = nullptr;
@@ -325,13 +325,13 @@ DeviceAllocation::DeviceAllocation(
 
 DeviceAllocation::~DeviceAllocation() {
   if (pointer_) {
-    cudaFree(pointer_);
+    hipFree(pointer_);
   }
 }
 
 DeviceAllocation &DeviceAllocation::reset() {
   if (pointer_) {
-    cudaFree(pointer_);
+    hipFree(pointer_);
   }
 
   type_ = library::NumericTypeID::kInvalid;
@@ -355,8 +355,8 @@ DeviceAllocation &DeviceAllocation::reset(library::NumericTypeID type, size_t ca
   batch_stride_ = capacity;
   capacity_ = capacity;
 
-  cudaError_t result = cudaMalloc((void **)&pointer_, bytes(type_, capacity_));
-  if (result != cudaSuccess) {
+  hipError_t result = hipMalloc((void **)&pointer_, bytes(type_, capacity_));
+  if (result != hipSuccess) {
     throw std::bad_alloc();
   }
 
@@ -398,8 +398,8 @@ DeviceAllocation &DeviceAllocation::reset(
 
   capacity_ = batch_stride_ * batch_count_;
 
-  cudaError_t result = cudaMalloc((void **)&pointer_, bytes(type, capacity_));
-  if (result != cudaSuccess) {
+  hipError_t result = hipMalloc((void **)&pointer_, bytes(type, capacity_));
+  if (result != hipSuccess) {
     throw std::bad_alloc();
   }
 
@@ -462,24 +462,24 @@ size_t DeviceAllocation::bytes() const {
 
 /// Copies from an equivalent-sized tensor in device memory
 void DeviceAllocation::copy_from_device(void const *ptr) {
-  cudaError_t result = cudaMemcpy(data(), ptr, bytes(), cudaMemcpyDeviceToDevice);
-  if (result != cudaSuccess) {
+  hipError_t result = hipMemcpy(data(), ptr, bytes(), hipMemcpyDeviceToDevice);
+  if (result != hipSuccess) {
     throw std::runtime_error("Failed device-to-device copy");
   }
 }
 
 /// Copies from an equivalent-sized tensor in device memory
 void DeviceAllocation::copy_from_host(void const *ptr) {
-  cudaError_t result = cudaMemcpy(data(), ptr, bytes(), cudaMemcpyHostToDevice);
-  if (result != cudaSuccess) {
+  hipError_t result = hipMemcpy(data(), ptr, bytes(), hipMemcpyHostToDevice);
+  if (result != hipSuccess) {
     throw std::runtime_error("Failed device-to-device copy");
   }
 }
 
 /// Copies from an equivalent-sized tensor in device memory
 void DeviceAllocation::copy_to_host(void *ptr) {
-  cudaError_t result = cudaMemcpy(ptr, data(), bytes(), cudaMemcpyDeviceToHost);
-  if (result != cudaSuccess) {
+  hipError_t result = hipMemcpy(ptr, data(), bytes(), hipMemcpyDeviceToHost);
+  if (result != hipSuccess) {
     throw std::runtime_error("Failed device-to-device copy");
   }
 }

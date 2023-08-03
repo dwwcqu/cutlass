@@ -776,7 +776,7 @@ bool Conv3dOperationProfiler::verify_cutlass(
     return true;
   }
 
-  cudaError_t result;
+  hipError_t result;
 
   // Initialize structure containing Conv arguments
   set_cutlass_operator_arguments_();
@@ -830,8 +830,8 @@ bool Conv3dOperationProfiler::verify_cutlass(
   }
 
   // Synchronize before running device reference
-  result = cudaDeviceSynchronize();
-  if (result != cudaSuccess) {
+  result = hipDeviceSynchronize();
+  if (result != hipSuccess) {
     results_.back().disposition = Disposition::kFailed;
     return false;
   }
@@ -845,7 +845,7 @@ bool Conv3dOperationProfiler::verify_cutlass(
 
   if (options.verification.enabled) {
 
-#if CUTLASS_ENABLE_CUDNN
+#if CUTLASS_ENABLE_HIPDNN
     // Run verification cudnn reference
     if (options.verification.provider_enabled(library::Provider::kCUDNN)) {
 
@@ -877,7 +877,7 @@ bool Conv3dOperationProfiler::verify_cutlass(
         results_.back().verification_map[library::Provider::kCUDNN] = Disposition::kNotSupported;
       }
     }
-#endif // #if CUTLASS_ENABLE_CUDNN
+#endif // #if CUTLASS_ENABLE_HIPDNN
 
     // Run verification host reference
     if (options.verification.provider_enabled(library::Provider::kReferenceHost)) {
@@ -1234,7 +1234,7 @@ Status Conv3dOperationProfiler::profile_cutlass_(
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#if CUTLASS_ENABLE_CUDNN
+#if CUTLASS_ENABLE_HIPDNN
 
 /// Verifies CUTLASS against cudnn reference
 bool Conv3dOperationProfiler::verify_with_cudnn_(
@@ -1252,9 +1252,9 @@ bool Conv3dOperationProfiler::verify_with_cudnn_(
   //
 
   CudnnCreate handle;
-  cudnnStatus_t status = handle.get_cudnn_create_status();
+  hipdnnStatus_t status = handle.get_cudnn_create_status();
 
-  if (status != CUDNN_STATUS_SUCCESS) {
+  if (status != HIPDNN_STATUS_SUCCESS) {
     
     results_.back().verification_map[library::Provider::kCUDNN] = get_cutlass_disposition(status);
     return true;
@@ -1304,7 +1304,7 @@ bool Conv3dOperationProfiler::verify_with_cudnn_(
     status = conv_op(handle);
 
     // Handle errors
-    if (status != CUDNN_STATUS_SUCCESS) {
+    if (status != HIPDNN_STATUS_SUCCESS) {
 
       results_.back().verification_map[library::Provider::kCUDNN] = get_cutlass_disposition(status);
       return true;
@@ -1341,7 +1341,7 @@ bool Conv3dOperationProfiler::verify_with_cudnn_(
 
 }
 
-#endif // #if CUTLASS_ENABLE_CUDNN
+#endif // #if CUTLASS_ENABLE_HIPDNN
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -34,9 +34,9 @@
 */
 
 #pragma once
-#if CUTLASS_ENABLE_CUDNN
-#include <cuda_runtime.h>
-#include <cudnn.h>
+#if CUTLASS_ENABLE_HIPDNN
+#include <hip/hip_runtime.h>
+#include <hipDNN.h>
 #include <iostream>
 #include "cutlass/cutlass.h"
 #include "cutlass/util/device_memory.h"
@@ -50,25 +50,25 @@ namespace profiler {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /// Converts a cuDNN status to cutlass::Status
-Status get_cutlass_status(cudnnStatus_t cudnn_status);
+Status get_cutlass_status(hipdnnStatus_t cudnn_status);
 
 /// Converts a cuDNN status to cutlass::profiler::Disposition
-Disposition get_cutlass_disposition(cudnnStatus_t cudnn_status);
+Disposition get_cutlass_disposition(hipdnnStatus_t cudnn_status);
 
-/// Checks cudnnStatus_t converts to cutlas status and returns if Status::kSuccess o.w. throws exception
-Status checkCudnnErr(cudnnStatus_t cudnn_status);
+/// Checks hipdnnStatus_t converts to cutlas status and returns if Status::kSuccess o.w. throws exception
+Status checkCudnnErr(hipdnnStatus_t cudnn_status);
 
 /// Maps a CUTLASS conv mode to a cuDNN conv mode enumeration
-bool get_cudnn_conv_mode(cudnnConvolutionMode_t &cudnn_conv_mode, conv::Mode conv_mode);
+bool get_cudnn_conv_mode(hipdnnConvolutionMode_t &cudnn_conv_mode, conv::Mode conv_mode);
 
 /// Maps a CUTLASS layout type to a cuDNN data type enumeration
-bool get_cudnn_layout(cudnnTensorFormat_t &cudnn_layout, library::LayoutTypeID layout);
+bool get_cudnn_layout(hipdnnTensorFormat_t &cudnn_layout, library::LayoutTypeID layout);
 
 /// Maps a CUTLASS numeric type to a cuDNN data type enumeration
-bool get_cudnn_datatype(cudnnDataType_t &cudnn_element_type, library::NumericTypeID element_type);
+bool get_cudnn_datatype(hipdnnDataType_t &cudnn_element_type, library::NumericTypeID element_type);
 
 /// Maps CUTLASS math OpcodeClassID and MathOperationID to cuDNN math_type
-bool get_cudnn_mathtype(cudnnMathType_t &cudnn_math_type, library::ConvDescription const &conv_desc);
+bool get_cudnn_mathtype(hipdnnMathType_t &cudnn_math_type, library::ConvDescription const &conv_desc);
 
 /// Returns a status if cudnn can satisfy a particular Conv2d description
 Status cudnn_satisfies(library::ConvDescription const &desc, library::Conv2dConfiguration const &configuration);
@@ -80,28 +80,28 @@ Status cudnn_satisfies(library::ConvDescription const &desc, library::Conv3dConf
 float cast_cudnn_compute_type_to_float(library::NumericTypeID type, void const * src);
 
 
-/// This is a helper class to create cudnnHandle_t automatically on CudnnCreate object creation and 
-/// to destroy cudnnHandle_t on CudnnCreate object destruction. 
-/// Additionaly, it provides implicit cast from CudnnCreate's object to cudnnHandle_t's object
+/// This is a helper class to create hipdnnHandle_t automatically on CudnnCreate object creation and 
+/// to destroy hipdnnHandle_t on CudnnCreate object destruction. 
+/// Additionaly, it provides implicit cast from CudnnCreate's object to hipdnnHandle_t's object
 class CudnnCreate {
 private:
-	cudnnHandle_t handle;
-	cudnnStatus_t status;
+	hipdnnHandle_t handle;
+	hipdnnStatus_t status;
 
 public:
 	CudnnCreate() {
-		status = cudnnCreate(&handle);
+		status = hipdnnCreate(&handle);
 	}
 
 	~CudnnCreate() {
-		cudnnDestroy(handle);
+		hipdnnDestroy(handle);
 	}
 
-    /// Implicit cast CudnnCreate object to cudnnHandle_t
-    operator cudnnHandle_t() const { return handle; }
+    /// Implicit cast CudnnCreate object to hipdnnHandle_t
+    operator hipdnnHandle_t() const { return handle; }
 
-    /// returns cudnnStatus_t for handle creation
-    cudnnStatus_t get_cudnn_create_status() { return status; }
+    /// returns hipdnnStatus_t for handle creation
+    hipdnnStatus_t get_cudnn_create_status() { return status; }
 };
 
 
@@ -119,29 +119,29 @@ struct cudnnConvDispatcher {
 
   // cudnn-specific data structures to fill cudnn API call arguments
   // cudnn activation, filter, and output descriptors
-  cudnnTensorDescriptor_t activation_desc;
-  cudnnFilterDescriptor_t filter_desc;
-  cudnnTensorDescriptor_t output_desc;
-  cudnnConvolutionDescriptor_t conv_desc;
+  hipdnnTensorDescriptor_t activation_desc;
+  hipdnnFilterDescriptor_t filter_desc;
+  hipdnnTensorDescriptor_t output_desc;
+  hipdnnConvolutionDescriptor_t conv_desc;
 
   // cudnn datatypes
-  cudnnDataType_t data_type_activation;
-  cudnnDataType_t data_type_filter;
-  cudnnDataType_t data_type_output;
+  hipdnnDataType_t data_type_activation;
+  hipdnnDataType_t data_type_filter;
+  hipdnnDataType_t data_type_output;
 
   // cudnn layouts
-  cudnnTensorFormat_t layout_activation;
-  cudnnTensorFormat_t layout_filter;
-  cudnnTensorFormat_t layout_output;
+  hipdnnTensorFormat_t layout_activation;
+  hipdnnTensorFormat_t layout_filter;
+  hipdnnTensorFormat_t layout_output;
 
   // cudnn convolution mode
-  cudnnConvolutionMode_t conv_mode;
+  hipdnnConvolutionMode_t conv_mode;
   
   // cudnn math type (tensorop, tensorop with conversion, simt)
-  cudnnMathType_t math_type;
+  hipdnnMathType_t math_type;
 
   // cudnn compute data type
-  cudnnDataType_t compute_type;
+  hipdnnDataType_t compute_type;
   
   // cudnn compute type seems to be hardcoded to float (to handle a possible a cudnn issue)
   float alpha;
@@ -152,9 +152,9 @@ struct cudnnConvDispatcher {
   cutlass::device_memory::allocation<char> workspace;
   
   // select cudnn's implicit gemm precomputed algorithm with tensor operations
-  static cudnnConvolutionFwdAlgo_t const fprop_algo = CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM;
-  static cudnnConvolutionBwdDataAlgo_t const dgrad_algo = CUDNN_CONVOLUTION_BWD_DATA_ALGO_1;
-  static cudnnConvolutionBwdFilterAlgo_t const wgrad_algo = CUDNN_CONVOLUTION_BWD_FILTER_ALGO_1;
+  static hipdnnConvolutionFwdAlgo_t const fprop_algo = HIPDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM;
+  static hipdnnConvolutionBwdDataAlgo_t const dgrad_algo = HIPDNN_CONVOLUTION_BWD_DATA_ALGO_1;
+  static hipdnnConvolutionBwdFilterAlgo_t const wgrad_algo = HIPDNN_CONVOLUTION_BWD_FILTER_ALGO_1;
 
   Status status;
   
@@ -169,7 +169,7 @@ struct cudnnConvDispatcher {
     library::ConvDescription const &op_desc,
     library::Conv2dConfiguration configuration,
     library::ConvArguments arguments_,
-    cudnnHandle_t handle
+    hipdnnHandle_t handle
   ):
     //configuration(configuration_), 
     arguments(arguments_),
@@ -186,7 +186,7 @@ struct cudnnConvDispatcher {
     good = (good && get_cudnn_layout(layout_filter, op_desc.B.layout));
     good = (good && get_cudnn_layout(layout_output, op_desc.C.layout));
     good = (good && get_cudnn_conv_mode(conv_mode, configuration.problem_size.mode));
-    // Get cudnn mathtype (cudnnMathType_t)
+    // Get cudnn mathtype (hipdnnMathType_t)
     good = (good && get_cudnn_mathtype(math_type, op_desc));
     good = (good && get_cudnn_datatype(
       compute_type,
@@ -201,7 +201,7 @@ struct cudnnConvDispatcher {
     beta = cast_cudnn_compute_type_to_float(op_desc.element_epilogue, arguments.beta);
 
     // Create convolution descriptor object
-    status = get_cutlass_status(cudnnCreateConvolutionDescriptor(&conv_desc));
+    status = get_cutlass_status(hipdnnCreateConvolutionDescriptor(&conv_desc));
 
     // Configure convolution operator
     std::vector<int> padding {configuration.problem_size.pad_h, configuration.problem_size.pad_w};
@@ -209,7 +209,7 @@ struct cudnnConvDispatcher {
     std::vector<int> dilation {configuration.problem_size.dilation_h, configuration.problem_size.dilation_w};
 
     status = get_cutlass_status(
-      cudnnSetConvolutionNdDescriptor(
+      hipdnnSetConvolutionNdDescriptor(
         conv_desc,
         op_desc.conv_dim,
         padding.data(),
@@ -220,16 +220,16 @@ struct cudnnConvDispatcher {
     ));
 
     // Set groups
-    status = get_cutlass_status(cudnnSetConvolutionGroupCount(conv_desc, configuration.problem_size.groups));
+    status = get_cutlass_status(hipdnnSetConvolutionGroupCount(conv_desc, configuration.problem_size.groups));
 
     // Create activation, filter, and output descriptor objects
-    status = get_cutlass_status(cudnnCreateTensorDescriptor(&activation_desc));
-    status = get_cutlass_status(cudnnCreateFilterDescriptor(&filter_desc));
-    status = get_cutlass_status(cudnnCreateTensorDescriptor(&output_desc));
+    status = get_cutlass_status(hipdnnCreateTensorDescriptor(&activation_desc));
+    status = get_cutlass_status(hipdnnCreateFilterDescriptor(&filter_desc));
+    status = get_cutlass_status(hipdnnCreateTensorDescriptor(&output_desc));
 
     // Set activation, filter, and output descriptor 
     status = get_cutlass_status(
-      cudnnSetTensor4dDescriptor(
+      hipdnnSetTensor4dDescriptor(
         activation_desc,
         layout_activation,
         data_type_activation,
@@ -240,7 +240,7 @@ struct cudnnConvDispatcher {
     ));
 
     status = get_cutlass_status(
-      cudnnSetFilter4dDescriptor(
+      hipdnnSetFilter4dDescriptor(
         filter_desc,
         data_type_filter,
         layout_filter,
@@ -251,7 +251,7 @@ struct cudnnConvDispatcher {
     ));
 
     status = get_cutlass_status(
-      cudnnSetTensor4dDescriptor(
+      hipdnnSetTensor4dDescriptor(
         output_desc,
         layout_output,
         data_type_output,
@@ -263,13 +263,13 @@ struct cudnnConvDispatcher {
 
     // Set math instruction to tensor op
     status = get_cutlass_status(
-      cudnnSetConvolutionMathType(conv_desc, math_type));
+      hipdnnSetConvolutionMathType(conv_desc, math_type));
 
     // Initialize workspace
     switch (conv_kind) {
       case library::ConvKind::kFprop:
         status =  get_cutlass_status(
-          cudnnGetConvolutionForwardWorkspaceSize(
+          hipdnnGetConvolutionForwardWorkspaceSize(
             handle,
             activation_desc,
             filter_desc,
@@ -280,7 +280,7 @@ struct cudnnConvDispatcher {
         )); break;
       case library::ConvKind::kDgrad:
         status =  get_cutlass_status(
-          cudnnGetConvolutionBackwardDataWorkspaceSize(
+          hipdnnGetConvolutionBackwardDataWorkspaceSize(
             handle,
             filter_desc,
             output_desc,
@@ -291,7 +291,7 @@ struct cudnnConvDispatcher {
         )); break;
         case library::ConvKind::kWgrad:
         status =  get_cutlass_status(
-          cudnnGetConvolutionBackwardFilterWorkspaceSize(
+          hipdnnGetConvolutionBackwardFilterWorkspaceSize(
             handle,
             activation_desc,
             output_desc,
@@ -312,7 +312,7 @@ struct cudnnConvDispatcher {
     library::ConvDescription const &op_desc,
     library::Conv3dConfiguration configuration,
     library::ConvArguments arguments_,
-    cudnnHandle_t handle
+    hipdnnHandle_t handle
   ):
     //configuration(configuration_), 
     arguments(arguments_),
@@ -346,7 +346,7 @@ struct cudnnConvDispatcher {
     }
 
     // Create convolution descriptor object
-    status = get_cutlass_status(cudnnCreateConvolutionDescriptor(&conv_desc));
+    status = get_cutlass_status(hipdnnCreateConvolutionDescriptor(&conv_desc));
 
     // Configure convolution operator
     std::vector<int> padding {configuration.problem_size.pad_d, configuration.problem_size.pad_h, configuration.problem_size.pad_w};
@@ -354,7 +354,7 @@ struct cudnnConvDispatcher {
     std::vector<int> dilation {configuration.problem_size.dilation_d, configuration.problem_size.dilation_h, configuration.problem_size.dilation_w};
 
     status = get_cutlass_status(
-      cudnnSetConvolutionNdDescriptor(
+      hipdnnSetConvolutionNdDescriptor(
         conv_desc,
         op_desc.conv_dim,
         padding.data(),
@@ -365,12 +365,12 @@ struct cudnnConvDispatcher {
     ));
 
     // Set groups
-    status = get_cutlass_status(cudnnSetConvolutionGroupCount(conv_desc, configuration.problem_size.groups));
+    status = get_cutlass_status(hipdnnSetConvolutionGroupCount(conv_desc, configuration.problem_size.groups));
 
     // Create activation, filter, and output descriptor objects
-    status = get_cutlass_status(cudnnCreateTensorDescriptor(&activation_desc));
-    status = get_cutlass_status(cudnnCreateFilterDescriptor(&filter_desc));
-    status = get_cutlass_status(cudnnCreateTensorDescriptor(&output_desc));
+    status = get_cutlass_status(hipdnnCreateTensorDescriptor(&activation_desc));
+    status = get_cutlass_status(hipdnnCreateFilterDescriptor(&filter_desc));
+    status = get_cutlass_status(hipdnnCreateTensorDescriptor(&output_desc));
 
     // Set activation descriptor 
     std::vector<int> activation_extent {
@@ -390,7 +390,7 @@ struct cudnnConvDispatcher {
     };
 
     status = get_cutlass_status(
-      cudnnSetTensorNdDescriptor(
+      hipdnnSetTensorNdDescriptor(
         activation_desc,
         data_type_activation,
         op_desc.conv_dim + 2,
@@ -416,7 +416,7 @@ struct cudnnConvDispatcher {
     };
 
     status = get_cutlass_status(
-      cudnnSetFilterNdDescriptor(
+      hipdnnSetFilterNdDescriptor(
         filter_desc,
         data_type_filter,
         layout_filter,
@@ -443,7 +443,7 @@ struct cudnnConvDispatcher {
     };
 
     status = get_cutlass_status(
-      cudnnSetTensorNdDescriptor(
+      hipdnnSetTensorNdDescriptor(
         output_desc,
         data_type_output,
         op_desc.conv_dim + 2,
@@ -453,13 +453,13 @@ struct cudnnConvDispatcher {
 
     // Set math instruction to tensor op
     status = get_cutlass_status(
-      cudnnSetConvolutionMathType(conv_desc, math_type));
+      hipdnnSetConvolutionMathType(conv_desc, math_type));
 
     // Initialize workspace
     switch (conv_kind) {
       case library::ConvKind::kFprop:
         status =  get_cutlass_status(
-          cudnnGetConvolutionForwardWorkspaceSize(
+          hipdnnGetConvolutionForwardWorkspaceSize(
             handle,
             activation_desc,
             filter_desc,
@@ -470,7 +470,7 @@ struct cudnnConvDispatcher {
         )); break;
       case library::ConvKind::kDgrad:
         status =  get_cutlass_status(
-          cudnnGetConvolutionBackwardDataWorkspaceSize(
+          hipdnnGetConvolutionBackwardDataWorkspaceSize(
             handle,
             filter_desc,
             output_desc,
@@ -481,7 +481,7 @@ struct cudnnConvDispatcher {
         )); break;
         case library::ConvKind::kWgrad:
         status =  get_cutlass_status(
-          cudnnGetConvolutionBackwardFilterWorkspaceSize(
+          hipdnnGetConvolutionBackwardFilterWorkspaceSize(
             handle,
             activation_desc,
             output_desc,
@@ -497,11 +497,11 @@ struct cudnnConvDispatcher {
   }
 
   /// Executes Conv2d operater from cudnn library
-  cudnnStatus_t operator()(cudnnHandle_t handle) {
+  hipdnnStatus_t operator()(hipdnnHandle_t handle) {
 
     switch (conv_kind) {
       case library::ConvKind::kFprop:
-        return cudnnConvolutionForward(
+        return hipdnnConvolutionForward(
           handle,
           &alpha,
           activation_desc,
@@ -517,7 +517,7 @@ struct cudnnConvDispatcher {
           arguments.D
         );
       case library::ConvKind::kDgrad:
-        return cudnnConvolutionBackwardData(
+        return hipdnnConvolutionBackwardData(
           handle,
           &alpha,
           filter_desc,
@@ -533,7 +533,7 @@ struct cudnnConvDispatcher {
           arguments.D
         );
       case library::ConvKind::kWgrad:
-        return cudnnConvolutionBackwardFilter(
+        return hipdnnConvolutionBackwardFilter(
           handle,
           &alpha,
           activation_desc,
@@ -585,6 +585,6 @@ struct cudnnConvDispatcher {
 
 } // namespace detail
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#endif //#if CUTLASS_ENABLE_CUDNN
+#endif //#if CUTLASS_ENABLE_HIPDNN
 } // namespace profiler
 } // namespace cutlass

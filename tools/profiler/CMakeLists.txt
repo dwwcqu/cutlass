@@ -83,8 +83,8 @@ target_link_libraries(
   PRIVATE 
   cutlass_lib
   cutlass_tools_util_includes
-  $<$<BOOL:${CUTLASS_ENABLE_CUBLAS}>:nvidia::cublas>
-  $<$<BOOL:${CUTLASS_ENABLE_CUDNN}>:nvidia::cudnn>
+  $<$<BOOL:${CUTLASS_ENABLE_HIPBLAS}>:nvidia::cublas>
+  $<$<BOOL:${CUTLASS_ENABLE_HIPDNN}>:nvidia::cudnn>
   cudart
   )
 

@@ -299,7 +299,7 @@ public:
     void const *configuration_ptr, 
     void *host_workspace, 
     void *device_workspace, 
-    cudaStream_t stream = nullptr) const {
+    hipStream_t stream = nullptr) const {
 
     OperatorArguments args;
 
@@ -323,7 +323,7 @@ public:
     void const *arguments_ptr,
     void *host_workspace, 
     void *device_workspace = nullptr, 
-    cudaStream_t stream = nullptr) const {
+    hipStream_t stream = nullptr) const {
 
     OperatorArguments args;
 

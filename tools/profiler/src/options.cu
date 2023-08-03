@@ -57,16 +57,16 @@ Options::Device::Device(cutlass::CommandLine const &cmdline) {
 
   cmdline.get_cmd_line_argument("device", device, 0);
 
-  cudaError_t result;
-  result = cudaGetDeviceProperties(&properties, device);
+  hipError_t result;
+  result = hipGetDeviceProperties(&properties, device);
 
-  if (result != cudaSuccess) {
-    throw std::runtime_error("cudaGetDeviceProperties() failed for given device");
+  if (result != hipSuccess) {
+    throw std::runtime_error("hipGetDeviceProperties() failed for given device");
   }
 
-  result = cudaSetDevice(device);
-  if (result != cudaSuccess) {
-    throw std::runtime_error("cudaSetDevice() failed for given device.");
+  result = hipSetDevice(device);
+  if (result != hipSuccess) {
+    throw std::runtime_error("hipSetDevice() failed for given device.");
   }
 
   // Permit overriding the compute capability
@@ -96,17 +96,17 @@ void Options::Device::print_usage(std::ostream &out) const {
     << "    CUDA Device ID\n\n";
 
   int device_count = 0;
-  cudaError_t result = cudaGetDeviceCount(&device_count);
+  hipError_t result = hipGetDeviceCount(&device_count);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     out << "      <could not query for CUDA devices>\n";
   }
   else {
 
     for (int idx = 0; idx < device_count; ++idx) {
-      cudaDeviceProp prop;
-      result = cudaGetDeviceProperties(&prop, idx);
-      if (result != cudaSuccess) {
+      hipDeviceProp_t prop;
+      result = hipGetDeviceProperties(&prop, idx);
+      if (result != hipSuccess) {
         out << "      <could not obtain device properties for device " << idx << ">" << std::endl;
         break;
       }
@@ -134,26 +134,26 @@ void Options::Device::print_usage(std::ostream &out) const {
 
 void Options::Device::print_device_info(std::ostream &out) const {
   int num_devices;
-  cudaDeviceProp props;
+  hipDeviceProp_t props;
 
-  cudaError_t result;
-  result = cudaGetDeviceCount(&num_devices);
+  hipError_t result;
+  result = hipGetDeviceCount(&num_devices);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     throw std::runtime_error("cudaGetNumDevices() failed");
   }
 
   out << "Device Name,SM,CUDA Device ID,Phy Device ID" << std::endl;
 
   for(int device = 0; device < num_devices; device++) {
-    result = cudaSetDevice(device);
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaSetDevice() failed for device");
+    result = hipSetDevice(device);
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipSetDevice() failed for device");
     }
 
-    result = cudaGetDeviceProperties(&props, device);
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDeviceProperties failed for device");
+    result = hipGetDeviceProperties(&props, device);
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDeviceProperties failed for device");
     }
 
     out << props.name << "," << props.major << props.minor << ","

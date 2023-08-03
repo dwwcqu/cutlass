@@ -312,7 +312,7 @@ int OperationProfiler::profile_all(
         if (status == Status::kErrorInternal) {
           
           // If there was an internal error, consume the CUDA error and move to the next operation.
-          (void)cudaGetLastError();
+          (void)hipGetLastError();
           
           report.append_results(results_);
           continue;
@@ -336,7 +336,7 @@ int OperationProfiler::profile_all(
           if (status == Status::kErrorInternal) {
 
             // If there was an internal error, consume the CUDA error and move to the next operation.
-            (void)cudaGetLastError();
+            (void)hipGetLastError();
 
             report.append_results(results_);
             continue;

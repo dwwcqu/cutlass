@@ -681,8 +681,8 @@ bool GemmOperationProfiler::verify_cutlass(
     }
   }
 
-  cudaError_t result = cudaDeviceSynchronize();
-  if (result != cudaSuccess) {
+  hipError_t result = hipDeviceSynchronize();
+  if (result != hipSuccess) {
     results_.back().disposition = Disposition::kFailed;
     return false;
   }
@@ -696,7 +696,7 @@ bool GemmOperationProfiler::verify_cutlass(
 
   if (options.verification.enabled) {
 
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
     if (options.verification.provider_enabled(library::Provider::kCUBLAS)) {
 
       // Guard against unsupported cases
@@ -719,7 +719,7 @@ bool GemmOperationProfiler::verify_cutlass(
         results_.back().verification_map[library::Provider::kCUBLAS] = Disposition::kNotSupported;
       }
     }
-#endif // #if CUTLASS_ENABLE_CUBLAS
+#endif // #if CUTLASS_ENABLE_HIPBLAS
 
     verify_with_reference_(options, report, device_context, operation, problem_space, problem);
     
@@ -757,7 +757,7 @@ bool GemmOperationProfiler::verify_with_cublas_(
   ProblemSpace::Problem const &problem) {
 
 
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
 
   library::GemmDescription const &gemm_desc = 
     static_cast<library::GemmDescription const &>(operation->description());
@@ -767,15 +767,15 @@ bool GemmOperationProfiler::verify_with_cublas_(
   //
     
   CublasCreate handle;
-  cublasStatus_t status = handle.get_cublas_create_status();
+  hipblasStatus_t status = handle.get_cublas_create_status();
 
-  if (status != CUBLAS_STATUS_SUCCESS) {
+  if (status != HIPBLAS_STATUS_SUCCESS) {
 
     results_.back().verification_map[library::Provider::kCUBLAS] = get_cutlass_disposition(status);
     return true;
   }
 
-  std::vector<cublasGemmAlgo_t> algorithms;
+  std::vector<hipblasGemmAlgo_t> algorithms;
 
   detail::select_cublas_algorithms(
     algorithms, 
@@ -794,7 +794,7 @@ bool GemmOperationProfiler::verify_with_cublas_(
   try {
 
     //
-    // Construct dispatcher to cublasGemmEx()
+    // Construct dispatcher to hipblasGemmEx()
     //
 
     // Initialize structure containing GEMM arguments
@@ -827,7 +827,7 @@ bool GemmOperationProfiler::verify_with_cublas_(
     status = gemm_op(handle);
 
     // Handle errors
-    if (status != CUBLAS_STATUS_SUCCESS) {
+    if (status != HIPBLAS_STATUS_SUCCESS) {
 
       results_.back().verification_map[library::Provider::kCUBLAS] = get_cutlass_disposition(status);
       return true;

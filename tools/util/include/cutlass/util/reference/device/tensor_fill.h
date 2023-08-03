@@ -49,7 +49,7 @@
 #endif
 
 // CUDA includes
-#include <curand_kernel.h>
+#include <hiprand_kernel.h>
 
 // Cutlass includes
 #include "cutlass/cutlass.h"
@@ -74,26 +74,26 @@ namespace detail {
 
 template <typename FloatType>
 CUTLASS_DEVICE
-FloatType random_normal_float(curandState_t *state) {
-  return curand_normal(state);
+FloatType random_normal_float(hiprandState_t *state) {
+  return hiprand_normal(state);
 }
 
 template <>
 CUTLASS_DEVICE
-double random_normal_float<double>(curandState_t *state) {
-  return curand_normal_double(state);
+double random_normal_float<double>(hiprandState_t *state) {
+  return hiprand_normal_double(state);
 }
 
 template <typename FloatType>
 CUTLASS_DEVICE
-FloatType random_uniform_float(curandState_t *state) {
-  return curand_uniform(state);
+FloatType random_uniform_float(hiprandState_t *state) {
+  return hiprand_uniform(state);
 }
 
 template <>
 CUTLASS_DEVICE
-double random_uniform_float<double>(curandState_t *state) {
-  return curand_uniform_double(state);
+double random_uniform_float<double>(hiprandState_t *state) {
+  return hiprand_uniform_double(state);
 }
 
 template <typename Element>
@@ -146,7 +146,7 @@ struct RandomGaussianFunc {
   Params params;
 
   /// RNG state object
-  curandState_t rng_state;
+  hiprandState_t rng_state;
 
   //
   // Methods
@@ -158,7 +158,7 @@ struct RandomGaussianFunc {
 
     uint64_t gtid = threadIdx.x + blockIdx.x * blockDim.x;
 
-    curand_init(params.seed, gtid, 0, &rng_state);
+    hiprand_init(params.seed, gtid, 0, &rng_state);
   }
 
   /// Compute random value and update RNG state
@@ -233,7 +233,7 @@ struct RandomGaussianFunc<complex<Real>> {
   Params params;
 
   /// RNG state object
-  curandState_t rng_state;
+  hiprandState_t rng_state;
 
   //
   // Methods
@@ -245,7 +245,7 @@ struct RandomGaussianFunc<complex<Real>> {
 
     uint64_t gtid = threadIdx.x + blockIdx.x * blockDim.x;
 
-    curand_init(params.seed, gtid, 0, &rng_state);
+    hiprand_init(params.seed, gtid, 0, &rng_state);
   }
 
   /// Compute random value and update RNG state
@@ -456,7 +456,7 @@ struct RandomUniformFunc {
   Params params;
 
   /// RNG state object
-  curandState_t rng_state;
+  hiprandState_t rng_state;
 
   //
   // Methods
@@ -468,7 +468,7 @@ struct RandomUniformFunc {
 
     uint64_t gtid = threadIdx.x + blockIdx.x * blockDim.x;
 
-    curand_init(params.seed, gtid, 0, &rng_state);
+    hiprand_init(params.seed, gtid, 0, &rng_state);
   }
 
   /// Compute random value and update RNG state
@@ -558,7 +558,7 @@ struct RandomUniformFunc<complex<Real>> {
   Params params;
 
   /// RNG state object
-  curandState_t rng_state;
+  hiprandState_t rng_state;
 
   //
   // Methods
@@ -570,7 +570,7 @@ struct RandomUniformFunc<complex<Real>> {
 
     uint64_t gtid = threadIdx.x + blockIdx.x * blockDim.x;
 
-    curand_init(params.seed, gtid, 0, &rng_state);
+    hiprand_init(params.seed, gtid, 0, &rng_state);
   }
 
   /// Compute random value and update RNG state
@@ -778,7 +778,7 @@ struct RandomSparseMetaFunc {
   Params params;
 
   /// RNG state object
-  curandState_t rng_state;
+  hiprandState_t rng_state;
 
   //
   // Methods
@@ -790,7 +790,7 @@ struct RandomSparseMetaFunc {
 
     uint64_t gtid = threadIdx.x + blockIdx.x * blockDim.x;
 
-    curand_init(params.seed, gtid, 0, &rng_state);
+    hiprand_init(params.seed, gtid, 0, &rng_state);
   }
 
   /// Compute random value and update RNG state

@@ -55,9 +55,9 @@
 #include "performance_result.h"
 #include "problem_space.h"
 #include "reduction_operation_profiler.h"
-#if CUTLASS_ENABLE_CUDNN
+#if CUTLASS_ENABLE_HIPDNN
 #include "cudnn_helpers.h"
-#endif //#if CUTLASS_ENABLE_CUDNN
+#endif //#if CUTLASS_ENABLE_HIPDNN
 #include "debug.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -423,7 +423,7 @@ protected:
     ProblemSpace const &problem_space,
     ProblemSpace::Problem const &problem);
 
-#if CUTLASS_ENABLE_CUDNN
+#if CUTLASS_ENABLE_HIPDNN
 
   /// Verifies CUTLASS against cudnn reference
   bool verify_with_cudnn_(
@@ -434,7 +434,7 @@ protected:
     ProblemSpace const &problem_space,
     ProblemSpace::Problem const &problem);
 
-#endif //#if CUTLASS_ENABLE_CUDNN
+#endif //#if CUTLASS_ENABLE_HIPDNN
 
 };
 

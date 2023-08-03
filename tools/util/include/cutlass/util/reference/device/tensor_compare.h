@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -114,15 +115,15 @@ bool BlockCompareEqual(
   int equal_flag = 1;
   int *device_equal_flag = nullptr;
 
-  if (cudaMalloc((void **)&device_equal_flag, sizeof(int)) != cudaSuccess) {
+  if (hipMalloc((void **)&device_equal_flag, sizeof(int)) != hipSuccess) {
     throw std::runtime_error("Failed to allocate device flag.");
   }
 
-  if (cudaMemcpy(
+  if (hipMemcpy(
     device_equal_flag, 
     &equal_flag, 
     sizeof(int), 
-    cudaMemcpyHostToDevice) != cudaSuccess) {
+    hipMemcpyHostToDevice) != hipSuccess) {
 
     throw std::runtime_error("Failed to copy equality flag to device.");
   }
@@ -130,12 +131,12 @@ bool BlockCompareEqual(
   if (!grid_size || !block_size) {
 
     // if grid_size or block_size are zero, query occupancy using the CUDA Occupancy API
-    cudaError_t result = cudaOccupancyMaxPotentialBlockSize(
+    hipError_t result = hipOccupancyMaxPotentialBlockSize(
       &grid_size,
       &block_size,
       reinterpret_cast<void const *>(kernel::BlockCompareEqual<Element>));
 
-    if (result != cudaSuccess) {
+    if (result != hipSuccess) {
       throw std::runtime_error("Failed to query occupancy.");
     }
 
@@ -149,18 +150,18 @@ bool BlockCompareEqual(
 
   kernel::BlockCompareEqual<Element><<< grid, block >>>(device_equal_flag, ptr_A, ptr_B, capacity);
 
-  if (cudaMemcpy(
+  if (hipMemcpy(
     &equal_flag, 
     device_equal_flag,
     sizeof(int), 
-    cudaMemcpyDeviceToHost) != cudaSuccess) {
+    hipMemcpyDeviceToHost) != hipSuccess) {
     
-    cudaFree(device_equal_flag);
+    hipFree(device_equal_flag);
 
     throw std::runtime_error("Failed to copy equality flag from device.");
   }
 
-  cudaFree(device_equal_flag);
+  hipFree(device_equal_flag);
 
   return equal_flag;
 }
@@ -181,15 +182,15 @@ bool BlockCompareRelativelyEqual(
   int equal_flag = 1;
   int *device_equal_flag = nullptr;
 
-  if (cudaMalloc((void **)&device_equal_flag, sizeof(int)) != cudaSuccess) {
+  if (hipMalloc((void **)&device_equal_flag, sizeof(int)) != hipSuccess) {
     throw std::runtime_error("Failed to allocate device flag.");
   }
 
-  if (cudaMemcpy(
+  if (hipMemcpy(
     device_equal_flag, 
     &equal_flag, 
     sizeof(int), 
-    cudaMemcpyHostToDevice) != cudaSuccess) {
+    hipMemcpyHostToDevice) != hipSuccess) {
 
     throw std::runtime_error("Failed to copy equality flag to device.");
   }
@@ -197,12 +198,12 @@ bool BlockCompareRelativelyEqual(
   if (!grid_size || !block_size) {
 
     // if grid_size or block_size are zero, query occupancy using the CUDA Occupancy API
-    cudaError_t result = cudaOccupancyMaxPotentialBlockSize(
+    hipError_t result = hipOccupancyMaxPotentialBlockSize(
       &grid_size,
       &block_size,
       reinterpret_cast<void const *>(kernel::BlockCompareRelativelyEqual<Element>));
 
-    if (result != cudaSuccess) {
+    if (result != hipSuccess) {
       throw std::runtime_error("Failed to query occupancy.");
     }
 
@@ -223,18 +224,18 @@ bool BlockCompareRelativelyEqual(
     nonzero_floor
   );
 
-  if (cudaMemcpy(
+  if (hipMemcpy(
     &equal_flag, 
     device_equal_flag,
     sizeof(int), 
-    cudaMemcpyDeviceToHost) != cudaSuccess) {
+    hipMemcpyDeviceToHost) != hipSuccess) {
     
-    cudaFree(device_equal_flag);
+    hipFree(device_equal_flag);
 
     throw std::runtime_error("Failed to copy equality flag from device.");
   }
 
-  cudaFree(device_equal_flag);
+  hipFree(device_equal_flag);
 
   return equal_flag;
 }

@@ -52,9 +52,9 @@
 #include "operation_profiler.h"
 #include "performance_result.h"
 #include "problem_space.h"
-#if CUTLASS_ENABLE_CUDNN
+#if CUTLASS_ENABLE_HIPDNN
 #include "cudnn_helpers.h"
-#endif //#if CUTLASS_ENABLE_CUDNN
+#endif //#if CUTLASS_ENABLE_HIPDNN
 #include "debug.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

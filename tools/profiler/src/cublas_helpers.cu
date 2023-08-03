@@ -34,7 +34,7 @@
 
 #include <stdexcept>
 
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
 #include "cublas_helpers.h"
 
 namespace cutlass {
@@ -43,14 +43,14 @@ namespace profiler {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Converts a cuBLAS status to cutlass::Status
-Status get_cutlass_status(cublasStatus_t cublas) {
+Status get_cutlass_status(hipblasStatus_t cublas) {
 
   switch (cublas) {
-    case CUBLAS_STATUS_SUCCESS: 
+    case HIPBLAS_STATUS_SUCCESS: 
       return Status::kSuccess;
-    case CUBLAS_STATUS_INVALID_VALUE:
+    case HIPBLAS_STATUS_INVALID_VALUE:
       return Status::kErrorInvalidProblem;
-    case CUBLAS_STATUS_NOT_SUPPORTED:
+    case HIPBLAS_STATUS_NOT_SUPPORTED:
       return Status::kErrorNotSupported;
     default: break;
   }
@@ -58,12 +58,12 @@ Status get_cutlass_status(cublasStatus_t cublas) {
 }
 
 /// Converts a cuBLASS status to cutlass::profiler::Disposition
-Disposition get_cutlass_disposition(cublasStatus_t cublas_status) {
+Disposition get_cutlass_disposition(hipblasStatus_t cublas_status) {
 
-  if (cublas_status == CUBLAS_STATUS_INVALID_VALUE) {
+  if (cublas_status == HIPBLAS_STATUS_INVALID_VALUE) {
     return Disposition::kInvalidProblem;
   }
-  else if (cublas_status == CUBLAS_STATUS_NOT_SUPPORTED) {
+  else if (cublas_status == HIPBLAS_STATUS_NOT_SUPPORTED) {
     return Disposition::kNotSupported;
   }
   return Disposition::kFailed;
@@ -71,14 +71,14 @@ Disposition get_cutlass_disposition(cublasStatus_t cublas_status) {
 
 /// Maps a CUTLASS tensor layout to a cuBLAS transpose operation
 bool get_cublas_transpose_operation(
-  cublasOperation_t &operation,
+  hipblasOperation_t &operation,
   library::LayoutTypeID layout, 
   library::ComplexTransform transform) {
 
   switch (layout) {
     case library::LayoutTypeID::kColumnMajor:
       if (transform == library::ComplexTransform::kNone) {
-        operation = CUBLAS_OP_N;
+        operation = HIPBLAS_OP_N;
         return true;
       }
       else {
@@ -87,11 +87,11 @@ bool get_cublas_transpose_operation(
       break;
     case library::LayoutTypeID::kRowMajor:
       if (transform == library::ComplexTransform::kNone) {
-        operation = CUBLAS_OP_T;
+        operation = HIPBLAS_OP_T;
         return true;
       }
       else if (transform == library::ComplexTransform::kConjugate) {
-        operation = CUBLAS_OP_C;
+        operation = HIPBLAS_OP_C;
         return true;
       }
       break;
@@ -102,10 +102,10 @@ bool get_cublas_transpose_operation(
 }
 
 /// Maps a CUTLASS numeric type to a cuBLAS data type enumeration
-bool get_cublas_datatype(cublasDataType_t &data_type, library::NumericTypeID element_type) {
+bool get_cublas_datatype(hipblasDatatype_t &data_type, library::NumericTypeID element_type) {
   switch (element_type) {
   case library::NumericTypeID::kF16:
-    data_type = CUDA_R_16F;
+    data_type = HIPBLAS_R_16F;
     return true;
     
   case library::NumericTypeID::kBF16:
@@ -115,25 +115,25 @@ bool get_cublas_datatype(cublasDataType_t &data_type, library::NumericTypeID ele
     break;
   
   case library::NumericTypeID::kF32:
-    data_type = CUDA_R_32F;
+    data_type = HIPBLAS_R_32F;
     return true;
     
   case library::NumericTypeID::kF64: 
-    data_type = CUDA_R_64F;
+    data_type = HIPBLAS_R_64F;
     return true;
   
   case library::NumericTypeID::kS4: 
     break;
   
   case library::NumericTypeID::kS8: 
-    data_type = CUDA_R_8I;
+    data_type = HIPBLAS_R_8I;
     return true;
     
   case library::NumericTypeID::kS16: 
    break;
  
   case library::NumericTypeID::kS32: 
-    data_type = CUDA_R_32I;
+    data_type = HIPBLAS_R_32I;
     return true;
     
   case library::NumericTypeID::kS64: 
@@ -143,14 +143,14 @@ bool get_cublas_datatype(cublasDataType_t &data_type, library::NumericTypeID ele
     break;
   
   case library::NumericTypeID::kU8: 
-    data_type = CUDA_R_8U;
+    data_type = HIPBLAS_R_8U;
     return true;
     
   case library::NumericTypeID::kU16: 
     break;
     
   case library::NumericTypeID::kU32: 
-    data_type = CUDA_R_32U;
+    data_type = HIPBLAS_R_32U;
     return true;
     
   case library::NumericTypeID::kU64: 
@@ -160,11 +160,11 @@ bool get_cublas_datatype(cublasDataType_t &data_type, library::NumericTypeID ele
     break;
 
   case library::NumericTypeID::kCF32:
-    data_type = CUDA_C_32F;
+    data_type = HIPBLAS_C_32F;
     return true;
 
   case library::NumericTypeID::kCF64:
-    data_type = CUDA_C_64F;
+    data_type = HIPBLAS_C_64F;
     return true;
   
   case library::NumericTypeID::kInvalid:
@@ -177,14 +177,14 @@ bool get_cublas_datatype(cublasDataType_t &data_type, library::NumericTypeID ele
 }
 
 /// Maps a cutlass::SideMode to cuBLAS side mode
-bool get_cublas_side_mode(cublasSideMode_t& side, SideMode side_mode) {
+bool get_cublas_side_mode(hipblasSideMode_t& side, SideMode side_mode) {
 
   switch (side_mode) {
     case SideMode::kLeft: 
-      side = CUBLAS_SIDE_LEFT;
+      side = HIPBLAS_SIDE_LEFT;
       return true;
     case SideMode::kRight: 
-      side = CUBLAS_SIDE_RIGHT;
+      side = HIPBLAS_SIDE_RIGHT;
       return true;
     default: break;
   }
@@ -193,14 +193,14 @@ bool get_cublas_side_mode(cublasSideMode_t& side, SideMode side_mode) {
 }
 
 /// Maps a cutlass::FillMode to cuBLAS fill mode
-bool get_cublas_fill_mode(cublasFillMode_t& uplo, FillMode fill_mode) {
+bool get_cublas_fill_mode(hipblasFillMode_t& uplo, FillMode fill_mode) {
 
   switch (fill_mode) {
     case FillMode::kLower: 
-      uplo = CUBLAS_FILL_MODE_LOWER;
+      uplo = HIPBLAS_FILL_MODE_LOWER;
       return true;
     case FillMode::kUpper: 
-      uplo = CUBLAS_FILL_MODE_UPPER;
+      uplo = HIPBLAS_FILL_MODE_UPPER;
       return true;
     default: break;
   }
@@ -209,14 +209,14 @@ bool get_cublas_fill_mode(cublasFillMode_t& uplo, FillMode fill_mode) {
 }
 
 /// Maps a cutlass::DiagType to cuBLAS diag type
-bool get_cublas_diag_type(cublasDiagType_t& diag, DiagType diag_type) {
+bool get_cublas_diag_type(hipblasDiagType_t& diag, DiagType diag_type) {
 
   switch (diag_type) {
     case DiagType::kNonUnit: 
-      diag = CUBLAS_DIAG_NON_UNIT;
+      diag = HIPBLAS_DIAG_NON_UNIT;
       return true;
     case DiagType::kUnit: 
-      diag = CUBLAS_DIAG_UNIT;
+      diag = HIPBLAS_DIAG_UNIT;
       return true;
     default: break;
   }
@@ -227,9 +227,9 @@ bool get_cublas_diag_type(cublasDiagType_t& diag, DiagType diag_type) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Gets the cublas algorithm given threadblock tile dimensions and math opcode class
-cublasGemmAlgo_t get_cublas_gemm_algo(int cta_m, int cta_n, int cta_k, library::OpcodeClassID opcode_class) {
+hipblasGemmAlgo_t get_cublas_gemm_algo(int cta_m, int cta_n, int cta_k, library::OpcodeClassID opcode_class) {
   return (opcode_class == library::OpcodeClassID::kSimt ? 
-    CUBLAS_GEMM_DEFAULT : CUBLAS_GEMM_DEFAULT_TENSOR_OP);
+    HIPBLAS_GEMM_DEFAULT : CUBLAS_GEMM_DEFAULT_TENSOR_OP);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -262,7 +262,7 @@ cublasGemmExDispatcher::cublasGemmExDispatcher(
   library::GemmDescription const &op_desc,
   library::GemmUniversalConfiguration configuration_,
   library::GemmUniversalArguments arguments_,
-  cublasGemmAlgo_t algorithm
+  hipblasGemmAlgo_t algorithm
 ):
   configuration(configuration_), arguments(arguments_), algo(algorithm), status(Status::kSuccess) {
 
@@ -294,18 +294,18 @@ cublasGemmExDispatcher::cublasGemmExDispatcher(
   else if (good) {
     bool const isPedantic = false;
     switch (compute_data_type) {
-      case CUDA_R_32F:
-      case CUDA_C_32F:
+      case HIPBLAS_R_32F:
+      case HIPBLAS_C_32F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_32F_PEDANTIC : CUBLAS_COMPUTE_32F;
         break;
-      case CUDA_R_64F:
-      case CUDA_C_64F:
+      case HIPBLAS_R_64F:
+      case HIPBLAS_C_64F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_64F_PEDANTIC : CUBLAS_COMPUTE_64F;
         break;
-      case CUDA_R_16F:
+      case HIPBLAS_R_16F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_16F_PEDANTIC : CUBLAS_COMPUTE_16F;
         break;
-      case CUDA_R_32I:
+      case HIPBLAS_R_32I:
         compute_type = isPedantic ? CUBLAS_COMPUTE_32I_PEDANTIC : CUBLAS_COMPUTE_32I;
         break;
       default:
@@ -321,10 +321,10 @@ cublasGemmExDispatcher::cublasGemmExDispatcher(
 }
 
 /// Executes GEMM using these arguments
-cublasStatus_t cublasGemmExDispatcher::operator()(cublasHandle_t handle) {
+hipblasStatus_t cublasGemmExDispatcher::operator()(hipblasHandle_t handle) {
 
   if (configuration.mode == library::GemmUniversalMode::kBatched) {
-    return cublasGemmStridedBatchedEx(
+    return hipblasGemmStridedBatchedEx(
       handle,
       trans_A,
       trans_B,
@@ -355,7 +355,7 @@ cublasStatus_t cublasGemmExDispatcher::operator()(cublasHandle_t handle) {
     );
   }
   else {
-    return cublasGemmEx(
+    return hipblasGemmEx(
       handle,
       trans_A,
       trans_B,
@@ -454,18 +454,18 @@ cublasRankKDispatcher::cublasRankKDispatcher(
   else if (good) {
     bool const isPedantic = false;
     switch (compute_data_type) {
-      case CUDA_R_32F:
-      case CUDA_C_32F:
+      case HIPBLAS_R_32F:
+      case HIPBLAS_C_32F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_32F_PEDANTIC : CUBLAS_COMPUTE_32F;
         break;
-      case CUDA_R_64F:
-      case CUDA_C_64F:
+      case HIPBLAS_R_64F:
+      case HIPBLAS_C_64F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_64F_PEDANTIC : CUBLAS_COMPUTE_64F;
         break;
-      case CUDA_R_16F:
+      case HIPBLAS_R_16F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_16F_PEDANTIC : CUBLAS_COMPUTE_16F;
         break;
-      case CUDA_R_32I:
+      case HIPBLAS_R_32I:
         compute_type = isPedantic ? CUBLAS_COMPUTE_32I_PEDANTIC : CUBLAS_COMPUTE_32I;
         break;
       default:
@@ -481,12 +481,12 @@ cublasRankKDispatcher::cublasRankKDispatcher(
 }
 
 /// Executes RankK using these arguments
-cublasStatus_t cublasRankKDispatcher::operator()(cublasHandle_t handle) {
+hipblasStatus_t cublasRankKDispatcher::operator()(hipblasHandle_t handle) {
  
   // SYRK and HERK
   if (num_ranks == 1) {
-    if (data_type_A == data_type_C && data_type_A == CUDA_R_64F) {
-      return cublasDsyrk(
+    if (data_type_A == data_type_C && data_type_A == HIPBLAS_R_64F) {
+      return hipblasDsyrk(
         handle,
         uplo,
         trans_A,
@@ -499,14 +499,14 @@ cublasStatus_t cublasRankKDispatcher::operator()(cublasHandle_t handle) {
         static_cast<double*>(arguments.D),
         int(configuration.ldc)
       );
-    } else if (data_type_A == data_type_C && data_type_A == CUDA_R_32F) {
+    } else if (data_type_A == data_type_C && data_type_A == HIPBLAS_R_32F) {
   
   #if (__CUDACC_VER_MAJOR__ >= 11)
-      if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != CUBLAS_STATUS_SUCCESS)
-        return CUBLAS_STATUS_NOT_SUPPORTED; 
+      if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != HIPBLAS_STATUS_SUCCESS)
+        return HIPBLAS_STATUS_NOT_SUPPORTED; 
   #endif
   
-      return cublasSsyrk(
+      return hipblasSsyrk(
         handle,
         uplo,
         trans_A,
@@ -519,85 +519,85 @@ cublasStatus_t cublasRankKDispatcher::operator()(cublasHandle_t handle) {
         static_cast<float*>(arguments.D),
         int(configuration.ldc)
       );
-    } else if (data_type_A == data_type_C && data_type_A == CUDA_C_64F) {
+    } else if (data_type_A == data_type_C && data_type_A == HIPBLAS_C_64F) {
       
         if (blas_mode == BlasMode::kHermitian) {
-          return cublasZherk(
+          return hipblasZherk(
             handle,
             uplo,
             trans_A,
             configuration.problem_size.n(),
             configuration.problem_size.k(),
             static_cast<const double*>(arguments.alpha),
-            static_cast<const cuDoubleComplex*>(arguments.A),
+            static_cast<const hipDoubleComplex*>(arguments.A),
             int(configuration.lda),
             static_cast<const double*>(arguments.beta),
-            static_cast<cuDoubleComplex*>(arguments.D),
+            static_cast<hipDoubleComplex*>(arguments.D),
             int(configuration.ldc)
           );
         }    
         else {
-          return cublasZsyrk(
+          return hipblasZsyrk(
             handle,
             uplo,
             trans_A,
             configuration.problem_size.n(),
             configuration.problem_size.k(),
-            static_cast<const cuDoubleComplex*>(arguments.alpha),
-            static_cast<const cuDoubleComplex*>(arguments.A),
+            static_cast<const hipDoubleComplex*>(arguments.alpha),
+            static_cast<const hipDoubleComplex*>(arguments.A),
             int(configuration.lda),
-            static_cast<const cuDoubleComplex*>(arguments.beta),
-            static_cast<cuDoubleComplex*>(arguments.D),
+            static_cast<const hipDoubleComplex*>(arguments.beta),
+            static_cast<hipDoubleComplex*>(arguments.D),
             int(configuration.ldc)
           );
         }
   
-    } else if (data_type_A == data_type_C && data_type_A == CUDA_C_32F) {
+    } else if (data_type_A == data_type_C && data_type_A == HIPBLAS_C_32F) {
   
   #if (__CUDACC_VER_MAJOR__ >= 11)
-      if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != CUBLAS_STATUS_SUCCESS)
-        return CUBLAS_STATUS_NOT_SUPPORTED; 
+      if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != HIPBLAS_STATUS_SUCCESS)
+        return HIPBLAS_STATUS_NOT_SUPPORTED; 
   #endif
   
       if (blas_mode == BlasMode::kHermitian) {
-        return cublasCherk(
+        return hipblasCherk(
           handle,
           uplo,
           trans_A,
           configuration.problem_size.n(),
           configuration.problem_size.k(),
           static_cast<const float*>(arguments.alpha),
-          static_cast<const cuComplex*>(arguments.A),
+          static_cast<const hipComplex*>(arguments.A),
           int(configuration.lda),
           static_cast<const float*>(arguments.beta),
-          static_cast<cuComplex*>(arguments.D),
+          static_cast<hipComplex*>(arguments.D),
           int(configuration.ldc)
         );
       }
       else {
-        return cublasCsyrk(
+        return hipblasCsyrk(
           handle,
           uplo,
           trans_A,
           configuration.problem_size.n(),
           configuration.problem_size.k(),
-          static_cast<const cuComplex*>(arguments.alpha),
-          static_cast<const cuComplex*>(arguments.A),
+          static_cast<const hipComplex*>(arguments.alpha),
+          static_cast<const hipComplex*>(arguments.A),
           int(configuration.lda),
-          static_cast<const cuComplex*>(arguments.beta),
-          static_cast<cuComplex*>(arguments.D),
+          static_cast<const hipComplex*>(arguments.beta),
+          static_cast<hipComplex*>(arguments.D),
           int(configuration.ldc)
         );
       }
     } else {
-      return CUBLAS_STATUS_NOT_SUPPORTED;
+      return HIPBLAS_STATUS_NOT_SUPPORTED;
     }
   } 
 
   // SYR2K and HER2K
   else if (num_ranks == 2) {
-    if (data_type_A == data_type_C && data_type_A == CUDA_R_64F) {
-      return cublasDsyr2k(
+    if (data_type_A == data_type_C && data_type_A == HIPBLAS_R_64F) {
+      return hipblasDsyr2k(
         handle,
         uplo,
         trans_A,
@@ -612,14 +612,14 @@ cublasStatus_t cublasRankKDispatcher::operator()(cublasHandle_t handle) {
         static_cast<double*>(arguments.D),
         int(configuration.ldc)
       );
-    } else if (data_type_A == data_type_C && data_type_A == CUDA_R_32F) {
+    } else if (data_type_A == data_type_C && data_type_A == HIPBLAS_R_32F) {
   
   #if (__CUDACC_VER_MAJOR__ >= 11)
-      if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != CUBLAS_STATUS_SUCCESS)
-        return CUBLAS_STATUS_NOT_SUPPORTED; 
+      if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != HIPBLAS_STATUS_SUCCESS)
+        return HIPBLAS_STATUS_NOT_SUPPORTED; 
   #endif
   
-      return cublasSsyr2k(
+      return hipblasSsyr2k(
         handle,
         uplo,
         trans_A,
@@ -634,90 +634,90 @@ cublasStatus_t cublasRankKDispatcher::operator()(cublasHandle_t handle) {
         static_cast<float*>(arguments.D),
         int(configuration.ldc)
       );
-    } else if (data_type_A == data_type_C && data_type_A == CUDA_C_64F) {
+    } else if (data_type_A == data_type_C && data_type_A == HIPBLAS_C_64F) {
       
         if (blas_mode == BlasMode::kHermitian) {
-          return cublasZher2k(
+          return hipblasZher2k(
             handle,
             uplo,
             trans_A,
             configuration.problem_size.n(),
             configuration.problem_size.k(),
-            static_cast<const cuDoubleComplex*>(arguments.alpha),
-            static_cast<const cuDoubleComplex*>(arguments.A),
+            static_cast<const hipDoubleComplex*>(arguments.alpha),
+            static_cast<const hipDoubleComplex*>(arguments.A),
             int(configuration.lda),
-            static_cast<const cuDoubleComplex*>(arguments.B),
+            static_cast<const hipDoubleComplex*>(arguments.B),
             int(configuration.ldb),
             static_cast<const double*>(arguments.beta),
-            static_cast<cuDoubleComplex*>(arguments.D),
+            static_cast<hipDoubleComplex*>(arguments.D),
             int(configuration.ldc)
           );
         }    
         else {
-          return cublasZsyr2k(
+          return hipblasZsyr2k(
             handle,
             uplo,
             trans_A,
             configuration.problem_size.n(),
             configuration.problem_size.k(),
-            static_cast<const cuDoubleComplex*>(arguments.alpha),
-            static_cast<const cuDoubleComplex*>(arguments.A),
+            static_cast<const hipDoubleComplex*>(arguments.alpha),
+            static_cast<const hipDoubleComplex*>(arguments.A),
             int(configuration.lda),
-            static_cast<const cuDoubleComplex*>(arguments.B),
+            static_cast<const hipDoubleComplex*>(arguments.B),
             int(configuration.ldb),
-            static_cast<const cuDoubleComplex*>(arguments.beta),
-            static_cast<cuDoubleComplex*>(arguments.D),
+            static_cast<const hipDoubleComplex*>(arguments.beta),
+            static_cast<hipDoubleComplex*>(arguments.D),
             int(configuration.ldc)
           );
         }
   
-    } else if (data_type_A == data_type_C && data_type_A == CUDA_C_32F) {
+    } else if (data_type_A == data_type_C && data_type_A == HIPBLAS_C_32F) {
   
   #if (__CUDACC_VER_MAJOR__ >= 11)
-      if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != CUBLAS_STATUS_SUCCESS)
-        return CUBLAS_STATUS_NOT_SUPPORTED; 
+      if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != HIPBLAS_STATUS_SUCCESS)
+        return HIPBLAS_STATUS_NOT_SUPPORTED; 
   #endif
   
       if (blas_mode == BlasMode::kHermitian) {
-        return cublasCher2k(
+        return hipblasCher2k(
           handle,
           uplo,
           trans_A,
           configuration.problem_size.n(),
           configuration.problem_size.k(),
-          static_cast<const cuComplex*>(arguments.alpha),
-          static_cast<const cuComplex*>(arguments.A),
+          static_cast<const hipComplex*>(arguments.alpha),
+          static_cast<const hipComplex*>(arguments.A),
           int(configuration.lda),
-          static_cast<const cuComplex*>(arguments.B),
+          static_cast<const hipComplex*>(arguments.B),
           int(configuration.ldb),
           static_cast<const float*>(arguments.beta),
-          static_cast<cuComplex*>(arguments.D),
+          static_cast<hipComplex*>(arguments.D),
           int(configuration.ldc)
         );
       }
       else {
-        return cublasCsyr2k(
+        return hipblasCsyr2k(
           handle,
           uplo,
           trans_A,
           configuration.problem_size.n(),
           configuration.problem_size.k(),
-          static_cast<const cuComplex*>(arguments.alpha),
-          static_cast<const cuComplex*>(arguments.A),
+          static_cast<const hipComplex*>(arguments.alpha),
+          static_cast<const hipComplex*>(arguments.A),
           int(configuration.lda),
-          static_cast<const cuComplex*>(arguments.B),
+          static_cast<const hipComplex*>(arguments.B),
           int(configuration.ldb),
-          static_cast<const cuComplex*>(arguments.beta),
-          static_cast<cuComplex*>(arguments.D),
+          static_cast<const hipComplex*>(arguments.beta),
+          static_cast<hipComplex*>(arguments.D),
           int(configuration.ldc)
         );
       }
     } else {
-      return CUBLAS_STATUS_NOT_SUPPORTED;
+      return HIPBLAS_STATUS_NOT_SUPPORTED;
     }
   }
   else {
-    return CUBLAS_STATUS_NOT_SUPPORTED;
+    return HIPBLAS_STATUS_NOT_SUPPORTED;
   }
 }
 
@@ -774,11 +774,11 @@ cublasTrmmDispatcher::cublasTrmmDispatcher(
   good = (good && get_cublas_datatype(data_type_D, op_desc.D.element));
 
   // if A is Transposed, then for cuBLAS that is inverted Fill Mode. 
-  if (trans_A == CUBLAS_OP_T || trans_A == CUBLAS_OP_C) {
-    if (uplo == CUBLAS_FILL_MODE_LOWER)
-      uplo = CUBLAS_FILL_MODE_UPPER;
+  if (trans_A == HIPBLAS_OP_T || trans_A == HIPBLAS_OP_C) {
+    if (uplo == HIPBLAS_FILL_MODE_LOWER)
+      uplo = HIPBLAS_FILL_MODE_UPPER;
     else
-      uplo = CUBLAS_FILL_MODE_LOWER;
+      uplo = HIPBLAS_FILL_MODE_LOWER;
   }
 
   good = (good && get_cublas_datatype(
@@ -800,18 +800,18 @@ cublasTrmmDispatcher::cublasTrmmDispatcher(
   else if (good) {
     bool const isPedantic = false;
     switch (compute_data_type) {
-      case CUDA_R_32F:
-      case CUDA_C_32F:
+      case HIPBLAS_R_32F:
+      case HIPBLAS_C_32F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_32F_PEDANTIC : CUBLAS_COMPUTE_32F;
         break;
-      case CUDA_R_64F:
-      case CUDA_C_64F:
+      case HIPBLAS_R_64F:
+      case HIPBLAS_C_64F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_64F_PEDANTIC : CUBLAS_COMPUTE_64F;
         break;
-      case CUDA_R_16F:
+      case HIPBLAS_R_16F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_16F_PEDANTIC : CUBLAS_COMPUTE_16F;
         break;
-      case CUDA_R_32I:
+      case HIPBLAS_R_32I:
         compute_type = isPedantic ? CUBLAS_COMPUTE_32I_PEDANTIC : CUBLAS_COMPUTE_32I;
         break;
       default:
@@ -827,10 +827,10 @@ cublasTrmmDispatcher::cublasTrmmDispatcher(
 }
 
 /// Executes TRMM using these arguments
-cublasStatus_t cublasTrmmDispatcher::operator()(cublasHandle_t handle) {
+hipblasStatus_t cublasTrmmDispatcher::operator()(hipblasHandle_t handle) {
  
-  if (data_type_A == data_type_D && data_type_A == CUDA_R_64F) {
-    return cublasDtrmm(
+  if (data_type_A == data_type_D && data_type_A == HIPBLAS_R_64F) {
+    return hipblasDtrmm(
       handle,
       side,
       uplo,
@@ -846,14 +846,14 @@ cublasStatus_t cublasTrmmDispatcher::operator()(cublasHandle_t handle) {
       static_cast<double*>(arguments.D),
       int(configuration.ldd)
     );
-  } else if (data_type_A == data_type_D && data_type_A == CUDA_R_32F) {
+  } else if (data_type_A == data_type_D && data_type_A == HIPBLAS_R_32F) {
 
 #if (__CUDACC_VER_MAJOR__ >= 11)
-    if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != CUBLAS_STATUS_SUCCESS)
-      return CUBLAS_STATUS_NOT_SUPPORTED; 
+    if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != HIPBLAS_STATUS_SUCCESS)
+      return HIPBLAS_STATUS_NOT_SUPPORTED; 
 #endif
 
-    return cublasStrmm(
+    return hipblasStrmm(
       handle,
       side,
       uplo,
@@ -869,8 +869,8 @@ cublasStatus_t cublasTrmmDispatcher::operator()(cublasHandle_t handle) {
       static_cast<float*>(arguments.D),
       int(configuration.ldd)
     );
-  } else if (data_type_A == data_type_D && data_type_A == CUDA_C_64F) {
-    return cublasZtrmm(
+  } else if (data_type_A == data_type_D && data_type_A == HIPBLAS_C_64F) {
+    return hipblasZtrmm(
       handle,
       side,
       uplo,
@@ -878,22 +878,22 @@ cublasStatus_t cublasTrmmDispatcher::operator()(cublasHandle_t handle) {
       diag,
       configuration.problem_size.m(),
       configuration.problem_size.n(),
-      static_cast<const cuDoubleComplex*>(arguments.alpha),
-      static_cast<const cuDoubleComplex*>(arguments.A),
+      static_cast<const hipDoubleComplex*>(arguments.alpha),
+      static_cast<const hipDoubleComplex*>(arguments.A),
       int(configuration.lda),
-      static_cast<const cuDoubleComplex*>(arguments.B),
+      static_cast<const hipDoubleComplex*>(arguments.B),
       int(configuration.ldb),
-      static_cast<cuDoubleComplex*>(arguments.D),
+      static_cast<hipDoubleComplex*>(arguments.D),
       int(configuration.ldd)
     );
-  } else if (data_type_A == data_type_D && data_type_A == CUDA_C_32F) {
+  } else if (data_type_A == data_type_D && data_type_A == HIPBLAS_C_32F) {
 
 #if (__CUDACC_VER_MAJOR__ >= 11)
-    if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != CUBLAS_STATUS_SUCCESS)
-      return CUBLAS_STATUS_NOT_SUPPORTED; 
+    if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != HIPBLAS_STATUS_SUCCESS)
+      return HIPBLAS_STATUS_NOT_SUPPORTED; 
 #endif
 
-    return cublasCtrmm(
+    return hipblasCtrmm(
       handle,
       side,
       uplo,
@@ -901,16 +901,16 @@ cublasStatus_t cublasTrmmDispatcher::operator()(cublasHandle_t handle) {
       diag,
       configuration.problem_size.m(),
       configuration.problem_size.n(),
-      static_cast<const cuComplex*>(arguments.alpha),
-      static_cast<const cuComplex*>(arguments.A),
+      static_cast<const hipComplex*>(arguments.alpha),
+      static_cast<const hipComplex*>(arguments.A),
       int(configuration.lda),
-      static_cast<const cuComplex*>(arguments.B),
+      static_cast<const hipComplex*>(arguments.B),
       int(configuration.ldb),
-      static_cast<cuComplex*>(arguments.D),
+      static_cast<hipComplex*>(arguments.D),
       int(configuration.ldd)
     );
   } else {
-    return CUBLAS_STATUS_NOT_SUPPORTED;
+    return HIPBLAS_STATUS_NOT_SUPPORTED;
   }
 }
 
@@ -998,18 +998,18 @@ cublasSymmDispatcher::cublasSymmDispatcher(
   else if (good) {
     bool const isPedantic = false;
     switch (compute_data_type) {
-      case CUDA_R_32F:
-      case CUDA_C_32F:
+      case HIPBLAS_R_32F:
+      case HIPBLAS_C_32F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_32F_PEDANTIC : CUBLAS_COMPUTE_32F;
         break;
-      case CUDA_R_64F:
-      case CUDA_C_64F:
+      case HIPBLAS_R_64F:
+      case HIPBLAS_C_64F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_64F_PEDANTIC : CUBLAS_COMPUTE_64F;
         break;
-      case CUDA_R_16F:
+      case HIPBLAS_R_16F:
         compute_type = isPedantic ? CUBLAS_COMPUTE_16F_PEDANTIC : CUBLAS_COMPUTE_16F;
         break;
-      case CUDA_R_32I:
+      case HIPBLAS_R_32I:
         compute_type = isPedantic ? CUBLAS_COMPUTE_32I_PEDANTIC : CUBLAS_COMPUTE_32I;
         break;
       default:
@@ -1025,11 +1025,11 @@ cublasSymmDispatcher::cublasSymmDispatcher(
 }
 
 /// Executes Symm using these arguments
-cublasStatus_t cublasSymmDispatcher::operator()(cublasHandle_t handle) {
+hipblasStatus_t cublasSymmDispatcher::operator()(hipblasHandle_t handle) {
  
   // SYMM and HEMM
-  if (data_type_A == data_type_C && data_type_A == CUDA_R_64F) {
-    return cublasDsymm(
+  if (data_type_A == data_type_C && data_type_A == HIPBLAS_R_64F) {
+    return hipblasDsymm(
       handle,
       side,
       uplo,
@@ -1044,14 +1044,14 @@ cublasStatus_t cublasSymmDispatcher::operator()(cublasHandle_t handle) {
       static_cast<double*>(arguments.D),
       int(configuration.ldc)
     );
-  } else if (data_type_A == data_type_C && data_type_A == CUDA_R_32F) {
+  } else if (data_type_A == data_type_C && data_type_A == HIPBLAS_R_32F) {
 
 #if (__CUDACC_VER_MAJOR__ >= 11)
-    if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != CUBLAS_STATUS_SUCCESS)
-      return CUBLAS_STATUS_NOT_SUPPORTED; 
+    if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != HIPBLAS_STATUS_SUCCESS)
+      return HIPBLAS_STATUS_NOT_SUPPORTED; 
 #endif
 
-    return cublasSsymm(
+    return hipblasSsymm(
       handle,
       side,
       uplo,
@@ -1066,86 +1066,86 @@ cublasStatus_t cublasSymmDispatcher::operator()(cublasHandle_t handle) {
       static_cast<float*>(arguments.D),
       int(configuration.ldc)
     );
-  } else if (data_type_A == data_type_C && data_type_A == CUDA_C_64F) {
+  } else if (data_type_A == data_type_C && data_type_A == HIPBLAS_C_64F) {
     
       if (blas_mode == BlasMode::kHermitian) {
-        return cublasZhemm(
+        return hipblasZhemm(
           handle,
           side,
           uplo,
           configuration.problem_size.m(),
           configuration.problem_size.n(),
-          static_cast<const cuDoubleComplex*>(arguments.alpha),
-          static_cast<const cuDoubleComplex*>(arguments.A),
+          static_cast<const hipDoubleComplex*>(arguments.alpha),
+          static_cast<const hipDoubleComplex*>(arguments.A),
           int(configuration.lda),
-          static_cast<const cuDoubleComplex*>(arguments.B),
+          static_cast<const hipDoubleComplex*>(arguments.B),
           int(configuration.ldb),
-          static_cast<const cuDoubleComplex*>(arguments.beta),
-          static_cast<cuDoubleComplex*>(arguments.D),
+          static_cast<const hipDoubleComplex*>(arguments.beta),
+          static_cast<hipDoubleComplex*>(arguments.D),
           int(configuration.ldc)
         );
       }    
       else {
-        return cublasZsymm(
+        return hipblasZsymm(
           handle,
           side,
           uplo,
           configuration.problem_size.m(),
           configuration.problem_size.n(),
-          static_cast<const cuDoubleComplex*>(arguments.alpha),
-          static_cast<const cuDoubleComplex*>(arguments.A),
+          static_cast<const hipDoubleComplex*>(arguments.alpha),
+          static_cast<const hipDoubleComplex*>(arguments.A),
           int(configuration.lda),
-          static_cast<const cuDoubleComplex*>(arguments.B),
+          static_cast<const hipDoubleComplex*>(arguments.B),
           int(configuration.ldb),
-          static_cast<const cuDoubleComplex*>(arguments.beta),
-          static_cast<cuDoubleComplex*>(arguments.D),
+          static_cast<const hipDoubleComplex*>(arguments.beta),
+          static_cast<hipDoubleComplex*>(arguments.D),
           int(configuration.ldc)
         );
       }
 
-  } else if (data_type_A == data_type_C && data_type_A == CUDA_C_32F) {
+  } else if (data_type_A == data_type_C && data_type_A == HIPBLAS_C_32F) {
 
 #if (__CUDACC_VER_MAJOR__ >= 11)
-    if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != CUBLAS_STATUS_SUCCESS)
-      return CUBLAS_STATUS_NOT_SUPPORTED; 
+    if (cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) != HIPBLAS_STATUS_SUCCESS)
+      return HIPBLAS_STATUS_NOT_SUPPORTED; 
 #endif
 
     if (blas_mode == BlasMode::kHermitian) {
-      return cublasChemm(
+      return hipblasChemm(
         handle,
         side,
         uplo,
         configuration.problem_size.m(),
         configuration.problem_size.n(),
-        static_cast<const cuComplex*>(arguments.alpha),
-        static_cast<const cuComplex*>(arguments.A),
+        static_cast<const hipComplex*>(arguments.alpha),
+        static_cast<const hipComplex*>(arguments.A),
         int(configuration.lda),
-        static_cast<const cuComplex*>(arguments.B),
+        static_cast<const hipComplex*>(arguments.B),
         int(configuration.ldb),
-        static_cast<const cuComplex*>(arguments.beta),
-        static_cast<cuComplex*>(arguments.D),
+        static_cast<const hipComplex*>(arguments.beta),
+        static_cast<hipComplex*>(arguments.D),
         int(configuration.ldc)
       );
     }
     else {
-      return cublasCsymm(
+      return hipblasCsymm(
         handle,
         side,
         uplo,
         configuration.problem_size.m(),
         configuration.problem_size.n(),
-        static_cast<const cuComplex*>(arguments.alpha),
-        static_cast<const cuComplex*>(arguments.A),
+        static_cast<const hipComplex*>(arguments.alpha),
+        static_cast<const hipComplex*>(arguments.A),
         int(configuration.lda),
-        static_cast<const cuComplex*>(arguments.B),
+        static_cast<const hipComplex*>(arguments.B),
         int(configuration.ldb),
-        static_cast<const cuComplex*>(arguments.beta),
-        static_cast<cuComplex*>(arguments.D),
+        static_cast<const hipComplex*>(arguments.beta),
+        static_cast<hipComplex*>(arguments.D),
         int(configuration.ldc)
       );
     }
   } else {
-    return CUBLAS_STATUS_NOT_SUPPORTED;
+    return HIPBLAS_STATUS_NOT_SUPPORTED;
   }
 }
 
@@ -1156,4 +1156,4 @@ cublasStatus_t cublasSymmDispatcher::operator()(cublasHandle_t handle) {
 } // namespace profiler
 } // namespace cutlass
 
-#endif // #if CUTLASS_ENABLE_CUBLAS
+#endif // #if CUTLASS_ENABLE_HIPBLAS

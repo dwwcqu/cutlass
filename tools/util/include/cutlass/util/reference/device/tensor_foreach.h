@@ -50,12 +50,12 @@ struct TensorForEach {
     if (!grid_size || !block_size) {
 
       // if grid_size or block_size are zero, query occupancy using the CUDA Occupancy API
-      cudaError_t result = cudaOccupancyMaxPotentialBlockSize(
+      hipError_t result = hipOccupancyMaxPotentialBlockSize(
         &grid_size,
         &block_size,
         reinterpret_cast<void const *>(kernel::TensorForEach<Func, Rank, Params>));
 
-      if (result != cudaSuccess) {
+      if (result != hipSuccess) {
         throw std::runtime_error("Failed to query occupancy.");
       }
 
@@ -108,12 +108,12 @@ struct BlockForEach {
     if (!grid_size || !block_size) {
 
       // if grid_size or block_size are zero, query occupancy using the CUDA Occupancy API
-      cudaError_t result = cudaOccupancyMaxPotentialBlockSize(
+      hipError_t result = hipOccupancyMaxPotentialBlockSize(
         &grid_size,
         &block_size,
         reinterpret_cast<void const *>(kernel::BlockForEach<Element, Func>));
 
-      if (result != cudaSuccess) {
+      if (result != hipSuccess) {
         throw std::runtime_error("Failed to query occupancy.");
       }
 

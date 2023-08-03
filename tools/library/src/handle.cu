@@ -47,7 +47,7 @@ namespace library {
 
 /// Constructor
 Handle::Handle(
-  cudaStream_t stream, 
+  hipStream_t stream, 
   size_t workspace_size
 ):
   provider_(Provider::kCUTLASS), 
@@ -59,14 +59,14 @@ Handle::Handle(
 
   int device_idx = -1;
 
-  cudaError_t error = cudaGetDevice(&device_idx);
-  if (error != cudaSuccess) {
-    throw std::runtime_error("cudaGetDevice() failed");
+  hipError_t error = hipGetDevice(&device_idx);
+  if (error != hipSuccess) {
+    throw std::runtime_error("hipGetDevice() failed");
   }
 
-  error = cudaGetDeviceProperties(&device_, device_idx);
-  if (error != cudaSuccess) {
-    throw std::runtime_error("cudaGetDeviceProperties() failed");
+  error = hipGetDeviceProperties(&device_, device_idx);
+  if (error != hipSuccess) {
+    throw std::runtime_error("hipGetDeviceProperties() failed");
   }
 
   set_workspace_size(workspace_size);
@@ -79,7 +79,7 @@ Handle::~Handle() {
   if (workspace_) {
 
     if (workspace_) {
-      cudaFree(workspace_);
+      hipFree(workspace_);
     }
 
     workspace_ = nullptr;
@@ -120,12 +120,12 @@ int Handle::compute_capability() const {
 }
 
 /// Sets the current CUDA stream
-void Handle::set_stream(cudaStream_t stream) {
+void Handle::set_stream(hipStream_t stream) {
   stream_ = stream;
 }
 
 /// Gets the current CUDA stream
-cudaStream_t Handle::get_stream() const {
+hipStream_t Handle::get_stream() const {
   return stream_;
 }
 
@@ -154,7 +154,7 @@ void Handle::set_workspace_size(size_t bytes) {
   if (bytes != workspace_size_) {
 
     if (workspace_) {
-      cudaFree(workspace_);
+      hipFree(workspace_);
     }
       
     workspace_ = nullptr;
@@ -162,18 +162,18 @@ void Handle::set_workspace_size(size_t bytes) {
 
     if (workspace_size_) {
   
-      cudaError_t error = cudaMalloc((void **)&workspace_, workspace_size_);
+      hipError_t error = hipMalloc((void **)&workspace_, workspace_size_);
   
-      if (error != cudaSuccess) {
+      if (error != hipSuccess) {
         throw std::runtime_error("Failed to allocate workspace");
       }
     }
   }
 
   if (workspace_) {
-    cudaError_t error = cudaMemset(workspace_, 0, workspace_size_);
+    hipError_t error = hipMemset(workspace_, 0, workspace_size_);
 
-    if (error != cudaSuccess) {
+    if (error != hipSuccess) {
       throw std::runtime_error("Failed to clear workspace");
     }
   }

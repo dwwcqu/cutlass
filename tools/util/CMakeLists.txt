@@ -40,7 +40,7 @@ target_include_directories(
 target_link_libraries(
   cutlass_tools_util_includes
   INTERFACE
- 	$<$<BOOL:${CUTLASS_ENABLE_CUBLAS}>:cublas>
+ 	$<$<BOOL:${CUTLASS_ENABLE_HIPBLAS}>:cublas>
   )
 
 install(
