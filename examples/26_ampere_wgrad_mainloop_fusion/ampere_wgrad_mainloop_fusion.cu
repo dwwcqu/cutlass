@@ -321,14 +321,14 @@ struct Result {
   double gflops;
   cutlass::Status status;
   cutlass::Status reference_check;
-  cudaError_t error;
+  hipError_t error;
 
   Result(): 
     runtime_ms(0), 
     gflops(0),
     status(cutlass::Status::kSuccess),
     reference_check(cutlass::Status::kInvalid),
-    error(cudaSuccess) { }
+    error(hipSuccess) { }
 
   static std::ostream & print_header(std::ostream &out, Options const &options) {
 
@@ -599,20 +599,20 @@ Result profile_convolution(Options const &options) {
 
   if (options.measure_performance) {
 
-    cudaEvent_t events[2];
+    hipEvent_t events[2];
     
     for (auto & event : events) {
-      result.error = cudaEventCreate(&event);
-      if (result.error != cudaSuccess) {
-        std::cerr << "cudaEventCreate() failed: " << cudaGetErrorString(result.error) << std::endl;
+      result.error = hipEventCreate(&event);
+      if (result.error != hipSuccess) {
+        std::cerr << "hipEventCreate() failed: " << hipGetErrorString(result.error) << std::endl;
         return result;
       }
     }
 
     // Record an event at the start of a series of convolution operations.
-    result.error = cudaEventRecord(events[0]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventRecord() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventRecord(events[0]);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventRecord() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
@@ -623,24 +623,24 @@ Result profile_convolution(Options const &options) {
     }
 
     // Record an event when the convolutions have been launched.
-    result.error = cudaEventRecord(events[1]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventRecord() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventRecord(events[1]);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventRecord() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
     // Wait for work on the device to complete.
-    result.error = cudaEventSynchronize(events[1]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventSynchronize() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventSynchronize(events[1]);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventSynchronize() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
     // Measure elapsed runtime
     float runtime_ms = 0;
-    result.error = cudaEventElapsedTime(&runtime_ms, events[0], events[1]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventElapsed() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventElapsedTime(&runtime_ms, events[0], events[1]);
+    if (result.error != hipSuccess) {
+      std::cerr << "cudaEventElapsed() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
@@ -650,7 +650,7 @@ Result profile_convolution(Options const &options) {
 
     // Cleanup
     for (auto event : events) {
-      (void)cudaEventDestroy(event);
+      (void)hipEventDestroy(event);
     }
   }
 
@@ -671,8 +671,8 @@ int main(int argc, char const **args) {
     notSupported = true;
   }
 
-  cudaDeviceProp props;
-  CUDA_CHECK(cudaGetDeviceProperties(&props, 0));
+  hipDeviceProp_t props;
+  CUDA_CHECK(hipGetDeviceProperties(&props, 0));
 
   if (!(props.major == 8 && props.minor == 0)) {
     std::cerr << "This test must run on SM80 A100.\n";

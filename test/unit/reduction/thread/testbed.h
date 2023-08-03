@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -212,10 +213,10 @@ struct Testbed_reduce_device {
         );
     
     // verify no errors
-    cudaError_t result = cudaDeviceSynchronize();
+    hipError_t result = hipDeviceSynchronize();
 
-    EXPECT_EQ(result, cudaSuccess) << "CUDA ERROR: " << cudaGetErrorString(result);
-    if (result != cudaSuccess) {
+    EXPECT_EQ(result, hipSuccess) << "CUDA ERROR: " << hipGetErrorString(result);
+    if (result != hipSuccess) {
       return false;
     }
 

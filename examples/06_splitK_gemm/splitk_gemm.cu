@@ -180,11 +180,11 @@ using Gemm = cutlass::gemm::device::GemmSplitKParallel<ElementInputA,
 
 int run() {
 
-  cudaDeviceProp props;
+  hipDeviceProp_t props;
 
-  cudaError_t error = cudaGetDeviceProperties(&props, 0);
-  if (error != cudaSuccess) {
-    std::cerr << "cudaGetDeviceProperties() returned an error: " << cudaGetErrorString(error) << std::endl;
+  hipError_t error = hipGetDeviceProperties(&props, 0);
+  if (error != hipSuccess) {
+    std::cerr << "hipGetDeviceProperties() returned an error: " << hipGetErrorString(error) << std::endl;
     return -1;
   }
 
@@ -307,7 +307,7 @@ int run() {
               tensor_ref_d.device_ref());
 
   // Wait for kernels to finish
-  cudaDeviceSynchronize();
+  hipDeviceSynchronize();
 
   // Copy output data from CUTLASS and reference kernel to host for comparison
   tensor_d.sync_host();

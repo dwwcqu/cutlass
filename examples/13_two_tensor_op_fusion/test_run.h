@@ -58,11 +58,11 @@ int testRun(int arch, std::vector<bool (*)()> & test_funcs, const std::string & 
     }
   }
 
-  cudaDeviceProp props;
+  hipDeviceProp_t props;
 
-  cudaError_t error = cudaGetDeviceProperties(&props, 0);
-  if (error != cudaSuccess) {
-    std::cerr << "cudaGetDeviceProperties() returned an error: " << cudaGetErrorString(error) << std::endl;
+  hipError_t error = hipGetDeviceProperties(&props, 0);
+  if (error != hipSuccess) {
+    std::cerr << "hipGetDeviceProperties() returned an error: " << hipGetErrorString(error) << std::endl;
     return -1;
   }
 

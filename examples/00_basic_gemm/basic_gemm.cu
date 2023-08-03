@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -76,7 +77,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Define a CUTLASS GEMM template and launch a GEMM kernel.
-cudaError_t CutlassSgemmNN(
+hipError_t CutlassSgemmNN(
   int M,
   int N,
   int K,
@@ -133,15 +134,15 @@ cudaError_t CutlassSgemmNN(
   cutlass::Status status = gemm_operator(args);
 
   //
-  // Return a cudaError_t if the CUTLASS GEMM operator returned an error code.
+  // Return a hipError_t if the CUTLASS GEMM operator returned an error code.
   //
 
   if (status != cutlass::Status::kSuccess) {
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
   // Return success, if no errors were encountered.
-  return cudaSuccess;
+  return hipSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +175,7 @@ __global__ void InitializeMatrix_kernel(
 }
 
 /// Simple function to initialize a matrix to arbitrary small integers.
-cudaError_t InitializeMatrix(float *matrix, int rows, int columns, int seed = 0) {
+hipError_t InitializeMatrix(float *matrix, int rows, int columns, int seed = 0) {
 
   dim3 block(16, 16);
   dim3 grid(
@@ -184,41 +185,41 @@ cudaError_t InitializeMatrix(float *matrix, int rows, int columns, int seed = 0)
 
   InitializeMatrix_kernel<<< grid, block >>>(matrix, rows, columns, seed);
 
-  return cudaGetLastError();
+  return hipGetLastError();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Allocates device memory for a matrix then fills with arbitrary small integers.
-cudaError_t AllocateMatrix(float **matrix, int rows, int columns, int seed = 0) {
-  cudaError_t result;
+hipError_t AllocateMatrix(float **matrix, int rows, int columns, int seed = 0) {
+  hipError_t result;
 
   size_t sizeof_matrix = sizeof(float) * rows * columns;
 
   // Allocate device memory.
-  result = cudaMalloc(reinterpret_cast<void **>(matrix), sizeof_matrix);
+  result = hipMalloc(reinterpret_cast<void **>(matrix), sizeof_matrix);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to allocate matrix: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
     return result;
   }
 
   // Clear the allocation.
-  result = cudaMemset(*matrix, 0, sizeof_matrix);
+  result = hipMemset(*matrix, 0, sizeof_matrix);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to clear matrix device memory: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
     return result;
   }
 
   // Initialize matrix elements to arbitrary small integers.
   result = InitializeMatrix(*matrix, rows, columns, seed);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to initialize matrix: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
     return result;
   }
 
@@ -256,7 +257,7 @@ __global__ void ReferenceGemm_kernel(
 }
 
 /// Reference GEMM computation.
-cudaError_t ReferenceGemm(
+hipError_t ReferenceGemm(
   int M,
   int N,
   int K,
@@ -277,15 +278,15 @@ cudaError_t ReferenceGemm(
 
   ReferenceGemm_kernel<<< grid, block >>>(M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
 
-  return cudaGetLastError();
+  return hipGetLastError();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Allocate several matrices in GPU device memory and call a single-precision
 /// CUTLASS GEMM kernel.
-cudaError_t TestCutlassGemm(int M, int N, int K, float alpha, float beta) {
-  cudaError_t result;
+hipError_t TestCutlassGemm(int M, int N, int K, float alpha, float beta) {
+  hipError_t result;
 
   //
   // Define several matrices to be used as operands to GEMM kernels.
@@ -311,44 +312,44 @@ cudaError_t TestCutlassGemm(int M, int N, int K, float alpha, float beta) {
 
   result = AllocateMatrix(&A, M, K, 0);
 
-  if (result !=  cudaSuccess) {
+  if (result !=  hipSuccess) {
     return result;
   }
 
   result = AllocateMatrix(&B, K, N, 17);
 
-  if (result !=  cudaSuccess) {
-    cudaFree(A);
+  if (result !=  hipSuccess) {
+    hipFree(A);
     return result;
   }
 
   result = AllocateMatrix(&C_cutlass, M, N, 101);
 
-  if (result != cudaSuccess) {
-    cudaFree(A);
-    cudaFree(B);
+  if (result != hipSuccess) {
+    hipFree(A);
+    hipFree(B);
     return result;
   }
 
   result = AllocateMatrix(&C_reference, M, N, 101);
 
-  if (result != cudaSuccess) {
-    cudaFree(A);
-    cudaFree(B);
-    cudaFree(C_cutlass);
+  if (result != hipSuccess) {
+    hipFree(A);
+    hipFree(B);
+    hipFree(C_cutlass);
     return result;
   }
 
-  result = cudaMemcpy(C_reference, C_cutlass, sizeof_C, cudaMemcpyDeviceToDevice);
+  result = hipMemcpy(C_reference, C_cutlass, sizeof_C, hipMemcpyDeviceToDevice);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to copy C_cutlass matrix to C_reference: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(B);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(B);
+    hipFree(A);
 
     return result;
   }
@@ -359,14 +360,14 @@ cudaError_t TestCutlassGemm(int M, int N, int K, float alpha, float beta) {
 
   result = CutlassSgemmNN(M, N, K, alpha, A, lda, B, ldb, beta, C_cutlass, ldc);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "CUTLASS GEMM kernel failed: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(B);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(B);
+    hipFree(A);
 
     return result;
   }
@@ -378,14 +379,14 @@ cudaError_t TestCutlassGemm(int M, int N, int K, float alpha, float beta) {
   // Launch reference GEMM
   result = ReferenceGemm(M, N, K, alpha, A, lda, B, ldb, beta, C_reference, ldc);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Reference GEMM kernel failed: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(B);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(B);
+    hipFree(A);
 
     return result;
   }
@@ -394,30 +395,30 @@ cudaError_t TestCutlassGemm(int M, int N, int K, float alpha, float beta) {
   std::vector<float> host_cutlass(ldc * N, 0);
   std::vector<float> host_reference(ldc * N, 0);
 
-  result = cudaMemcpy(host_cutlass.data(), C_cutlass, sizeof_C, cudaMemcpyDeviceToHost);
+  result = hipMemcpy(host_cutlass.data(), C_cutlass, sizeof_C, hipMemcpyDeviceToHost);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to copy CUTLASS GEMM results: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(B);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(B);
+    hipFree(A);
 
     return result;
   }
 
-  result = cudaMemcpy(host_reference.data(), C_reference, sizeof_C, cudaMemcpyDeviceToHost);
+  result = hipMemcpy(host_reference.data(), C_reference, sizeof_C, hipMemcpyDeviceToHost);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to copy Reference GEMM results: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(B);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(B);
+    hipFree(A);
 
     return result;
   }
@@ -426,10 +427,10 @@ cudaError_t TestCutlassGemm(int M, int N, int K, float alpha, float beta) {
   // Free device memory allocations.
   //
 
-  cudaFree(C_reference);
-  cudaFree(C_cutlass);
-  cudaFree(B);
-  cudaFree(A);
+  hipFree(C_reference);
+  hipFree(C_cutlass);
+  hipFree(B);
+  hipFree(A);
 
   //
   // Test for bit equivalence of results.
@@ -438,10 +439,10 @@ cudaError_t TestCutlassGemm(int M, int N, int K, float alpha, float beta) {
   if (host_cutlass != host_reference) {
     std::cerr << "CUTLASS results incorrect." << std::endl;
 
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
-  return cudaSuccess;
+  return hipSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -478,7 +479,7 @@ int main(int argc, const char *arg[]) {
   // Run the CUTLASS GEMM test.
   //
 
-  cudaError_t result = TestCutlassGemm(
+  hipError_t result = TestCutlassGemm(
     problem[0],     // GEMM M dimension
     problem[1],     // GEMM N dimension
     problem[2],     // GEMM K dimension
@@ -486,12 +487,12 @@ int main(int argc, const char *arg[]) {
     scalars[1]      // beta
   );
 
-  if (result == cudaSuccess) {
+  if (result == hipSuccess) {
     std::cout << "Passed." << std::endl;
   }
 
   // Exit.
-  return result == cudaSuccess ? 0 : -1;
+  return result == hipSuccess ? 0 : -1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -133,8 +134,8 @@ namespace layout {
     test::layout::test_nhwc_inverse<<< grid, block >>>(output.get(), 
             n_size, h_size, w_size, c_size);
 
-    cudaError_t result = cudaDeviceSynchronize();
-    ASSERT_EQ(result, cudaSuccess) << "CUDA error: " << cudaGetErrorString(result);
+    hipError_t result = hipDeviceSynchronize();
+    ASSERT_EQ(result, hipSuccess) << "CUDA error: " << hipGetErrorString(result);
 
     //
     // Verify output
@@ -142,8 +143,8 @@ namespace layout {
 
     cutlass::device_memory::copy_to_host(output_host, output.get(), size);
 
-    result = cudaGetLastError();
-    ASSERT_EQ(result, cudaSuccess) << "CUDA error: " << cudaGetErrorString(result);
+    result = hipGetLastError();
+    ASSERT_EQ(result, hipSuccess) << "CUDA error: " << hipGetErrorString(result);
 
     for (int n_idx = 0; n_idx < n_size; n_idx++) {
       for (int p_idx = 0; p_idx < h_size; p_idx++) {

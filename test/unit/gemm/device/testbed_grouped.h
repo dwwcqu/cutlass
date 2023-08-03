@@ -425,18 +425,18 @@ struct TestbedGrouped {
 
     int smem_size = int(sizeof(typename Gemm::GemmKernel::SharedStorage));
 
-    cudaDeviceProp properties;
+    hipDeviceProp_t properties;
     int device_idx;
-    cudaError_t result = cudaGetDevice(&device_idx);
+    hipError_t result = hipGetDevice(&device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDevice() API call failed.");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDevice() API call failed.");
     }
 
-    result = cudaGetDeviceProperties(&properties, device_idx);
+    result = hipGetDeviceProperties(&properties, device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDeviceProperties() failed");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDeviceProperties() failed");
     }
 
     int occupancy = std::min(2, int(properties.sharedMemPerMultiprocessor / smem_size));
@@ -498,12 +498,12 @@ struct TestbedGrouped {
     }
 
     // Wait for completion
-    cudaError_t result = cudaDeviceSynchronize();
+    hipError_t result = hipDeviceSynchronize();
 
-    EXPECT_EQ(result, cudaSuccess) 
-      << "Kernel execution error: " << cudaGetErrorString(result);
+    EXPECT_EQ(result, hipSuccess) 
+      << "Kernel execution error: " << hipGetErrorString(result);
 
-    if (result != cudaSuccess) {
+    if (result != hipSuccess) {
       return false;
     }
 

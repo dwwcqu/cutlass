@@ -99,7 +99,7 @@ The stride (batch_stride_C) between the first element of two batches is k
 
 */
 
-cudaError_t cutlass_array_sgemm(
+hipError_t cutlass_array_sgemm(
   int m,
   int n,
   int k,
@@ -132,13 +132,13 @@ cudaError_t cutlass_array_sgemm(
   });
 
   if (status != cutlass::Status::kSuccess) {
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
-  return cudaSuccess;
+  return hipSuccess;
 }
 
-cudaError_t cutlass_strided_batched_sgemm(
+hipError_t cutlass_strided_batched_sgemm(
   int m, 
   int n,
   int k,
@@ -178,14 +178,14 @@ cudaError_t cutlass_strided_batched_sgemm(
   });
 
   if (status != cutlass::Status::kSuccess) {
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
-  return cudaSuccess;
+  return hipSuccess;
 }
 
 template<typename T> 
-cudaError_t strided_batched_gemm_nn_reference(
+hipError_t strided_batched_gemm_nn_reference(
   int m,
   int n,
   int k,
@@ -205,19 +205,19 @@ cudaError_t strided_batched_gemm_nn_reference(
   strided batched gemm NN
   */
   
-  cudaError_t result = cudaSuccess;
+  hipError_t result = hipSuccess;
 
   if (A.size() < lda * k * batch_count) {
     std::cout << "the size of A is too small" << std::endl;
-    return cudaErrorInvalidValue;
+    return hipErrorInvalidValue;
   }
   if (B.size() < ldb * n) {
     std::cout << "the size of B is too small" << std::endl;
-    return cudaErrorInvalidValue;
+    return hipErrorInvalidValue;
   }
   if (C.size() < ldc * n * batch_count) {
     std::cout << "the size of C is too small" << std::endl;
-    return cudaErrorInvalidValue;
+    return hipErrorInvalidValue;
   }
   
   for (int batch_idx = 0; batch_idx < batch_count; batch_idx++) {
@@ -238,7 +238,7 @@ cudaError_t strided_batched_gemm_nn_reference(
 }
 
 
-cudaError_t run_batched_gemm(bool use_array) {
+hipError_t run_batched_gemm(bool use_array) {
 
   const char* gemm_desc = use_array ? "array" : "strided batched";
   std::cout << "Running " << gemm_desc << " gemm" << std::endl;
@@ -267,7 +267,7 @@ cudaError_t run_batched_gemm(bool use_array) {
   float alpha = 1.0f;
   float beta = 2.0f;
 
-  cudaError_t result = cudaSuccess;
+  hipError_t result = hipSuccess;
 
   // allocate the host memory
   std::vector<float> host_A(count_A);
@@ -280,19 +280,19 @@ cudaError_t run_batched_gemm(bool use_array) {
   float *B;
   float *C;
 
-  result = cudaMalloc(&A, count_A * sizeof(float));
-  if (result != cudaSuccess) {
-    std::cerr << "cudaMalloc result = " << result << std::endl;
+  result = hipMalloc(&A, count_A * sizeof(float));
+  if (result != hipSuccess) {
+    std::cerr << "hipMalloc result = " << result << std::endl;
     return result;
   }
-  result = cudaMalloc(&B, count_B * sizeof(float));
-  if (result != cudaSuccess) {
-    std::cerr << "cudaMalloc result = " << result << std::endl;
+  result = hipMalloc(&B, count_B * sizeof(float));
+  if (result != hipSuccess) {
+    std::cerr << "hipMalloc result = " << result << std::endl;
     return result;
   }
-  result = cudaMalloc(&C, count_C * sizeof(float));
-  if (result != cudaSuccess) {
-    std::cerr << "cudaMalloc result = " << result << std::endl;
+  result = hipMalloc(&C, count_C * sizeof(float));
+  if (result != hipSuccess) {
+    std::cerr << "hipMalloc result = " << result << std::endl;
     return result;
   }
 
@@ -329,19 +329,19 @@ cudaError_t run_batched_gemm(bool use_array) {
   std::vector<float> ref_B(host_B);
   std::vector<float> ref_C(host_C);
   // copy host memory to device
-  result = cudaMemcpy(A, host_A.data(), count_A * sizeof(float), cudaMemcpyHostToDevice);
-  if (result != cudaSuccess) {
-    std::cerr << "cudaMemcpy result = " << result << std::endl;
+  result = hipMemcpy(A, host_A.data(), count_A * sizeof(float), hipMemcpyHostToDevice);
+  if (result != hipSuccess) {
+    std::cerr << "hipMemcpy result = " << result << std::endl;
     return result;
   }
-  result = cudaMemcpy(B, host_B.data(), count_B * sizeof(float), cudaMemcpyHostToDevice);
-  if (result != cudaSuccess) {
-    std::cerr << "cudaMemcpy result = " << result << std::endl;
+  result = hipMemcpy(B, host_B.data(), count_B * sizeof(float), hipMemcpyHostToDevice);
+  if (result != hipSuccess) {
+    std::cerr << "hipMemcpy result = " << result << std::endl;
     return result;
   }
-  result = cudaMemcpy(C, host_C.data(), count_C * sizeof(float), cudaMemcpyHostToDevice);
-  if (result != cudaSuccess) {
-    std::cerr << "cudaMemcpy result = " << result << std::endl;
+  result = hipMemcpy(C, host_C.data(), count_C * sizeof(float), hipMemcpyHostToDevice);
+  if (result != hipSuccess) {
+    std::cerr << "hipMemcpy result = " << result << std::endl;
     return result;
   }
 
@@ -365,55 +365,55 @@ cudaError_t run_batched_gemm(bool use_array) {
     float const **ptr_B;
     float **ptr_C;
 
-    result = cudaMalloc(&ptr_A, batch_count * sizeof(float*));
-    if (result != cudaSuccess) {
-      std::cerr << "cudaMalloc result = " << result << std::endl;
+    result = hipMalloc(&ptr_A, batch_count * sizeof(float*));
+    if (result != hipSuccess) {
+      std::cerr << "hipMalloc result = " << result << std::endl;
       return result;
     }
-    result = cudaMalloc(&ptr_B, batch_count * sizeof(float*));
-    if (result != cudaSuccess) {
-      std::cerr << "cudaMalloc result = " << result << std::endl;
+    result = hipMalloc(&ptr_B, batch_count * sizeof(float*));
+    if (result != hipSuccess) {
+      std::cerr << "hipMalloc result = " << result << std::endl;
       return result;
     }
-    result = cudaMalloc(&ptr_C, batch_count * sizeof(float*));
-    if (result != cudaSuccess) {
-      std::cerr << "cudaMalloc result = " << result << std::endl;
+    result = hipMalloc(&ptr_C, batch_count * sizeof(float*));
+    if (result != hipSuccess) {
+      std::cerr << "hipMalloc result = " << result << std::endl;
       return result;
     }
 
     // copy the matrix pointers to the device
-    result = cudaMemcpy(ptr_A, host_ptr_A.data(), batch_count * sizeof(float*), cudaMemcpyHostToDevice);
-    if (result != cudaSuccess) {
-      std::cerr << "cudaMemcpy result = " << result << std::endl;
+    result = hipMemcpy(ptr_A, host_ptr_A.data(), batch_count * sizeof(float*), hipMemcpyHostToDevice);
+    if (result != hipSuccess) {
+      std::cerr << "hipMemcpy result = " << result << std::endl;
       return result;
     }
-    result = cudaMemcpy(ptr_B, host_ptr_B.data(), batch_count * sizeof(float*), cudaMemcpyHostToDevice);
-    if (result != cudaSuccess) {
-      std::cerr << "cudaMemcpy result = " << result << std::endl;
+    result = hipMemcpy(ptr_B, host_ptr_B.data(), batch_count * sizeof(float*), hipMemcpyHostToDevice);
+    if (result != hipSuccess) {
+      std::cerr << "hipMemcpy result = " << result << std::endl;
       return result;
     }
-    result = cudaMemcpy(ptr_C, host_ptr_C.data(), batch_count * sizeof(float*), cudaMemcpyHostToDevice);
-    if (result != cudaSuccess) {
-      std::cerr << "cudaMemcpy result = " << result << std::endl;
+    result = hipMemcpy(ptr_C, host_ptr_C.data(), batch_count * sizeof(float*), hipMemcpyHostToDevice);
+    if (result != hipSuccess) {
+      std::cerr << "hipMemcpy result = " << result << std::endl;
       return result;
     }
 
     result = cutlass_array_sgemm(m, n, k, alpha, ptr_A, lda, ptr_B, ldb, ptr_C, ldc, beta, batch_count);
 
-    if (result != cudaSuccess)
+    if (result != hipSuccess)
       return result;
   } else {
     result = cutlass_strided_batched_sgemm(
       m, n, k, alpha, A, lda, batch_stride_A, B, ldb, batch_stride_B, C, ldc, batch_stride_C,
       beta, batch_count);
-    if (result != cudaSuccess)
+    if (result != hipSuccess)
       return result;
   }
 
   // copy device memory to host
-  result = cudaMemcpy(result_C.data(), C, count_C * sizeof(float), cudaMemcpyDeviceToHost);
-  if (result != cudaSuccess) {
-    std::cerr << "cudaMemcpy result = " << result << std::endl;
+  result = hipMemcpy(result_C.data(), C, count_C * sizeof(float), hipMemcpyDeviceToHost);
+  if (result != hipSuccess) {
+    std::cerr << "hipMemcpy result = " << result << std::endl;
     return result;
   }
 
@@ -426,23 +426,23 @@ cudaError_t run_batched_gemm(bool use_array) {
   // Expect bit-level accuracy for this simple example
   if (ref_C != result_C) {
     std::cout << "CUTLASS " << gemm_desc << " gemm does not run correctly" << std::endl;
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
   // free memory
-  result = cudaFree(A);
-  if (result != cudaSuccess) {
-    std::cerr << "cudaFree result = " << result << std::endl;
+  result = hipFree(A);
+  if (result != hipSuccess) {
+    std::cerr << "hipFree result = " << result << std::endl;
     return result;
   }
-  result = cudaFree(B);
-  if (result != cudaSuccess) {
-    std::cerr << "cudaFree result = " << result << std::endl;
+  result = hipFree(B);
+  if (result != hipSuccess) {
+    std::cerr << "hipFree result = " << result << std::endl;
     return result;
   }
-  result = cudaFree(C);
-  if (result != cudaSuccess) {
-    std::cerr << "cudaFree result = " << result << std::endl;
+  result = hipFree(C);
+  if (result != hipSuccess) {
+    std::cerr << "hipFree result = " << result << std::endl;
     return result;
   }
 
@@ -451,10 +451,10 @@ cudaError_t run_batched_gemm(bool use_array) {
 
 int main() {
 
-  cudaError_t result = cudaSuccess;
+  hipError_t result = hipSuccess;
   for (bool use_array : {false, true}) {
     result = run_batched_gemm(use_array);
-    if (result == cudaSuccess) {
+    if (result == hipSuccess) {
       std::cout << "Passed." << std::endl;
     } else {
       break;
@@ -462,5 +462,5 @@ int main() {
   }
 
   // Exit.
-  return result == cudaSuccess ? 0 : -1;
+  return result == hipSuccess ? 0 : -1;
 }

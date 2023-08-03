@@ -243,7 +243,7 @@ int run() {
     );
 
   // Wait for kernels to finish
-  cudaDeviceSynchronize();
+  hipDeviceSynchronize();
 
   // Copy output data from CUTLASS and reference kernel to host for comparison
   tensor_d.sync_host();
@@ -287,8 +287,8 @@ int main(int argc, char const **args) {
     notSupported = true;
   }
 
-  cudaDeviceProp props;
-  CUDA_CHECK(cudaGetDeviceProperties(&props, 0));
+  hipDeviceProp_t props;
+  CUDA_CHECK(hipGetDeviceProperties(&props, 0));
 
   if (!(props.major > 8 || (props.major == 8 && props.minor >= 0))) {
     std::cerr << "Ampere Tensor Ops must be run on a machine with compute capability at least 80."

@@ -39,7 +39,7 @@
 */
 
 #pragma once
-
+#include "hip/hip_runtime.h"
 #include "cutlass/arch/memory.h"
 #include "cutlass/transform/threadblock/predicated_tile_access_iterator_triangular_matrix.h"
 

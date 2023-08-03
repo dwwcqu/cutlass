@@ -163,12 +163,12 @@ struct Options {
       return false;
     }
 
-    cudaDeviceProp props;
+    hipDeviceProp_t props;
 
-    cudaError_t error = cudaGetDeviceProperties(&props, 0);
-    if (error != cudaSuccess) {
+    hipError_t error = hipGetDeviceProperties(&props, 0);
+    if (error != hipSuccess) {
       if (verbose) {
-        std::cerr << "cudaGetDeviceProperties() returned an error: " << cudaGetErrorString(error) << std::endl;
+        std::cerr << "hipGetDeviceProperties() returned an error: " << hipGetErrorString(error) << std::endl;
       }
       return false;
     }
@@ -278,10 +278,10 @@ struct Testbed {
       return disposition;
     }
 
-    cudaError_t result = cudaDeviceSynchronize();
-    if (result != cudaSuccess) {
+    hipError_t result = hipDeviceSynchronize();
+    if (result != hipSuccess) {
       std::cerr << "Device synchronize failed with error "
-        << cudaGetErrorString(result) << std::endl;
+        << hipGetErrorString(result) << std::endl;
       return disposition;
     }
 
@@ -559,22 +559,22 @@ struct Testbed {
     //
 
     cutlass::Status status = cutlass::Status::kSuccess;
-    cudaError_t result;
-    cudaEvent_t events[2];
+    hipError_t result;
+    hipEvent_t events[2];
     int const kIterations = options.iterations;
 
-    for (cudaEvent_t &evt : events) {
-      result = cudaEventCreate(&evt);
-      if (result != cudaSuccess) {
-        std::cerr << "cudaEventCreate failed with error " << cudaGetErrorString(result) << std::endl;
+    for (hipEvent_t &evt : events) {
+      result = hipEventCreate(&evt);
+      if (result != hipSuccess) {
+        std::cerr << "hipEventCreate failed with error " << hipGetErrorString(result) << std::endl;
         return false;
       }
     }
 
-    result = cudaEventRecord(events[0]);
+    result = hipEventRecord(events[0]);
 
-    if (result != cudaSuccess) {
-      std::cerr << "cudaEventRecord() failed with error " << cudaGetErrorString(result) << std::endl;
+    if (result != hipSuccess) {
+      std::cerr << "hipEventRecord() failed with error " << hipGetErrorString(result) << std::endl;
       return false;
     }
 
@@ -588,32 +588,32 @@ struct Testbed {
       }
     }
 
-    result = cudaEventRecord(events[1]);
+    result = hipEventRecord(events[1]);
 
-    if (result != cudaSuccess) {
-      std::cerr << "cudaEventRecord() failed with error " << cudaGetErrorString(result) << std::endl;
+    if (result != hipSuccess) {
+      std::cerr << "hipEventRecord() failed with error " << hipGetErrorString(result) << std::endl;
       return false;
     }
 
-    result = cudaDeviceSynchronize();
+    result = hipDeviceSynchronize();
 
-    if (result != cudaSuccess) {
-      std::cerr << "cudaDeviceSynchronize() failed with error " << cudaGetErrorString(result) << std::endl;
+    if (result != hipSuccess) {
+      std::cerr << "hipDeviceSynchronize() failed with error " << hipGetErrorString(result) << std::endl;
       return false;
     }
 
     float elapsed_ms = 0;
-    result = cudaEventElapsedTime(&elapsed_ms, events[0], events[1]);
+    result = hipEventElapsedTime(&elapsed_ms, events[0], events[1]);
 
-    if (result != cudaSuccess) {
-      std::cerr << "cudaEventElapsedTime() failed with error " << cudaGetErrorString(result) << std::endl;
+    if (result != hipSuccess) {
+      std::cerr << "hipEventElapsedTime() failed with error " << hipGetErrorString(result) << std::endl;
       return false;
     }
 
-    for (cudaEvent_t &evt : events) {
-      result = cudaEventDestroy(evt);
-      if (result != cudaSuccess) {
-        std::cerr << "cudaEventDestroy() failed with error " << cudaGetErrorString(result) << std::endl;
+    for (hipEvent_t &evt : events) {
+      result = hipEventDestroy(evt);
+      if (result != hipSuccess) {
+        std::cerr << "hipEventDestroy() failed with error " << hipGetErrorString(result) << std::endl;
         return false;
       }
     }

@@ -80,7 +80,7 @@ Now, we have two different flavors of SSYMM in the profiler for Ampere:
 #include "helper.h"
 
 #if CUTLASS_ENABLE_CUBLAS
-#include <cublas_v2.h>
+#include <hipblas.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -536,7 +536,7 @@ bool run(Options &options) {
   status_f64 = symm_op_f64();
   CUTLASS_CHECK(status_f64);
 
-  cudaDeviceSynchronize();
+  hipDeviceSynchronize();
 
   tensor_d_F64.sync_host();
 
@@ -545,19 +545,19 @@ bool run(Options &options) {
   ////////////////////////////////////////////////////////////////////////////////
 
 #if CUTLASS_ENABLE_CUBLAS
-  cublasStatus_t cublas_status;
-  cublasHandle_t handle;
+  hipblasStatus_t cublas_status;
+  hipblasHandle_t handle;
 
-  cublas_status = cublasCreate(&handle);
-  if (cublas_status != CUBLAS_STATUS_SUCCESS) {
+  cublas_status = hipblasCreate(&handle);
+  if (cublas_status != HIPBLAS_STATUS_SUCCESS) {
   std::cerr << "Failed to create cuBLAS handle." << std::endl;
     return false;
   }
 
-  cublas_status = cublasSsymm(
+  cublas_status = hipblasSsymm(
       handle,
-      CUBLAS_SIDE_LEFT,
-      CUBLAS_FILL_MODE_LOWER,
+      HIPBLAS_SIDE_LEFT,
+      HIPBLAS_FILL_MODE_LOWER,
       problem_size.m(),
       problem_size.n(),
       static_cast<const float*>(&alpha),
@@ -570,7 +570,7 @@ bool run(Options &options) {
       int(tensor_d_cublasF32.layout().stride(0))
     );   
 
-  cudaDeviceSynchronize();
+  hipDeviceSynchronize();
 
   tensor_d_cublasF32.sync_host();
 #endif
@@ -645,11 +645,11 @@ int main(int argc, const char **argv) {
     notSupported = true;
   }
 
-  cudaDeviceProp props;
+  hipDeviceProp_t props;
 
-  cudaError_t error = cudaGetDeviceProperties(&props, 0);
-  if (error != cudaSuccess) {
-    std::cerr << "cudaGetDeviceProperties() returned an error: " << cudaGetErrorString(error) << std::endl;
+  hipError_t error = hipGetDeviceProperties(&props, 0);
+  if (error != hipSuccess) {
+    std::cerr << "hipGetDeviceProperties() returned an error: " << hipGetErrorString(error) << std::endl;
     return false;
   }
 

@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -72,7 +73,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Define a CUTLASS SYRK template and launch a SYRK kernel.
-cudaError_t CutlassSsyrkNN(
+hipError_t CutlassSsyrkNN(
   int N,
   int K,
   double alpha,
@@ -153,15 +154,15 @@ cudaError_t CutlassSsyrkNN(
   cutlass::Status status = syrk_operator(args);
 
   //
-  // Return a cudaError_t if the CUTLASS SYRK operator returned an error code.
+  // Return a hipError_t if the CUTLASS SYRK operator returned an error code.
   //
 
   if (status != cutlass::Status::kSuccess) {
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
   // Return success, if no errors were encountered.
-  return cudaSuccess;
+  return hipSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +196,7 @@ __global__ void InitializeMatrix_kernel(
 }
 
 /// Simple function to initialize a matrix to arbitrary small integers.
-cudaError_t InitializeMatrix(double *matrix, int ldm, int rows, int columns, int seed = 0) {
+hipError_t InitializeMatrix(double *matrix, int ldm, int rows, int columns, int seed = 0) {
 
   dim3 block(16, 16);
   dim3 grid(
@@ -205,41 +206,41 @@ cudaError_t InitializeMatrix(double *matrix, int ldm, int rows, int columns, int
 
   InitializeMatrix_kernel<<< grid, block >>>(matrix, ldm, rows, columns, seed);
 
-  return cudaGetLastError();
+  return hipGetLastError();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Allocates device memory for a matrix then fills with arbitrary small integers.
-cudaError_t AllocateMatrix(double **matrix, int ldm, int rows, int columns, int seed = 0) {
-  cudaError_t result;
+hipError_t AllocateMatrix(double **matrix, int ldm, int rows, int columns, int seed = 0) {
+  hipError_t result;
 
   size_t sizeof_matrix = sizeof(double) * ldm * columns;
 
   // Allocate device memory.
-  result = cudaMalloc(reinterpret_cast<void **>(matrix), sizeof_matrix);
+  result = hipMalloc(reinterpret_cast<void **>(matrix), sizeof_matrix);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to allocate matrix: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
     return result;
   }
 
   // Clear the allocation.
-  result = cudaMemset(*matrix, 0, sizeof_matrix);
+  result = hipMemset(*matrix, 0, sizeof_matrix);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to clear matrix device memory: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
     return result;
   }
 
   // Initialize matrix elements to arbitrary small integers.
   result = InitializeMatrix(*matrix, ldm, rows, columns, seed);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to initialize matrix: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
     return result;
   }
 
@@ -274,7 +275,7 @@ __global__ void ReferenceSyrk_kernel(
 }
 
 /// Reference SYRK computation.
-cudaError_t ReferenceSyrk(
+hipError_t ReferenceSyrk(
   int N,
   int K,
   double alpha,
@@ -292,15 +293,15 @@ cudaError_t ReferenceSyrk(
 
   ReferenceSyrk_kernel<<< grid, block >>>(N, K, alpha, A, lda, beta, C, ldc);
 
-  return cudaGetLastError();
+  return hipGetLastError();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Allocate several matrices in GPU device memory and call a double-precision
 /// CUTLASS SYRK kernel.
-cudaError_t TestCutlassSyrk(int N, int K, double alpha, double beta) {
-  cudaError_t result;
+hipError_t TestCutlassSyrk(int N, int K, double alpha, double beta) {
+  hipError_t result;
 
   //
   // Define several matrices to be used as operands to SYRK kernels.
@@ -324,34 +325,34 @@ cudaError_t TestCutlassSyrk(int N, int K, double alpha, double beta) {
 
   result = AllocateMatrix(&A, lda, N, K, 0);
 
-  if (result !=  cudaSuccess) {
+  if (result !=  hipSuccess) {
     return result;
   }
 
   result = AllocateMatrix(&C_cutlass, ldc, N, N, 101);
 
-  if (result != cudaSuccess) {
-    cudaFree(A);
+  if (result != hipSuccess) {
+    hipFree(A);
     return result;
   }
 
   result = AllocateMatrix(&C_reference, ldc, N, N, 101);
 
-  if (result != cudaSuccess) {
-    cudaFree(A);
-    cudaFree(C_cutlass);
+  if (result != hipSuccess) {
+    hipFree(A);
+    hipFree(C_cutlass);
     return result;
   }
 
-  result = cudaMemcpy(C_reference, C_cutlass, sizeof_C, cudaMemcpyDeviceToDevice);
+  result = hipMemcpy(C_reference, C_cutlass, sizeof_C, hipMemcpyDeviceToDevice);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to copy C_cutlass matrix to C_reference: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(A);
 
     return result;
   }
@@ -362,13 +363,13 @@ cudaError_t TestCutlassSyrk(int N, int K, double alpha, double beta) {
 
   result = CutlassSsyrkNN(N, K, alpha, A, lda, beta, C_cutlass, ldc);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "CUTLASS SYRK kernel failed: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(A);
 
     return result;
   }
@@ -380,13 +381,13 @@ cudaError_t TestCutlassSyrk(int N, int K, double alpha, double beta) {
   // Launch reference SYRK
   result = ReferenceSyrk(N, K, alpha, A, lda, beta, C_reference, ldc);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Reference SYRK kernel failed: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(A);
 
     return result;
   }
@@ -395,28 +396,28 @@ cudaError_t TestCutlassSyrk(int N, int K, double alpha, double beta) {
   std::vector<double> host_cutlass(ldc * N, 0);
   std::vector<double> host_reference(ldc * N, 0);
 
-  result = cudaMemcpy(host_cutlass.data(), C_cutlass, sizeof_C, cudaMemcpyDeviceToHost);
+  result = hipMemcpy(host_cutlass.data(), C_cutlass, sizeof_C, hipMemcpyDeviceToHost);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to copy CUTLASS SYRK results: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(A);
 
     return result;
   }
 
-  result = cudaMemcpy(host_reference.data(), C_reference, sizeof_C, cudaMemcpyDeviceToHost);
+  result = hipMemcpy(host_reference.data(), C_reference, sizeof_C, hipMemcpyDeviceToHost);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to copy Reference SYRK results: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(A);
 
     return result;
   }
@@ -425,9 +426,9 @@ cudaError_t TestCutlassSyrk(int N, int K, double alpha, double beta) {
   // Free device memory allocations.
   //
 
-  cudaFree(C_reference);
-  cudaFree(C_cutlass);
-  cudaFree(A);
+  hipFree(C_reference);
+  hipFree(C_cutlass);
+  hipFree(A);
 
   //
   // Test for bit equivalence of results.
@@ -436,10 +437,10 @@ cudaError_t TestCutlassSyrk(int N, int K, double alpha, double beta) {
   if (host_cutlass != host_reference) {
     std::cerr << "CUTLASS results incorrect." << std::endl;
 
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
-  return cudaSuccess;
+  return hipSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -460,11 +461,11 @@ int main(int argc, const char *arg[]) {
     notSupported = true;
   }
 
-  cudaDeviceProp props;
+  hipDeviceProp_t props;
 
-  cudaError_t error = cudaGetDeviceProperties(&props, 0);
-  if (error != cudaSuccess) {
-    std::cerr << "cudaGetDeviceProperties() returned an error: " << cudaGetErrorString(error) << std::endl;
+  hipError_t error = hipGetDeviceProperties(&props, 0);
+  if (error != hipSuccess) {
+    std::cerr << "hipGetDeviceProperties() returned an error: " << hipGetErrorString(error) << std::endl;
 
     return -1;
   }
@@ -504,19 +505,19 @@ int main(int argc, const char *arg[]) {
   // Run the CUTLASS SYRK test.
   //
 
-  cudaError_t result = TestCutlassSyrk(
+  hipError_t result = TestCutlassSyrk(
     problem[0],     // SYRK N dimension
     problem[1],     // SYRK K dimension
     scalars[0],     // alpha
     scalars[1]      // beta
   );
 
-  if (result == cudaSuccess) {
+  if (result == hipSuccess) {
     std::cout << "Passed." << std::endl;
   }
 
   // Exit.
-  return result == cudaSuccess ? 0 : -1;
+  return result == hipSuccess ? 0 : -1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

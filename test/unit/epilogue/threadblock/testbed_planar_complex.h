@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -314,10 +315,10 @@ public:
       accumulator_tensor.imaginary_stride()
     );
 
-    cudaError_t result = cudaDeviceSynchronize();
+    hipError_t result = hipDeviceSynchronize();
 
-    if (result != cudaSuccess) {
-      std::cerr << "Kernel error: " << cudaGetErrorString(result) << std::endl;
+    if (result != hipSuccess) {
+      std::cerr << "Kernel error: " << hipGetErrorString(result) << std::endl;
       return false;
     }
 

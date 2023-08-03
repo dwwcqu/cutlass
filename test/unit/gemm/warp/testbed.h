@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -281,10 +282,10 @@ struct Testbed {
       tensor_C.device_data());
 
     // verify no errors
-    cudaError_t result = cudaDeviceSynchronize();
+    hipError_t result = hipDeviceSynchronize();
 
-    EXPECT_EQ(result, cudaSuccess) << "CUDA ERROR: " << cudaGetErrorString(result);
-    if (result != cudaSuccess) {
+    EXPECT_EQ(result, hipSuccess) << "CUDA ERROR: " << hipGetErrorString(result);
+    if (result != hipSuccess) {
       return false;
     }
 
@@ -465,10 +466,10 @@ struct TestbedComplex {
       tensor_C.device_data());
 
     // verify no errors
-    cudaError_t result = cudaDeviceSynchronize();
+    hipError_t result = hipDeviceSynchronize();
 
-    EXPECT_EQ(result, cudaSuccess) << "CUDA ERROR: " << cudaGetErrorString(result);
-    if (result != cudaSuccess) {
+    EXPECT_EQ(result, hipSuccess) << "CUDA ERROR: " << hipGetErrorString(result);
+    if (result != hipSuccess) {
       return false;
     }
 
@@ -760,10 +761,10 @@ struct TransformTestbed {
         tensor_B.device_data(), tensor_C.device_data());
 
     // verify no errors
-    cudaError_t result = cudaDeviceSynchronize();
+    hipError_t result = hipDeviceSynchronize();
 
-    EXPECT_EQ(result, cudaSuccess) << "CUDA ERROR: " << cudaGetErrorString(result);
-    if (result != cudaSuccess) {
+    EXPECT_EQ(result, hipSuccess) << "CUDA ERROR: " << hipGetErrorString(result);
+    if (result != hipSuccess) {
       return false;
     }
 
@@ -942,10 +943,10 @@ struct TransformedTestbedComplex {
       tensor_C.device_data());
 
     // verify no errors
-    cudaError_t result = cudaDeviceSynchronize();
+    hipError_t result = hipDeviceSynchronize();
 
-    EXPECT_EQ(result, cudaSuccess) << "CUDA ERROR: " << cudaGetErrorString(result);
-    if (result != cudaSuccess) {
+    EXPECT_EQ(result, hipSuccess) << "CUDA ERROR: " << hipGetErrorString(result);
+    if (result != hipSuccess) {
       return false;
     }
 
@@ -1306,10 +1307,10 @@ struct SparseTestbed {
       tensor_E_reordered.device_data());
 
     // verify no errors
-    cudaError_t result = cudaDeviceSynchronize();
+    hipError_t result = hipDeviceSynchronize();
 
-    EXPECT_EQ(result, cudaSuccess) << "CUDA ERROR: " << cudaGetErrorString(result);
-    if (result != cudaSuccess) {
+    EXPECT_EQ(result, hipSuccess) << "CUDA ERROR: " << hipGetErrorString(result);
+    if (result != hipSuccess) {
       return false;
     }
 

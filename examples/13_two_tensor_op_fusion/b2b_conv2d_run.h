@@ -251,12 +251,12 @@ public:
     //
     // Run Conv2d
     //
-    cudaEvent_t start, stop1, stop2;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop1);
-    cudaEventCreate(&stop2);
+    hipEvent_t start, stop1, stop2;
+    hipEventCreate(&start);
+    hipEventCreate(&stop1);
+    hipEventCreate(&stop2);
 
-    cudaEventRecord(start);
+    hipEventRecord(start);
 
 
     for(int i = 0; i < runs; i++) {
@@ -264,19 +264,19 @@ public:
         status = conv2d_op_0();
         CUTLASS_CHECK(status);
     }
-    cudaEventRecord(stop1);    
+    hipEventRecord(stop1);    
     
     for(int i = 0; i < runs; i++) {
         // run conv2d operator
         status = conv2d_op_1();
         CUTLASS_CHECK(status);
     }
-    cudaEventRecord(stop2);
-    cudaDeviceSynchronize();
+    hipEventRecord(stop2);
+    hipDeviceSynchronize();
     float conv2d0Time, conv2d1Time, totalTime;
-    cudaEventElapsedTime(&conv2d0Time, start, stop1);
-    cudaEventElapsedTime(&conv2d1Time, stop1, stop2);
-    cudaEventElapsedTime(&totalTime, start, stop2);
+    hipEventElapsedTime(&conv2d0Time, start, stop1);
+    hipEventElapsedTime(&conv2d1Time, stop1, stop2);
+    hipEventElapsedTime(&totalTime, start, stop2);
     std::cout << "conv2d 0 time " << conv2d0Time / (float)runs << " ms\n";
     std::cout << "conv2d 1 time " << conv2d1Time / (float)runs << " ms\n";
     std::cout << "Non-fusion time " << totalTime / (float)runs << " ms\n";
@@ -332,8 +332,8 @@ public:
        cutlass::reference::device::TensorReLu(tensor_D1_reference.device_view()); 
     }
 
-    cudaError_t result = cudaDeviceSynchronize();
-    CHECK_TRUE(result == cudaSuccess);
+    hipError_t result = hipDeviceSynchronize();
+    CHECK_TRUE(result == hipSuccess);
 
     // sync host (copy device data to host) for dumping error output in case of mismatches
     tensor_D0_reference.sync_host();
@@ -579,11 +579,11 @@ public:
     // Run the Conv2d
     //
 
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
+    hipEvent_t start, stop;
+    hipEventCreate(&start);
+    hipEventCreate(&stop);
 
-    cudaEventRecord(start);
+    hipEventRecord(start);
 
     for(int i = 0; i < runs; i++) {
 
@@ -592,10 +592,10 @@ public:
         CUTLASS_CHECK(status);
     }
     
-    cudaEventRecord(stop);
-    cudaDeviceSynchronize();
+    hipEventRecord(stop);
+    hipDeviceSynchronize();
     float conv2dTime;
-    cudaEventElapsedTime(&conv2dTime, start, stop);
+    hipEventElapsedTime(&conv2dTime, start, stop);
     std::cout << "Fusion time " << conv2dTime / (float)runs << " ms\n";
 
     tensor_D1_computed.sync_host();
@@ -651,8 +651,8 @@ public:
        cutlass::reference::device::TensorReLu(tensor_D1_reference.device_view()); 
     }
 
-    cudaError_t result = cudaDeviceSynchronize();
-    CHECK_TRUE(result == cudaSuccess);
+    hipError_t result = hipDeviceSynchronize();
+    CHECK_TRUE(result == hipSuccess);
 
     // sync host (copy device data to host) for dumping error output in case of mismatches
     tensor_D0_reference.sync_host();

@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -294,27 +295,27 @@ struct Testbed {
 
     matrix_C_pointers.sync_device();
 
-    cudaError_t result;
+    hipError_t result;
 
     int smem_size = int(sizeof(typename Mma::SharedStorage));
     if (smem_size >= (48 << 10)) {
-      result = cudaFuncSetAttribute(
+      result = hipFuncSetAttribute(
           test::gemm::threadblock::kernel_multistage_mma<Mma>,
-          cudaFuncAttributeMaxDynamicSharedMemorySize, smem_size);
+          hipFuncAttributeMaxDynamicSharedMemorySize, smem_size);
 
-      EXPECT_EQ(result, cudaSuccess)
-          << " cudaFuncSetAttribute "
-             "cudaFuncAttributeMaxDynamicSharedMemorySize error: "
-          << cudaGetErrorString(result);
+      EXPECT_EQ(result, hipSuccess)
+          << " hipFuncSetAttribute "
+             "hipFuncAttributeMaxDynamicSharedMemorySize error: "
+          << hipGetErrorString(result);
 
-      result = cudaFuncSetAttribute(
+      result = hipFuncSetAttribute(
           test::gemm::threadblock::kernel_multistage_mma<Mma>,
-          cudaFuncAttributePreferredSharedMemoryCarveout, 100);
+          hipFuncAttributePreferredSharedMemoryCarveout, 100);
 
-      EXPECT_EQ(result, cudaSuccess)
-          << " cudaFuncSetAttribute "
-             "cudaFuncAttributePreferredSharedMemoryCarveout error: "
-          << cudaGetErrorString(result);
+      EXPECT_EQ(result, hipSuccess)
+          << " hipFuncSetAttribute "
+             "hipFuncAttributePreferredSharedMemoryCarveout error: "
+          << hipGetErrorString(result);
     }
 
     test::gemm::threadblock::kernel_multistage_mma<Mma><<<grid, block, smem_size, 0>>>(
@@ -326,9 +327,9 @@ struct Testbed {
     // Check error code
     //
 
-    result = cudaDeviceSynchronize();
-    EXPECT_EQ(result, cudaSuccess)
-        << " kernel error: " << cudaGetErrorString(result);
+    result = hipDeviceSynchronize();
+    EXPECT_EQ(result, hipSuccess)
+        << " kernel error: " << hipGetErrorString(result);
 
     CUTLASS_PRAGMA_UNROLL
     for(int k = 0; k < kPartitionsK; k++)

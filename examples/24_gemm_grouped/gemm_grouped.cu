@@ -100,7 +100,7 @@ struct Result {
   double runtime_ms;
   double gflops;
   cutlass::Status status;
-  cudaError_t error;
+  hipError_t error;
   bool passed;
 
   //
@@ -111,7 +111,7 @@ struct Result {
     double runtime_ms = 0,
     double gflops = 0,
     cutlass::Status status = cutlass::Status::kSuccess,
-    cudaError_t error = cudaSuccess
+    hipError_t error = hipSuccess
   ):
     runtime_ms(runtime_ms), gflops(gflops), status(status), error(error), passed(true) { }
 };
@@ -762,18 +762,18 @@ public:
 
     int smem_size = int(sizeof(typename Gemm::GemmKernel::SharedStorage));
 
-    cudaDeviceProp properties;
+    hipDeviceProp_t properties;
     int device_idx;
-    cudaError_t result = cudaGetDevice(&device_idx);
+    hipError_t result = hipGetDevice(&device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDevice() API call failed.");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDevice() API call failed.");
     }
 
-    result = cudaGetDeviceProperties(&properties, device_idx);
+    result = hipGetDeviceProperties(&properties, device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDeviceProperties() failed");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDeviceProperties() failed");
     }
 
     int occupancy = std::min(2, int(properties.sharedMemPerMultiprocessor / smem_size));
@@ -842,10 +842,10 @@ public:
     }
 
     // Wait for completion
-    result.error = cudaDeviceSynchronize();
+    result.error = hipDeviceSynchronize();
 
-    if (result.error != cudaSuccess)  {
-      std::cerr << "Kernel execution error: " << cudaGetErrorString(result.error);
+    if (result.error != hipSuccess)  {
+      std::cerr << "Kernel execution error: " << hipGetErrorString(result.error);
       return result;
     }
 
@@ -872,20 +872,20 @@ public:
     // Construct events
     //
 
-    cudaEvent_t events[2];
+    hipEvent_t events[2];
 
     for (auto & event : events) {
-      result.error = cudaEventCreate(&event);
-      if (result.error != cudaSuccess) {
-        std::cerr << "cudaEventCreate() failed: " << cudaGetErrorString(result.error) << std::endl;
+      result.error = hipEventCreate(&event);
+      if (result.error != hipSuccess) {
+        std::cerr << "hipEventCreate() failed: " << hipGetErrorString(result.error) << std::endl;
         return -1;
       }
     }
 
     // Record an event at the start of a series of GEMM operations
-    result.error = cudaEventRecord(events[0]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventRecord() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventRecord(events[0]);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventRecord() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
@@ -902,24 +902,24 @@ public:
     //
 
     // Record an event when the GEMM operations have been launched.
-    result.error = cudaEventRecord(events[1]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventRecord() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventRecord(events[1]);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventRecord() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
     // Wait for work on the device to complete.
-    result.error = cudaEventSynchronize(events[1]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventSynchronize() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventSynchronize(events[1]);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventSynchronize() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
     // Measure elapsed runtime
     float runtime_ms = 0;
-    result.error = cudaEventElapsedTime(&runtime_ms, events[0], events[1]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventElapsed() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventElapsedTime(&runtime_ms, events[0], events[1]);
+    if (result.error != hipSuccess) {
+      std::cerr << "cudaEventElapsed() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
@@ -932,7 +932,7 @@ public:
     //
 
     for (auto event : events) {
-      (void)cudaEventDestroy(event);
+      (void)hipEventDestroy(event);
     }
     
     int32_t idx = 0;
@@ -1052,7 +1052,7 @@ public:
     //
     // Create CUDA streams to maximize concurrency of batched-array GEMM kernels
     //
-    std::vector<cudaStream_t>   cuda_streams;
+    std::vector<hipStream_t>   cuda_streams;
     char const *provider = "CUTLASS";
 
     //
@@ -1062,10 +1062,10 @@ public:
 
     if (options.cuda_streams) {
       for (int i = 0; i < options.cuda_streams; ++i) {
-        cudaStream_t stream;
+        hipStream_t stream;
 
-        result.error = cudaStreamCreate(&stream);
-        if (result.error != cudaSuccess) {
+        result.error = hipStreamCreate(&stream);
+        if (result.error != hipSuccess) {
         std::cerr << "Failed to create CUDA stream." << std::endl;
           return result;
         }
@@ -1142,10 +1142,10 @@ public:
     // Wait for completion
     //
 
-    result.error = cudaDeviceSynchronize();
+    result.error = hipDeviceSynchronize();
 
-    if (result.error != cudaSuccess)  {
-      std::cerr << "Kernel execution error: " << cudaGetErrorString(result.error);
+    if (result.error != hipSuccess)  {
+      std::cerr << "Kernel execution error: " << hipGetErrorString(result.error);
       return result;
     }
 
@@ -1153,12 +1153,12 @@ public:
     // Construct events
     //
 
-    cudaEvent_t events[2];
+    hipEvent_t events[2];
 
     for (auto & event : events) {
-      result.error = cudaEventCreate(&event);
-      if (result.error != cudaSuccess) {
-        std::cerr << "cudaEventCreate() failed: " << cudaGetErrorString(result.error) << std::endl;
+      result.error = hipEventCreate(&event);
+      if (result.error != hipSuccess) {
+        std::cerr << "hipEventCreate() failed: " << hipGetErrorString(result.error) << std::endl;
         return -1;
       }
     }
@@ -1167,17 +1167,17 @@ public:
     // Wait for completion
     //
 
-    result.error = cudaDeviceSynchronize();
+    result.error = hipDeviceSynchronize();
 
-    if (result.error != cudaSuccess)  {
-      std::cerr << "Kernel execution error: " << cudaGetErrorString(result.error);
+    if (result.error != hipSuccess)  {
+      std::cerr << "Kernel execution error: " << hipGetErrorString(result.error);
       return result;
     }
 
     // Record an event at the start of a series of GEMM operations
-    result.error = cudaEventRecord(events[0]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventRecord() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventRecord(events[0]);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventRecord() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
@@ -1254,9 +1254,9 @@ public:
     //
 
     // Record an event when the GEMM operations have been launched.
-    result.error = cudaEventRecord(events[1]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventRecord() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventRecord(events[1]);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventRecord() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
     
@@ -1264,32 +1264,32 @@ public:
     // Wait for work to be completed
     //
 
-    result.error = cudaDeviceSynchronize();
+    result.error = hipDeviceSynchronize();
 
-    if (result.error != cudaSuccess)  {
-      std::cerr << "Kernel execution error: " << cudaGetErrorString(result.error);
+    if (result.error != hipSuccess)  {
+      std::cerr << "Kernel execution error: " << hipGetErrorString(result.error);
       return result;
     }
 
     // Wait for work on the device to complete.
-    result.error = cudaEventSynchronize(events[1]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventSynchronize() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventSynchronize(events[1]);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventSynchronize() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
     // Wait for work on the device to complete.
-    result.error = cudaEventSynchronize(events[0]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventSynchronize() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventSynchronize(events[0]);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventSynchronize() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
     // Measure elapsed runtime
     float runtime_ms = 0;
-    result.error = cudaEventElapsedTime(&runtime_ms, events[0], events[1]);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventElapsed() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventElapsedTime(&runtime_ms, events[0], events[1]);
+    if (result.error != hipSuccess) {
+      std::cerr << "cudaEventElapsed() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 
@@ -1302,12 +1302,12 @@ public:
     //
 
     for (auto event : events) {
-      (void)cudaEventDestroy(event);
+      (void)hipEventDestroy(event);
     }
     
     for (auto stream : cuda_streams) {
       if (stream) {
-        (void)cudaStreamDestroy(stream);  
+        (void)hipStreamDestroy(stream);  
       }
     }
 
@@ -1338,11 +1338,11 @@ int main(int argc, char const **args) {
   // This example uses mma.sync to directly access Tensor Cores to achieve peak performance.
   //
 
-  cudaDeviceProp props;
+  hipDeviceProp_t props;
 
-  cudaError_t error = cudaGetDeviceProperties(&props, 0);
-  if (error != cudaSuccess) {
-    std::cerr << "cudaGetDeviceProperties() returned an error: " << cudaGetErrorString(error) << std::endl;
+  hipError_t error = hipGetDeviceProperties(&props, 0);
+  if (error != hipSuccess) {
+    std::cerr << "hipGetDeviceProperties() returned an error: " << hipGetErrorString(error) << std::endl;
     return -1;
   }
 

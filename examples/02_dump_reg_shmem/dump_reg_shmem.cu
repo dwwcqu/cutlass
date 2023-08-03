@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -174,13 +175,13 @@ int main() {
   kernel_dump<Element, GmemIterator, SmemIterator>
       <<<grid, block, smem_size, 0>>>(params, matrix.device_ref());
 
-  cudaError_t result = cudaDeviceSynchronize();
+  hipError_t result = hipDeviceSynchronize();
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cout << "Failed" << std::endl;
   }
 
-  return (result == cudaSuccess ? 0 : -1);
+  return (result == hipSuccess ? 0 : -1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

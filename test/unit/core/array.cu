@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -125,8 +126,8 @@ public:
 
     test::core::test_array_clear<<< grid, block >>>(output.get());
 
-    cudaError_t result = cudaDeviceSynchronize();
-    ASSERT_EQ(result, cudaSuccess) << "CUDA error: " << cudaGetErrorString(result);
+    hipError_t result = hipDeviceSynchronize();
+    ASSERT_EQ(result, hipSuccess) << "CUDA error: " << hipGetErrorString(result);
 
     //
     // Verify contains all zeros
@@ -134,8 +135,8 @@ public:
 
     cutlass::device_memory::copy_to_host(output_host.data(), output.get(), kThreads);
 
-    result = cudaGetLastError();
-    ASSERT_EQ(result, cudaSuccess) << "CUDA error: " << cudaGetErrorString(result);
+    result = hipGetLastError();
+    ASSERT_EQ(result, hipSuccess) << "CUDA error: " << hipGetErrorString(result);
 
     char const *ptr_host = reinterpret_cast<char const *>(output_host.data());
     for (int i = 0; i < sizeof(ArrayTy) * kThreads; ++i) {
@@ -148,13 +149,13 @@ public:
 
     test::core::test_array_threadid<<< grid, block >>>(output.get());
 
-    result = cudaDeviceSynchronize();
-    ASSERT_EQ(result, cudaSuccess) << "CUDA error: " << cudaGetErrorString(result);
+    result = hipDeviceSynchronize();
+    ASSERT_EQ(result, hipSuccess) << "CUDA error: " << hipGetErrorString(result);
 
     cutlass::device_memory::copy_to_host(output_host.data(), output.get(), kThreads);
 
-    result = cudaGetLastError();
-    ASSERT_EQ(result, cudaSuccess) << "CUDA error: " << cudaGetErrorString(result);
+    result = hipGetLastError();
+    ASSERT_EQ(result, hipSuccess) << "CUDA error: " << hipGetErrorString(result);
 
     for (int i = 0; i < kThreads; ++i) {
       T tid = T(i);
@@ -183,13 +184,13 @@ public:
 
     test::core::test_array_sequence<<< grid, block >>>(output.get());
 
-    result = cudaDeviceSynchronize();
-    ASSERT_EQ(result, cudaSuccess) << "CUDA error: " << cudaGetErrorString(result);
+    result = hipDeviceSynchronize();
+    ASSERT_EQ(result, hipSuccess) << "CUDA error: " << hipGetErrorString(result);
 
     cutlass::device_memory::copy_to_host(output_host.data(), output.get(), kThreads);
 
-    result = cudaGetLastError();
-    ASSERT_EQ(result, cudaSuccess) << "CUDA error: " << cudaGetErrorString(result);
+    result = hipGetLastError();
+    ASSERT_EQ(result, hipSuccess) << "CUDA error: " << hipGetErrorString(result);
 
     for (int i = 0; i < kThreads; ++i) {
 

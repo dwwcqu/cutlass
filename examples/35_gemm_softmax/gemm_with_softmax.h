@@ -1095,7 +1095,7 @@ public:
   }
 
   /// Run
-  Status run(cudaStream_t stream) {
+  Status run(hipStream_t stream) {
 
     //
     // Launch the GEMM + max kernel
@@ -1108,9 +1108,9 @@ public:
 
     cutlass::Kernel<GemmKernel><<<gemm_grid, gemm_block, gemm_smem_size, stream>>>(params_.gemm);
 
-    cudaError_t result = cudaGetLastError();
+    hipError_t result = hipGetLastError();
 
-    if (result != cudaSuccess) {
+    if (result != hipSuccess) {
       return cutlass::Status::kErrorInternal;
     }
 
@@ -1132,9 +1132,9 @@ public:
       apply_grid, apply_block, sizeof(typename SoftmaxApplyKernel::SharedStorage), stream
     >>>(params_.softmax);
 
-    result = cudaGetLastError();
+    result = hipGetLastError();
 
-    if (result != cudaSuccess) {
+    if (result != hipSuccess) {
       return cutlass::Status::kErrorInternal;
     }
 
@@ -1142,7 +1142,7 @@ public:
   }
 
   /// Function call operator
-  Status operator()(cudaStream_t stream = nullptr) {
+  Status operator()(hipStream_t stream = nullptr) {
     return run(stream);
   }
 };

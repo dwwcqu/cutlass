@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -134,8 +135,8 @@ TEST(Transform_threadblock_PredicatedTileIterator, PitchLinear_Stripmined) {
     copy_extent
   );
 
-  cudaError_t result = cudaGetLastError();
-  EXPECT_EQ(result, cudaSuccess) << " - CUDA error: " << cudaGetErrorString(result);
+  hipError_t result = hipGetLastError();
+  EXPECT_EQ(result, hipSuccess) << " - CUDA error: " << hipGetErrorString(result);
   
   dst_tensor.sync_host();
 
@@ -207,8 +208,8 @@ TEST(Transform_threadblock_PredicatedTileIterator, PitchLinear_Stripmined_2dtile
     copy_extent
   );
 
-  cudaError_t result = cudaGetLastError();
-  EXPECT_EQ(result, cudaSuccess) << " - CUDA error: " << cudaGetErrorString(result);
+  hipError_t result = hipGetLastError();
+  EXPECT_EQ(result, hipSuccess) << " - CUDA error: " << hipGetErrorString(result);
   
   dst_tensor.sync_host();
 
@@ -281,8 +282,8 @@ TEST(Transform_threadblock_PredicatedTileIterator, PitchLinear_Stripmined_2dtile
     copy_extent
   );
 
-  cudaError_t result = cudaGetLastError();
-  EXPECT_EQ(result, cudaSuccess) << " - CUDA error: " << cudaGetErrorString(result);
+  hipError_t result = hipGetLastError();
+  EXPECT_EQ(result, hipSuccess) << " - CUDA error: " << hipGetErrorString(result);
   
   dst_tensor.sync_host();
 
@@ -355,8 +356,8 @@ TEST(Transform_threadblock_PredicatedTileIterator, PitchLinear_Stripmined_2dtile
     copy_extent
   );
 
-  cudaError_t result = cudaGetLastError();
-  EXPECT_EQ(result, cudaSuccess) << " - CUDA error: " << cudaGetErrorString(result);
+  hipError_t result = hipGetLastError();
+  EXPECT_EQ(result, hipSuccess) << " - CUDA error: " << hipGetErrorString(result);
   
   dst_tensor.sync_host();
 
@@ -429,8 +430,8 @@ TEST(Transform_threadblock_PredicatedTileIterator, PitchLinear_Stripmined_2dtile
     copy_extent
   );
 
-  cudaError_t result = cudaGetLastError();
-  EXPECT_EQ(result, cudaSuccess) << " - CUDA error: " << cudaGetErrorString(result);
+  hipError_t result = hipGetLastError();
+  EXPECT_EQ(result, hipSuccess) << " - CUDA error: " << hipGetErrorString(result);
   
   dst_tensor.sync_host();
 
@@ -504,8 +505,8 @@ TEST(Transform_threadblock_PredicatedTileIterator, PitchLinear_Stripmined_2dtile
     copy_extent
   );
 
-  cudaError_t result = cudaGetLastError();
-  EXPECT_EQ(result, cudaSuccess) << " - CUDA error: " << cudaGetErrorString(result);
+  hipError_t result = hipGetLastError();
+  EXPECT_EQ(result, hipSuccess) << " - CUDA error: " << hipGetErrorString(result);
   
   dst_tensor.sync_host();
 
@@ -588,8 +589,8 @@ TEST(Transform_threadblock_PredicatedTileIterator, PitchLinear_Stripmined_2dtile
     copy_extent
   );
 
-  cudaError_t result = cudaGetLastError();
-  EXPECT_EQ(result, cudaSuccess) << " - CUDA error: " << cudaGetErrorString(result);
+  hipError_t result = hipGetLastError();
+  EXPECT_EQ(result, hipSuccess) << " - CUDA error: " << hipGetErrorString(result);
   
   dst_tensor.sync_host();
 
@@ -672,8 +673,8 @@ TEST(Transform_threadblock_PredicatedTileIterator, PitchLinear_Stripmined_2dtile
     copy_extent
   );
 
-  cudaError_t result = cudaGetLastError();
-  EXPECT_EQ(result, cudaSuccess) << " - CUDA error: " << cudaGetErrorString(result);
+  hipError_t result = hipGetLastError();
+  EXPECT_EQ(result, hipSuccess) << " - CUDA error: " << hipGetErrorString(result);
   
   dst_tensor.sync_host();
 
@@ -756,8 +757,8 @@ TEST(Transform_threadblock_PredicatedTileIterator, PitchLinear_Stripmined_2dtile
     copy_extent
   );
 
-  cudaError_t result = cudaGetLastError();
-  EXPECT_EQ(result, cudaSuccess) << " - CUDA error: " << cudaGetErrorString(result);
+  hipError_t result = hipGetLastError();
+  EXPECT_EQ(result, hipSuccess) << " - CUDA error: " << hipGetErrorString(result);
   
   dst_tensor.sync_host();
 

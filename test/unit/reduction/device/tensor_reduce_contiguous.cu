@@ -99,7 +99,7 @@ bool TestAllReduction_NHWC_reduce_c(ElementCompute reduction_identity = ElementC
           );
 
           EXPECT_EQ(status, cutlass::Status::kSuccess);
-          EXPECT_EQ(cudaDeviceSynchronize(), cudaSuccess);
+          EXPECT_EQ(hipDeviceSynchronize(), hipSuccess);
           
           dst_tensor.sync_host();
 

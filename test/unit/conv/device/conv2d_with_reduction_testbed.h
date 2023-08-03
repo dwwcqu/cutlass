@@ -186,18 +186,18 @@ public:
 
     int smem_size = int(sizeof(typename Conv2d::ImplicitGemmKernel::SharedStorage));
 
-    cudaDeviceProp properties;
+    hipDeviceProp_t properties;
     int device_idx;
-    cudaError_t result = cudaGetDevice(&device_idx);
+    hipError_t result = hipGetDevice(&device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDevice() API call failed.");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDevice() API call failed.");
     }
 
-    result = cudaGetDeviceProperties(&properties, device_idx);
+    result = hipGetDeviceProperties(&properties, device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDeviceProperties() failed");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDeviceProperties() failed");
     }
 
     if (properties.sharedMemPerMultiprocessor < smem_size) {
@@ -256,8 +256,8 @@ public:
     cutlass::Status status = conv2d_op.initialize(conv2d_args, workspace.get());
 
     if (status != cutlass::Status::kSuccess) {
-      cudaError_t error = cudaGetLastError();
-      std::cerr << "This test is not supported: " << cudaGetErrorString(error) << "\n";
+      hipError_t error = hipGetLastError();
+      std::cerr << "This test is not supported: " << hipGetErrorString(error) << "\n";
       return true;
     }
 
@@ -287,9 +287,9 @@ public:
 
     bool passed = false;
 
-    cudaError_t result = cudaDeviceSynchronize();
-    EXPECT_EQ(result, cudaSuccess) << " device reference error: " 
-                                   << cudaGetErrorString(result);
+    hipError_t result = hipDeviceSynchronize();
+    EXPECT_EQ(result, hipSuccess) << " device reference error: " 
+                                   << hipGetErrorString(result);
 
     tensor_D_computed.sync_host();
 

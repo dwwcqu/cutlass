@@ -242,19 +242,19 @@ struct B2bNonFusedGemmRun
     // Run the GEMM
     //
 
-    cudaEvent_t start, stop1, stop2;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop1);
-    cudaEventCreate(&stop2);
+    hipEvent_t start, stop1, stop2;
+    hipEventCreate(&start);
+    hipEventCreate(&stop1);
+    hipEventCreate(&stop2);
 
-    cudaEventRecord(start);
+    hipEventRecord(start);
 
     for(int i = 0; i < runs; i++) {
         status = gemm_op_0();
     
         CUTLASS_CHECK(status);
     }
-    cudaEventRecord(stop1);
+    hipEventRecord(stop1);
     for(int i = 0; i < runs; i++) {
     
         status = gemm_op_1();
@@ -262,12 +262,12 @@ struct B2bNonFusedGemmRun
         CUTLASS_CHECK(status);
     }
 
-    cudaEventRecord(stop2);
-    cudaDeviceSynchronize();
+    hipEventRecord(stop2);
+    hipDeviceSynchronize();
     float gemm0Time, gemm1Time, totalTime;
-    cudaEventElapsedTime(&gemm0Time, start, stop1);
-    cudaEventElapsedTime(&gemm1Time, stop1, stop2);
-    cudaEventElapsedTime(&totalTime, start, stop2);
+    hipEventElapsedTime(&gemm0Time, start, stop1);
+    hipEventElapsedTime(&gemm1Time, stop1, stop2);
+    hipEventElapsedTime(&totalTime, start, stop2);
     std::cout << "gemm 0 time " << gemm0Time / (float)runs << " ms\n";
     std::cout << "gemm 1 time " << gemm1Time / (float)runs << " ms\n";
     std::cout << "Non-fusion time " << totalTime / (float)runs << " ms\n";
@@ -321,7 +321,7 @@ struct B2bNonFusedGemmRun
     }
    
     // Wait for kernels to finish
-    cudaDeviceSynchronize();
+    hipDeviceSynchronize();
     reference_D0.sync_host();
     reference_D1.sync_host();
 
@@ -538,11 +538,11 @@ struct B2bFusedGemmRun
     // Run the GEMM
     //
 
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
+    hipEvent_t start, stop;
+    hipEventCreate(&start);
+    hipEventCreate(&stop);
 
-    cudaEventRecord(start);
+    hipEventRecord(start);
 
     for(int i = 0; i < runs; i++) {
         status = b2b_gemm_op();
@@ -550,10 +550,10 @@ struct B2bFusedGemmRun
         CUTLASS_CHECK(status);
     }
 
-    cudaEventRecord(stop);
-    cudaDeviceSynchronize();
+    hipEventRecord(stop);
+    hipDeviceSynchronize();
     float gemmTime;
-    cudaEventElapsedTime(&gemmTime, start, stop);
+    hipEventElapsedTime(&gemmTime, start, stop);
     std::cout << "Fusion time " << gemmTime / (float)runs << " ms\n";
 
     tensor_D1.sync_host();
@@ -596,7 +596,7 @@ struct B2bFusedGemmRun
        cutlass::reference::device::TensorReLu(reference_D1.device_view()); 
     }
 
-    cudaDeviceSynchronize();
+    hipDeviceSynchronize();
     reference_D0.sync_host();
     reference_D1.sync_host();
  

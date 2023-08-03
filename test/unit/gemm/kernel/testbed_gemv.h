@@ -180,21 +180,21 @@ void batched_gemv_kernel_test(cutlass::gemm::BatchedGemmCoord problem_size,
     printf("block dim = %d, %d, %d\n", block.x, block.y, block.z);
     #endif
 
-    cudaError_t result;
-    cudaEvent_t start_event, end_event;
+    hipError_t result;
+    hipEvent_t start_event, end_event;
  
     for (int iter = 0; iter < (perf_test ? (perf_test_iter+1) : 1); ++iter)
     {
         if (perf_test && iter == 1)
         {
-            result = cudaEventCreate(&start_event);
-            EXPECT_EQ(result, cudaSuccess);
+            result = hipEventCreate(&start_event);
+            EXPECT_EQ(result, hipSuccess);
             
-            result = cudaEventCreate(&end_event);
-            EXPECT_EQ(result, cudaSuccess);
+            result = hipEventCreate(&end_event);
+            EXPECT_EQ(result, hipSuccess);
     
-            result = cudaEventRecord(start_event);
-            EXPECT_EQ(result, cudaSuccess);
+            result = hipEventRecord(start_event);
+            EXPECT_EQ(result, hipSuccess);
         }
 
         if (beta == ElementCD(0))
@@ -244,25 +244,25 @@ void batched_gemv_kernel_test(cutlass::gemm::BatchedGemmCoord problem_size,
 
         if (iter == 0)
         {
-            result = cudaGetLastError();
-            EXPECT_EQ(result, cudaSuccess) << " kernel error: " << cudaGetErrorString(result);        
+            result = hipGetLastError();
+            EXPECT_EQ(result, hipSuccess) << " kernel error: " << hipGetErrorString(result);        
         }
     }
 
     if (perf_test)
     {
-        result = cudaEventRecord(end_event);
-        EXPECT_EQ(result, cudaSuccess);
+        result = hipEventRecord(end_event);
+        EXPECT_EQ(result, hipSuccess);
     }
 
-    result = cudaDeviceSynchronize();
-    EXPECT_EQ(result, cudaSuccess) << " kernel error: " << cudaGetErrorString(result);
+    result = hipDeviceSynchronize();
+    EXPECT_EQ(result, hipSuccess) << " kernel error: " << hipGetErrorString(result);
 
     if (perf_test)
     {
         float ms;
-        result = cudaEventElapsedTime(&ms, start_event, end_event);
-        EXPECT_EQ(result, cudaSuccess);
+        result = hipEventElapsedTime(&ms, start_event, end_event);
+        EXPECT_EQ(result, hipSuccess);
         
         double flops = (double(problem_size.m()) *
                         double(problem_size.n()) *

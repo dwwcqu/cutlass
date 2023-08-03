@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -265,26 +266,26 @@ struct Testbed {
     typename IteratorA::Params params_A(matrix_A.layout());
     typename IteratorB::Params params_B(matrix_B.layout());
 
-    cudaError_t result;
+    hipError_t result;
 
     int smem_size = int(sizeof(typename Mma::SharedStorage));
     if (smem_size >= (48 << 10)) {
-      result = cudaFuncSetAttribute(
+      result = hipFuncSetAttribute(
           test::gemm::threadblock::kernel_multistage_mma<Mma>,
-          cudaFuncAttributeMaxDynamicSharedMemorySize, smem_size);
+          hipFuncAttributeMaxDynamicSharedMemorySize, smem_size);
 
-      if (result != cudaSuccess) {
+      if (result != hipSuccess) {
         if (CUTLASS_TEST_UNIT_ENABLE_WARNINGS) {
           std::cerr << "Test waived due to insufficient CUDA device." << std::endl;
         }
         return true;
       }
 
-      result = cudaFuncSetAttribute(
+      result = hipFuncSetAttribute(
           test::gemm::threadblock::kernel_multistage_mma<Mma>,
-          cudaFuncAttributePreferredSharedMemoryCarveout, 100);
+          hipFuncAttributePreferredSharedMemoryCarveout, 100);
 
-      if (result != cudaSuccess) {
+      if (result != hipSuccess) {
         if (CUTLASS_TEST_UNIT_ENABLE_WARNINGS) {
           std::cerr << "Test waived due to insufficient CUDA device." << std::endl;
         }
@@ -302,9 +303,9 @@ struct Testbed {
     // Check error code
     //
 
-    result = cudaDeviceSynchronize();
-    EXPECT_EQ(result, cudaSuccess)
-        << " kernel error: " << cudaGetErrorString(result);
+    result = hipDeviceSynchronize();
+    EXPECT_EQ(result, hipSuccess)
+        << " kernel error: " << hipGetErrorString(result);
 
     matrix_C_computed.sync_host();
 

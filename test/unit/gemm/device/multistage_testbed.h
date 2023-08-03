@@ -111,18 +111,18 @@ struct MultistageTestbed {
 
     int smem_size = int(sizeof(typename Gemm::GemmKernel::SharedStorage));
 
-    cudaDeviceProp properties;
+    hipDeviceProp_t properties;
     int device_idx;
-    cudaError_t result = cudaGetDevice(&device_idx);
+    hipError_t result = hipGetDevice(&device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDevice() API call failed.");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDevice() API call failed.");
     }
 
-    result = cudaGetDeviceProperties(&properties, device_idx);
+    result = hipGetDeviceProperties(&properties, device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDeviceProperties() failed");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDeviceProperties() failed");
     }
 
     if (properties.sharedMemPerMultiprocessor < smem_size) {
@@ -186,8 +186,8 @@ struct MultistageTestbed {
     cutlass::Status status = gemm_op.initialize(arguments);
 
     if (status != cutlass::Status::kSuccess) {
-      cudaError_t error = cudaGetLastError();
-      std::cerr << "This test is not supported: " << cudaGetErrorString(error) << "\n";
+      hipError_t error = hipGetLastError();
+      std::cerr << "This test is not supported: " << hipGetErrorString(error) << "\n";
       return true;
     }
 

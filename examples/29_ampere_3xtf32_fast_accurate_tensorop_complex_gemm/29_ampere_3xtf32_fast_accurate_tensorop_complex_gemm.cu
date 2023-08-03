@@ -66,7 +66,7 @@ struct Result {
   double runtime_ms;
   double gflops;
   cutlass::Status status;
-  cudaError_t error;
+  hipError_t error;
 
   int m, n, k;
   double l2_norm_3xtf32_vs_fp64;
@@ -419,20 +419,20 @@ bool run(Options &options) {
   // Construct events
   //
 
-  cudaEvent_t events[2];
+  hipEvent_t events[2];
 
   for (auto & event : events) {
-    result.error = cudaEventCreate(&event);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventCreate() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventCreate(&event);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventCreate() failed: " << hipGetErrorString(result.error) << std::endl;
       return false;
     }
   }
 
   // Record an event at the start of a series of GEMMs
-  result.error = cudaEventRecord(events[0]);
-  if (result.error != cudaSuccess) {
-    std::cerr << "cudaEventRecord() failed: " << cudaGetErrorString(result.error) << std::endl;
+  result.error = hipEventRecord(events[0]);
+  if (result.error != hipSuccess) {
+    std::cerr << "hipEventRecord() failed: " << hipGetErrorString(result.error) << std::endl;
     return false;
   }
 
@@ -451,24 +451,24 @@ bool run(Options &options) {
   //
 
   // Record an event when the GEMMs are complete
-  result.error = cudaEventRecord(events[1]);
-  if (result.error != cudaSuccess) {
-    std::cerr << "cudaEventRecord() failed: " << cudaGetErrorString(result.error) << std::endl;
+  result.error = hipEventRecord(events[1]);
+  if (result.error != hipSuccess) {
+    std::cerr << "hipEventRecord() failed: " << hipGetErrorString(result.error) << std::endl;
     return false;
   }
 
   // Wait for work on the device to complete.
-  result.error = cudaEventSynchronize(events[1]);
-  if (result.error != cudaSuccess) {
-    std::cerr << "cudaEventSynchronize() failed: " << cudaGetErrorString(result.error) << std::endl;
+  result.error = hipEventSynchronize(events[1]);
+  if (result.error != hipSuccess) {
+    std::cerr << "hipEventSynchronize() failed: " << hipGetErrorString(result.error) << std::endl;
     return false;
   }
 
   // Measure elapsed runtime
   float runtime_ms = 0;
-  result.error = cudaEventElapsedTime(&runtime_ms, events[0], events[1]);
-  if (result.error != cudaSuccess) {
-    std::cerr << "cudaEventElapsed() failed: " << cudaGetErrorString(result.error) << std::endl;
+  result.error = hipEventElapsedTime(&runtime_ms, events[0], events[1]);
+  if (result.error != hipSuccess) {
+    std::cerr << "cudaEventElapsed() failed: " << hipGetErrorString(result.error) << std::endl;
     return false;
   }
 
@@ -481,7 +481,7 @@ bool run(Options &options) {
 
   // Cleanup
   for (auto event : events) {
-    (void)cudaEventDestroy(event);
+    (void)hipEventDestroy(event);
   }
 
   tensor_d_3xTF32.sync_host();
@@ -540,7 +540,7 @@ bool run(Options &options) {
                    cutlass::complex<double>(0.f));
 
   // Wait for kernels to finish
-  cudaDeviceSynchronize();
+  hipDeviceSynchronize();
 
   // Copy output data from CUTLASS and reference kernel to host for comparison
   tensor_d_F64.sync_host();
@@ -563,7 +563,7 @@ bool run(Options &options) {
                    cutlass::complex<float>(0.f));
 
   // Wait for kernels to finish
-  cudaDeviceSynchronize();
+  hipDeviceSynchronize();
 
   // Copy output data from CUTLASS and reference kernel to host for comparison
   tensor_d_F32.sync_host();
@@ -627,11 +627,11 @@ int main(int argc, const char **argv) {
     notSupported = true;
   }
 
-  cudaDeviceProp props;
+  hipDeviceProp_t props;
 
-  cudaError_t error = cudaGetDeviceProperties(&props, 0);
-  if (error != cudaSuccess) {
-    std::cerr << "cudaGetDeviceProperties() returned an error: " << cudaGetErrorString(error) << std::endl;
+  hipError_t error = hipGetDeviceProperties(&props, 0);
+  if (error != hipSuccess) {
+    std::cerr << "hipGetDeviceProperties() returned an error: " << hipGetErrorString(error) << std::endl;
     return false;
   }
 

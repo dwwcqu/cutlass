@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -309,9 +310,9 @@ struct Testbed {
     // Check error code
     //
 
-    cudaError_t result = cudaDeviceSynchronize();
-    EXPECT_EQ(result, cudaSuccess)
-        << " kernel error: " << cudaGetErrorString(result);
+    hipError_t result = hipDeviceSynchronize();
+    EXPECT_EQ(result, hipSuccess)
+        << " kernel error: " << hipGetErrorString(result);
 
     CUTLASS_PRAGMA_UNROLL
     for(int k = 0; k < kPartitionsK; k++)

@@ -58,8 +58,8 @@ inline std::ostream &operator<<(std::ostream &out, dim3 d) {
 }
 
 /// Output operator for CUDA built-in error type
-inline std::ostream &operator<<(std::ostream &out, cudaError_t error) {
-  return out << cudaGetErrorString(error);
+inline std::ostream &operator<<(std::ostream &out, hipError_t error) {
+  return out << hipGetErrorString(error);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

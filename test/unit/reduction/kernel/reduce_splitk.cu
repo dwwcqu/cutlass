@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -165,10 +166,10 @@ public:
 
     test::reduction::kernel_reduce_splitk<ReductionKernel><<< grid, block >>>(params);
 
-    cudaError_t result = cudaDeviceSynchronize();
+    hipError_t result = hipDeviceSynchronize();
 
-    EXPECT_EQ(result, cudaSuccess)
-      << "CUDA error: " << cudaGetErrorString(result);
+    EXPECT_EQ(result, hipSuccess)
+      << "CUDA error: " << hipGetErrorString(result);
 
     destination.sync_host();
 

@@ -119,7 +119,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Define a CUTLASS GEMM template and launch a GEMM kernel.
-cudaError_t cutlass_hgemm_nn(
+hipError_t cutlass_hgemm_nn(
   int M,
   int N,
   int K,
@@ -154,18 +154,18 @@ cudaError_t cutlass_hgemm_nn(
   });
 
   if (status != cutlass::Status::kSuccess) {
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
-  return cudaSuccess;
+  return hipSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Allocate several matrices in GPU device memory and call a single-precision
 /// CUTLASS GEMM kernel.
-cudaError_t TestCutlassGemm(int M, int N, int K, cutlass::half_t alpha, cutlass::half_t beta) {
-  cudaError_t result;
+hipError_t TestCutlassGemm(int M, int N, int K, cutlass::half_t alpha, cutlass::half_t beta) {
+  hipError_t result;
 
   //
   // Construct cutlass::HostTensor<> using the half-precision host-side type.
@@ -254,7 +254,7 @@ cudaError_t TestCutlassGemm(int M, int N, int K, cutlass::half_t alpha, cutlass:
     C_cutlass.stride(0)
   );
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     return result;
   }
 
@@ -316,11 +316,11 @@ cudaError_t TestCutlassGemm(int M, int N, int K, cutlass::half_t alpha, cutlass:
     file << "\n\nReference =\n" << C_reference.host_view() << std::endl;
 
     // Return error code.
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
   // Passed error check
-  return cudaSuccess;
+  return hipSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -337,11 +337,11 @@ int main(int argc, const char *arg[]) {
   // This example uses half-precision and is only suitable for devices with compute capabitliy 5.3 or greater.
   //
 
-  cudaDeviceProp prop;
-  cudaError_t result = cudaGetDeviceProperties(&prop, 0);
+  hipDeviceProp_t prop;
+  hipError_t result = hipGetDeviceProperties(&prop, 0);
   
-  if (result != cudaSuccess) {
-    std::cerr << "Failed to query device properties with error " << cudaGetErrorString(result) << std::endl;
+  if (result != hipSuccess) {
+    std::cerr << "Failed to query device properties with error " << hipGetErrorString(result) << std::endl;
     return -1;
   }
 
@@ -388,12 +388,12 @@ int main(int argc, const char *arg[]) {
     scalars[1]      // beta
   );
 
-  if (result == cudaSuccess) {
+  if (result == hipSuccess) {
     std::cout << "Passed." << std::endl;
   }
 
   // Exit.
-  return result == cudaSuccess ? 0 : -1;
+  return result == hipSuccess ? 0 : -1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

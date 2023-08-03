@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -123,7 +124,7 @@ __global__ void copy(
 // memory into a fragment (regiser-backed array of elements owned by each thread) and another to 
 // store the data from the fragment back into the addressable memory of the destination tile.
 
-cudaError_t TestTileIterator(int M, int K) {
+hipError_t TestTileIterator(int M, int K) {
 
     // For this example, we chose a <64, 4> tile shape. The PredicateTileIterator expects
     // PitchLinearShape and PitchLinear layout.
@@ -174,8 +175,8 @@ cudaError_t TestTileIterator(int M, int K) {
             copy_extent
     );
 
-    cudaError_t result = cudaGetLastError();
-    if(result != cudaSuccess) {
+    hipError_t result = hipGetLastError();
+    if(result != hipSuccess) {
       std::cerr << "Error - kernel failed." << std::endl;
       return result;
     }
@@ -200,23 +201,23 @@ cudaError_t TestTileIterator(int M, int K) {
 
           if(!equal) {
               std::cerr << "Error - source tile differs from destination tile." << std::endl;
-            return cudaErrorUnknown;
+            return hipErrorUnknown;
           }
       }
     }
 
-    return cudaSuccess;
+    return hipSuccess;
 }
 
 int main(int argc, const char *arg[]) {
 
-    cudaError_t result = TestTileIterator(57, 35);
+    hipError_t result = TestTileIterator(57, 35);
 
-    if(result == cudaSuccess) {
+    if(result == hipSuccess) {
       std::cout << "Passed." << std::endl;  
     }
 
     // Exit
-    return result == cudaSuccess ? 0 : -1;
+    return result == hipSuccess ? 0 : -1;
 }
 

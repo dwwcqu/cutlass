@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -216,8 +217,8 @@ TEST(PredicatedTileIterator, tensor_op_64x64x32_64x64x8) {
   test::epilogue::threadblock::kernel_store_iterator<PredicatedTileIterator><<< grid, block >>>(
     iterator_params, host_tensor.device_ref(), output_extent);
 
-  cudaError_t result = cudaDeviceSynchronize();
-  ASSERT_EQ(result, cudaSuccess) << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  ASSERT_EQ(result, hipSuccess) << hipGetErrorString(result);
 
   //
   // Verify results
@@ -333,8 +334,8 @@ TEST(PredicatedTileIterator, tensor_op_128x64x32_64x64x8) {
   test::epilogue::threadblock::kernel_store_iterator<PredicatedTileIterator><<< grid, block >>>(
     iterator_params, host_tensor.device_ref(), output_extent);
 
-  cudaError_t result = cudaDeviceSynchronize();
-  ASSERT_EQ(result, cudaSuccess) << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  ASSERT_EQ(result, hipSuccess) << hipGetErrorString(result);
 
   //
   // Verify results
@@ -453,8 +454,8 @@ TEST(PredicatedTileIterator, tensor_op_128x256x32_64x64x8) {
   test::epilogue::threadblock::kernel_store_iterator<PredicatedTileIterator><<< grid, block >>>(
     iterator_params, host_tensor.device_ref(), output_extent);
 
-  cudaError_t result = cudaDeviceSynchronize();
-  ASSERT_EQ(result, cudaSuccess) << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  ASSERT_EQ(result, hipSuccess) << hipGetErrorString(result);
 
   //
   // Verify results
@@ -570,8 +571,8 @@ TEST(PredicatedTileIterator, volta_tensor_op_64x64x32_64x64x4) {
   test::epilogue::threadblock::kernel_store_iterator<PredicatedTileIterator><<< grid, block >>>(
     iterator_params, host_tensor.device_ref(), output_extent);
 
-  cudaError_t result = cudaDeviceSynchronize();
-  ASSERT_EQ(result, cudaSuccess) << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  ASSERT_EQ(result, hipSuccess) << hipGetErrorString(result);
 
   //
   // Verify results
@@ -686,8 +687,8 @@ TEST(PredicatedTileIterator, volta_tensor_op_64x128x32_32x64x4) {
   test::epilogue::threadblock::kernel_store_iterator<PredicatedTileIterator><<< grid, block >>>(
     iterator_params, host_tensor.device_ref(), output_extent);
 
-  cudaError_t result = cudaDeviceSynchronize();
-  ASSERT_EQ(result, cudaSuccess) << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  ASSERT_EQ(result, hipSuccess) << hipGetErrorString(result);
 
   //
   // Verify results
@@ -803,8 +804,8 @@ TEST(PredicatedTileIterator, volta_tensor_op_128x256x32_64x64x4) {
   test::epilogue::threadblock::kernel_store_iterator<PredicatedTileIterator><<< grid, block >>>(
     iterator_params, host_tensor.device_ref(), output_extent);
 
-  cudaError_t result = cudaDeviceSynchronize();
-  ASSERT_EQ(result, cudaSuccess) << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  ASSERT_EQ(result, hipSuccess) << hipGetErrorString(result);
 
   //
   // Verify results
@@ -869,8 +870,8 @@ TEST(PredicatedTileIterator, volta_tensor_op_256x128x32_64x64x4) {
   test::epilogue::threadblock::kernel_store_iterator<PredicatedTileIterator> <<< grid, block >>>(
     iterator_params, host_tensor.device_ref(), output_extent);
 
-  cudaError_t result = cudaDeviceSynchronize();
-  ASSERT_EQ(result, cudaSuccess) << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  ASSERT_EQ(result, hipSuccess) << hipGetErrorString(result);
 
   //
   // Verify results
@@ -987,8 +988,8 @@ TEST(PredicatedTileIterator, simt_32x64x8_32x64x1) {
   test::epilogue::threadblock::kernel_store_iterator<PredicatedTileIterator><<< grid, block >>>(
     iterator_params, host_tensor.device_ref(), output_extent);
 
-  cudaError_t result = cudaDeviceSynchronize();
-  ASSERT_EQ(result, cudaSuccess) << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  ASSERT_EQ(result, hipSuccess) << hipGetErrorString(result);
 
   //
   // Verify results
@@ -1104,8 +1105,8 @@ TEST(PredicatedTileIterator, simt_128x128x8_32x64x1) {
   test::epilogue::threadblock::kernel_store_iterator<PredicatedTileIterator><<< grid, block >>>(
     iterator_params, host_tensor.device_ref(), output_extent);
 
-  cudaError_t result = cudaDeviceSynchronize();
-  ASSERT_EQ(result, cudaSuccess) << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  ASSERT_EQ(result, hipSuccess) << hipGetErrorString(result);
 
   //
   // Verify results

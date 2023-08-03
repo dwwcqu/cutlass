@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cuda_runtime.h"
+#include "hip/hip_runtime.h"
 
 #define CUTLASS_CHECK(status)                                                                    \
   {                                                                                              \
@@ -14,9 +14,9 @@
 
 #define CUDA_CHECK(status)                                              \
   {                                                                     \
-    cudaError_t error = status;                                         \
-    if (error != cudaSuccess) {                                         \
-      std::cerr << "Got bad cuda status: " << cudaGetErrorString(error) \
+    hipError_t error = status;                                         \
+    if (error != hipSuccess) {                                         \
+      std::cerr << "Got bad cuda status: " << hipGetErrorString(error) \
                 << " at line: " << __LINE__ << std::endl;               \
       exit(EXIT_FAILURE);                                               \
     }                                                                   \

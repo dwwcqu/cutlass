@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -119,8 +120,8 @@ TEST(SM75_gemm_threadblock_epilogue_workspace, tensor_op_128x128_64x64) {
     params
   );
 
-  cudaError_t result = cudaDeviceSynchronize();
-  EXPECT_EQ(result, cudaSuccess) << "Kernel launch error - " << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  EXPECT_EQ(result, hipSuccess) << "Kernel launch error - " << hipGetErrorString(result);
 
   //
   // 

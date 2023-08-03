@@ -51,7 +51,7 @@
 #if defined(CUTLASS_ARCH_MMA_SM80_SUPPORTED)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// HERK operator on CUBLAS_OP_N (column-major) input layouts 
+// HERK operator on HIPBLAS_OP_N (column-major) input layouts 
 TEST(SM80_Device_Herk_cf32n_cf32n_l_tensor_op_fast_f32, 64x64x16_32x32x16) {
 
   using ElementA = cutlass::complex<float>;
@@ -93,7 +93,7 @@ TEST(SM80_Device_Herk_cf32n_cf32n_l_tensor_op_fast_f32, 64x64x16_32x32x16) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HERK operator on CUBLAS_OP_N (column-major) input layouts 
+// HERK operator on HIPBLAS_OP_N (column-major) input layouts 
 TEST(SM80_Device_Herk_cf32n_cf32n_u_tensor_op_fast_f32, 64x64x16_32x32x16) {
 
   using ElementA = cutlass::complex<float>;
@@ -134,7 +134,7 @@ TEST(SM80_Device_Herk_cf32n_cf32n_u_tensor_op_fast_f32, 64x64x16_32x32x16) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// HERK operator on CUBLAS_OP_C (row-major + conj) input layouts
+// HERK operator on HIPBLAS_OP_C (row-major + conj) input layouts
 TEST(SM80_Device_Herk_cf32h_cf32n_l_tensor_op_fast_f32, 64x64x16_32x32x16) {
 
   using ElementA = cutlass::complex<float>;
@@ -175,7 +175,7 @@ TEST(SM80_Device_Herk_cf32h_cf32n_l_tensor_op_fast_f32, 64x64x16_32x32x16) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// HERK operator on CUBLAS_OP_C (row-major + conj) input layouts
+// HERK operator on HIPBLAS_OP_C (row-major + conj) input layouts
 TEST(SM80_Device_Herk_cf32h_cf32n_u_tensor_op_fast_f32, 64x64x16_32x32x16) {
 
   using ElementA = cutlass::complex<float>;

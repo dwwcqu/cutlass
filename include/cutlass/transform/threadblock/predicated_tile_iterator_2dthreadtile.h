@@ -39,7 +39,7 @@
 */
 
 #pragma once
-
+#include "hip/hip_runtime.h"
 #include "cutlass/transform/threadblock/predicated_tile_access_iterator_2dthreadtile.h"
 #include "cutlass/transform/thread/transpose.h"
 

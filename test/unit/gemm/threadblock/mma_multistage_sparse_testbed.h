@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -243,18 +244,18 @@ struct SparseTestbed {
 
     int smem_size = int(sizeof(typename Mma::SharedStorage));
 
-    cudaDeviceProp properties;
+    hipDeviceProp_t properties;
     int device_idx;
-    cudaError_t result = cudaGetDevice(&device_idx);
+    hipError_t result = hipGetDevice(&device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDevice() API call failed.");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDevice() API call failed.");
     }
 
-    result = cudaGetDeviceProperties(&properties, device_idx);
+    result = hipGetDeviceProperties(&properties, device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDeviceProperties() failed");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDeviceProperties() failed");
     }
 
     if (properties.sharedMemPerMultiprocessor < smem_size) {
@@ -362,23 +363,23 @@ struct SparseTestbed {
     typename IteratorB::Params params_B(matrix_B.layout());
     typename IteratorE::Params params_E(matrix_E_reordered.layout());
 
-    cudaError_t result;
+    hipError_t result;
 
     int smem_size = int(sizeof(typename Mma::SharedStorage));
     if (smem_size >= (48 << 10)) {
-      result = cudaFuncSetAttribute(
+      result = hipFuncSetAttribute(
           test::gemm::threadblock::kernel_multistage_mma_sparse<Mma>,
-          cudaFuncAttributeMaxDynamicSharedMemorySize, smem_size);
+          hipFuncAttributeMaxDynamicSharedMemorySize, smem_size);
 
-      if (result != cudaSuccess) {
+      if (result != hipSuccess) {
           return true;
       }
 
-      result = cudaFuncSetAttribute(
+      result = hipFuncSetAttribute(
           test::gemm::threadblock::kernel_multistage_mma_sparse<Mma>,
-          cudaFuncAttributePreferredSharedMemoryCarveout, 100);
+          hipFuncAttributePreferredSharedMemoryCarveout, 100);
 
-      if (result != cudaSuccess) {
+      if (result != hipSuccess) {
           return true;
       }
     }
@@ -394,9 +395,9 @@ struct SparseTestbed {
     // Check error code
     //
 
-    result = cudaDeviceSynchronize();
-    EXPECT_EQ(result, cudaSuccess)
-        << " kernel error: " << cudaGetErrorString(result);
+    result = hipDeviceSynchronize();
+    EXPECT_EQ(result, hipSuccess)
+        << " kernel error: " << hipGetErrorString(result);
 
     matrix_C_computed.sync_host();
 

@@ -311,7 +311,7 @@ struct Result {
   double runtime_ms;
   double gflops;
   cutlass::Status status;
-  cudaError_t error;
+  hipError_t error;
 
   double l2_norm_3xtf32_vs_fp64;
   double l2_norm_1xtf32_vs_fp64;
@@ -321,7 +321,7 @@ struct Result {
     runtime_ms(0), 
     gflops(0),
     status(cutlass::Status::kSuccess),
-    error(cudaSuccess),
+    error(hipSuccess),
     l2_norm_3xtf32_vs_fp64(0),
     l2_norm_1xtf32_vs_fp64(0),
     l2_norm_fp32_vs_fp64(0) { }
@@ -513,20 +513,20 @@ Result profile_convolution(Options const &options) {
   // Performance measurement
   //
 
-  cudaEvent_t events[2];
+  hipEvent_t events[2];
   
   for (auto & event : events) {
-    result.error = cudaEventCreate(&event);
-    if (result.error != cudaSuccess) {
-      std::cerr << "cudaEventCreate() failed: " << cudaGetErrorString(result.error) << std::endl;
+    result.error = hipEventCreate(&event);
+    if (result.error != hipSuccess) {
+      std::cerr << "hipEventCreate() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
   }
 
   // Record an event at the start of a series of convolution operations.
-  result.error = cudaEventRecord(events[0]);
-  if (result.error != cudaSuccess) {
-    std::cerr << "cudaEventRecord() failed: " << cudaGetErrorString(result.error) << std::endl;
+  result.error = hipEventRecord(events[0]);
+  if (result.error != hipSuccess) {
+    std::cerr << "hipEventRecord() failed: " << hipGetErrorString(result.error) << std::endl;
     return result;
   }
 
@@ -537,24 +537,24 @@ Result profile_convolution(Options const &options) {
   }
 
   // Record an event when the convolutions have been launched.
-  result.error = cudaEventRecord(events[1]);
-  if (result.error != cudaSuccess) {
-    std::cerr << "cudaEventRecord() failed: " << cudaGetErrorString(result.error) << std::endl;
+  result.error = hipEventRecord(events[1]);
+  if (result.error != hipSuccess) {
+    std::cerr << "hipEventRecord() failed: " << hipGetErrorString(result.error) << std::endl;
     return result;
   }
 
   // Wait for work on the device to complete.
-  result.error = cudaEventSynchronize(events[1]);
-  if (result.error != cudaSuccess) {
-    std::cerr << "cudaEventSynchronize() failed: " << cudaGetErrorString(result.error) << std::endl;
+  result.error = hipEventSynchronize(events[1]);
+  if (result.error != hipSuccess) {
+    std::cerr << "hipEventSynchronize() failed: " << hipGetErrorString(result.error) << std::endl;
     return result;
   }
 
   // Measure elapsed runtime
   float runtime_ms = 0;
-  result.error = cudaEventElapsedTime(&runtime_ms, events[0], events[1]);
-  if (result.error != cudaSuccess) {
-    std::cerr << "cudaEventElapsed() failed: " << cudaGetErrorString(result.error) << std::endl;
+  result.error = hipEventElapsedTime(&runtime_ms, events[0], events[1]);
+  if (result.error != hipSuccess) {
+    std::cerr << "cudaEventElapsed() failed: " << hipGetErrorString(result.error) << std::endl;
     return result;
   }
 
@@ -564,7 +564,7 @@ Result profile_convolution(Options const &options) {
 
   // Cleanup
   for (auto event : events) {
-    (void)cudaEventDestroy(event);
+    (void)hipEventDestroy(event);
   }
 
   tensor_d_3xTF32.sync_host();
@@ -634,7 +634,7 @@ Result profile_convolution(Options const &options) {
       options.beta);
 
   // Wait for kernels to finish
-  cudaDeviceSynchronize();
+  hipDeviceSynchronize();
 
   // Copy output data from CUTLASS and reference kernel to host for comparison
   tensor_d_F64.sync_host();
@@ -663,7 +663,7 @@ Result profile_convolution(Options const &options) {
       options.beta);
 
   // Wait for kernels to finish
-  cudaDeviceSynchronize();
+  hipDeviceSynchronize();
 
   // Copy output data from CUTLASS and reference kernel to host for comparison
   tensor_d_F32.sync_host();
@@ -736,8 +736,8 @@ int main(int argc, char const **args) {
     notSupported = true;
   }
 
-  cudaDeviceProp props;
-  CUDA_CHECK(cudaGetDeviceProperties(&props, 0));
+  hipDeviceProp_t props;
+  CUDA_CHECK(hipGetDeviceProperties(&props, 0));
 
   if (!(props.major > 8 || (props.major == 8 && props.minor >= 0))) {
     std::cerr << "Ampere Tensor Ops must be run on a machine with compute capability at least 80."

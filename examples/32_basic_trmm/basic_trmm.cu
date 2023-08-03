@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -72,7 +73,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Define a CUTLASS TRMM template and launch a TRMM kernel.
-cudaError_t CutlassStrmmNN(
+hipError_t CutlassStrmmNN(
   int M,
   int N,
   double alpha,
@@ -158,15 +159,15 @@ cudaError_t CutlassStrmmNN(
   cutlass::Status status = trmm_operator(args);
 
   //
-  // Return a cudaError_t if the CUTLASS TRMM operator returned an error code.
+  // Return a hipError_t if the CUTLASS TRMM operator returned an error code.
   //
 
   if (status != cutlass::Status::kSuccess) {
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
   // Return success, if no errors were encountered.
-  return cudaSuccess;
+  return hipSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +204,7 @@ __global__ void InitializeMatrix_kernel(
 }
 
 /// Simple function to initialize a matrix to arbitrary small integers.
-cudaError_t InitializeMatrix(double *matrix, int ldm, int rows, int columns, int seed = 0,
+hipError_t InitializeMatrix(double *matrix, int ldm, int rows, int columns, int seed = 0,
                              cutlass::FillMode fill_mode = cutlass::FillMode::kInvalid) {
 
   dim3 block(16, 16);
@@ -214,42 +215,42 @@ cudaError_t InitializeMatrix(double *matrix, int ldm, int rows, int columns, int
 
   InitializeMatrix_kernel<<< grid, block >>>(matrix, ldm, rows, columns, seed, fill_mode);
 
-  return cudaGetLastError();
+  return hipGetLastError();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Allocates device memory for a matrix then fills with arbitrary small integers.
-cudaError_t AllocateMatrix(double **matrix, int ldm, int rows, int columns, int seed = 0,
+hipError_t AllocateMatrix(double **matrix, int ldm, int rows, int columns, int seed = 0,
                            cutlass::FillMode fill_mode = cutlass::FillMode::kInvalid) {
-  cudaError_t result;
+  hipError_t result;
 
   size_t sizeof_matrix = sizeof(double) * ldm * columns;
 
   // Allocate device memory.
-  result = cudaMalloc(reinterpret_cast<void **>(matrix), sizeof_matrix);
+  result = hipMalloc(reinterpret_cast<void **>(matrix), sizeof_matrix);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to allocate matrix: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
     return result;
   }
 
   // Clear the allocation.
-  result = cudaMemset(*matrix, 0, sizeof_matrix);
+  result = hipMemset(*matrix, 0, sizeof_matrix);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to clear matrix device memory: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
     return result;
   }
 
   // Initialize matrix elements to arbitrary small integers.
   result = InitializeMatrix(*matrix, ldm, rows, columns, seed, fill_mode);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to initialize matrix: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
     return result;
   }
 
@@ -285,7 +286,7 @@ __global__ void ReferenceTrmm_kernel(
 }
 
 /// Reference TRMM computation.
-cudaError_t ReferenceTrmm(
+hipError_t ReferenceTrmm(
   int M,
   int N,
   double alpha,
@@ -304,15 +305,15 @@ cudaError_t ReferenceTrmm(
 
   ReferenceTrmm_kernel<<< grid, block >>>(M, N, alpha, A, lda, B, ldb, C, ldc);
 
-  return cudaGetLastError();
+  return hipGetLastError();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Allocate several matrices in GPU device memory and call a double-precision
 /// CUTLASS TRMM kernel.
-cudaError_t TestCutlassTrmm(int M, int N, double alpha) {
-  cudaError_t result;
+hipError_t TestCutlassTrmm(int M, int N, double alpha) {
+  hipError_t result;
 
   //
   // Define several matrices to be used as operands to TRMM kernels.
@@ -338,44 +339,44 @@ cudaError_t TestCutlassTrmm(int M, int N, double alpha) {
 
   result = AllocateMatrix(&A, lda, M, M, 0, cutlass::FillMode::kLower);
 
-  if (result !=  cudaSuccess) {
+  if (result !=  hipSuccess) {
     return result;
   }
 
   result = AllocateMatrix(&B, ldb, M, N, 17);
 
-  if (result !=  cudaSuccess) {
-    cudaFree(A);
+  if (result !=  hipSuccess) {
+    hipFree(A);
     return result;
   }
 
   result = AllocateMatrix(&C_cutlass, ldc, M, N, 101);
 
-  if (result != cudaSuccess) {
-    cudaFree(A);
-    cudaFree(B);
+  if (result != hipSuccess) {
+    hipFree(A);
+    hipFree(B);
     return result;
   }
 
   result = AllocateMatrix(&C_reference, ldc, M, N, 101);
 
-  if (result != cudaSuccess) {
-    cudaFree(A);
-    cudaFree(B);
-    cudaFree(C_cutlass);
+  if (result != hipSuccess) {
+    hipFree(A);
+    hipFree(B);
+    hipFree(C_cutlass);
     return result;
   }
 
-  result = cudaMemcpy(C_reference, C_cutlass, sizeof_C, cudaMemcpyDeviceToDevice);
+  result = hipMemcpy(C_reference, C_cutlass, sizeof_C, hipMemcpyDeviceToDevice);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to copy C_cutlass matrix to C_reference: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(B);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(B);
+    hipFree(A);
 
     return result;
   }
@@ -386,14 +387,14 @@ cudaError_t TestCutlassTrmm(int M, int N, double alpha) {
 
   result = CutlassStrmmNN(M, N, alpha, A, lda, B, ldb, C_cutlass, ldc);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "CUTLASS TRMM kernel failed: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(B);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(B);
+    hipFree(A);
 
     return result;
   }
@@ -405,14 +406,14 @@ cudaError_t TestCutlassTrmm(int M, int N, double alpha) {
   // Launch reference TRMM
   result = ReferenceTrmm(M, N, alpha, A, lda, B, ldb, C_reference, ldc);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Reference TRMM kernel failed: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(B);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(B);
+    hipFree(A);
 
     return result;
   }
@@ -421,30 +422,30 @@ cudaError_t TestCutlassTrmm(int M, int N, double alpha) {
   std::vector<double> host_cutlass(ldc * N, 0);
   std::vector<double> host_reference(ldc * N, 0);
 
-  result = cudaMemcpy(host_cutlass.data(), C_cutlass, sizeof_C, cudaMemcpyDeviceToHost);
+  result = hipMemcpy(host_cutlass.data(), C_cutlass, sizeof_C, hipMemcpyDeviceToHost);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to copy CUTLASS TRMM results: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(B);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(B);
+    hipFree(A);
 
     return result;
   }
 
-  result = cudaMemcpy(host_reference.data(), C_reference, sizeof_C, cudaMemcpyDeviceToHost);
+  result = hipMemcpy(host_reference.data(), C_reference, sizeof_C, hipMemcpyDeviceToHost);
 
-  if (result != cudaSuccess) {
+  if (result != hipSuccess) {
     std::cerr << "Failed to copy Reference TRMM results: "
-      << cudaGetErrorString(result) << std::endl;
+      << hipGetErrorString(result) << std::endl;
 
-    cudaFree(C_reference);
-    cudaFree(C_cutlass);
-    cudaFree(B);
-    cudaFree(A);
+    hipFree(C_reference);
+    hipFree(C_cutlass);
+    hipFree(B);
+    hipFree(A);
 
     return result;
   }
@@ -453,10 +454,10 @@ cudaError_t TestCutlassTrmm(int M, int N, double alpha) {
   // Free device memory allocations.
   //
 
-  cudaFree(C_reference);
-  cudaFree(C_cutlass);
-  cudaFree(B);
-  cudaFree(A);
+  hipFree(C_reference);
+  hipFree(C_cutlass);
+  hipFree(B);
+  hipFree(A);
 
   //
   // Test for bit equivalence of results.
@@ -465,10 +466,10 @@ cudaError_t TestCutlassTrmm(int M, int N, double alpha) {
   if (host_cutlass != host_reference) {
     std::cerr << "CUTLASS results incorrect." << std::endl;
 
-    return cudaErrorUnknown;
+    return hipErrorUnknown;
   }
 
-  return cudaSuccess;
+  return hipSuccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -489,11 +490,11 @@ int main(int argc, const char *arg[]) {
     notSupported = true;
   }
 
-  cudaDeviceProp props;
+  hipDeviceProp_t props;
 
-  cudaError_t error = cudaGetDeviceProperties(&props, 0);
-  if (error != cudaSuccess) {
-    std::cerr << "cudaGetDeviceProperties() returned an error: " << cudaGetErrorString(error) << std::endl;
+  hipError_t error = hipGetDeviceProperties(&props, 0);
+  if (error != hipSuccess) {
+    std::cerr << "hipGetDeviceProperties() returned an error: " << hipGetErrorString(error) << std::endl;
 
     return -1;
   }
@@ -533,18 +534,18 @@ int main(int argc, const char *arg[]) {
   // Run the CUTLASS TRMM test.
   //
 
-  cudaError_t result = TestCutlassTrmm(
+  hipError_t result = TestCutlassTrmm(
     problem[0],     // TRMM M dimension
     problem[1],     // TRMM N dimension
     scalars[0]     // alpha
   );
 
-  if (result == cudaSuccess) {
+  if (result == hipSuccess) {
     std::cout << "Passed." << std::endl;
   }
 
   // Exit.
-  return result == cudaSuccess ? 0 : -1;
+  return result == hipSuccess ? 0 : -1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

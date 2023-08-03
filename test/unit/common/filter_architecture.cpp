@@ -29,7 +29,7 @@
  *
  **************************************************************************************************/
 
-#include <cuda_runtime_api.h>
+#include <hip/hip_runtime_api.h>
 
 #include "cutlass_unit_test.h"
 
@@ -38,21 +38,21 @@
 /// Sets flags for Unit test
 void FilterArchitecture() {
   // Default flags can be overwritten by --gtest_filter from commandline
-  cudaError_t err;
+  hipError_t err;
 
   int cudaDeviceId;
-  err = cudaGetDevice(&cudaDeviceId);
-  if (cudaSuccess != err) {
+  err = hipGetDevice(&cudaDeviceId);
+  if (hipSuccess != err) {
     std::cerr << "*** Error: Could not detect active GPU device ID"
-              << " [" << cudaGetErrorString(err) << "]" << std::endl;
+              << " [" << hipGetErrorString(err) << "]" << std::endl;
     exit(1);
   }
 
-  cudaDeviceProp deviceProperties;
-  err = cudaGetDeviceProperties(&deviceProperties, cudaDeviceId);
-  if (cudaSuccess != err) {
+  hipDeviceProp_t deviceProperties;
+  err = hipGetDeviceProperties(&deviceProperties, cudaDeviceId);
+  if (hipSuccess != err) {
     std::cerr << "*** Error: Could not get device properties for GPU " << cudaDeviceId << " ["
-              << cudaGetErrorString(err) << "]" << std::endl;
+              << hipGetErrorString(err) << "]" << std::endl;
     exit(1);
   }
 

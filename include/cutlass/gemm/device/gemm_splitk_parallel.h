@@ -334,7 +334,7 @@ public:
   }
 
   /// Runs the kernel using initialized state.
-  Status run(cudaStream_t stream = nullptr) {
+  Status run(hipStream_t stream = nullptr) {
 
     //
     // Launch GEMM kernel
@@ -345,26 +345,26 @@ public:
     dim3 grid = threadblock_swizzle.get_grid_shape(gemm_params_.grid_tiled_shape);
     dim3 block(GemmKernel::kThreadCount, 1, 1);
 
-    cudaError_t result;
+    hipError_t result;
 
     int smem_size = int(sizeof(typename GemmKernel::SharedStorage));
     if (smem_size >= (48 << 10)) {
 
-      result = cudaFuncSetAttribute(
+      result = hipFuncSetAttribute(
         Kernel<GemmKernel>,
-        cudaFuncAttributeMaxDynamicSharedMemorySize,
+        hipFuncAttributeMaxDynamicSharedMemorySize,
         smem_size);
 
-      if (result != cudaSuccess) {
+      if (result != hipSuccess) {
         return Status::kErrorInternal;
       }
     }
 
     Kernel<GemmKernel><<<grid, block, smem_size, stream>>>(gemm_params_);
 
-    result = cudaGetLastError();
+    result = hipGetLastError();
 
-    if (result != cudaSuccess) {
+    if (result != hipSuccess) {
       return Status::kErrorInternal;
     }
 
@@ -377,17 +377,17 @@ public:
 
     Kernel<ReductionKernel><<< grid, block, 0, stream >>>(reduction_params_);
 
-    result = cudaGetLastError();
+    result = hipGetLastError();
 
-    if (result != cudaSuccess) {
+    if (result != hipSuccess) {
       return Status::kErrorInternal;
     }
 
-    return result == cudaSuccess ? Status::kSuccess : Status::kErrorInternal;
+    return result == hipSuccess ? Status::kSuccess : Status::kErrorInternal;
   }
 
   /// Runs the kernel using initialized state.
-  Status operator()(cudaStream_t stream = nullptr) {
+  Status operator()(hipStream_t stream = nullptr) {
     return run(stream);
   }
 
@@ -395,7 +395,7 @@ public:
   Status operator()(
     Arguments const &args, 
     void *workspace = nullptr, 
-    cudaStream_t stream = nullptr) {
+    hipStream_t stream = nullptr) {
     
     Status status = initialize(args, workspace);
     
@@ -603,13 +603,13 @@ public:
   }
 
   /// Runs the kernel using initialized state.
-  Status run(cudaStream_t stream = nullptr) {
+  Status run(hipStream_t stream = nullptr) {
 
     return underlying_operator_.run(stream);
   }
 
   /// Runs the kernel using initialized state.
-  Status operator()(cudaStream_t stream = nullptr) {
+  Status operator()(hipStream_t stream = nullptr) {
     return run(stream);
   }
 
@@ -617,7 +617,7 @@ public:
   Status operator()(
     Arguments const &args, 
     void *workspace = nullptr, 
-    cudaStream_t stream = nullptr) {
+    hipStream_t stream = nullptr) {
     
     Status status = initialize(args, workspace, stream);
     

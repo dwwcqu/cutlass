@@ -47,8 +47,8 @@
 #include "cutlass/util/reference/host/tensor_compare.h"
 #include "cutlass/util/reference/host/gemm.h"
 
-#include <cuda.h>
-#include <nvrtc.h>
+#include <hip/hip_runtime.h>
+#include <hiprtc.h>
 #include "../cutlass/nvrtc/environment.h"
 #include <assert.h>
 
@@ -112,8 +112,8 @@ struct Testbed {
     tensor_D_reference.reset(cutlass::make_Coord(Shape::kM, Shape::kN), false);
   }
 
-  static inline bool check_nvrtc_error(nvrtcResult error) {
-    if (error != NVRTC_SUCCESS) {
+  static inline bool check_nvrtc_error(hiprtcResult error) {
+    if (error != HIPRTC_SUCCESS) {
       std::cerr << "failed to compile ";
       return false;
     }
@@ -169,8 +169,8 @@ struct Testbed {
 
 #else
     // Instantiate gemm_kernel
-    nvrtcResult result_nvrtc;
-    nvrtcProgram program;
+    hiprtcResult result_nvrtc;
+    hiprtcProgram program;
     static char const *src =
         "#include \"cutlass/gemm/thread/mma.h\"\n"
         "#include \"cutlass/gemm/gemm.h\"\n"
@@ -187,7 +187,7 @@ struct Testbed {
     type_name = gemm_traits;
 #endif
 
-    result_nvrtc = nvrtcCreateProgram(&program,
+    result_nvrtc = hiprtcCreateProgram(&program,
                                     src,
                                     NULL,
                                     (int)cutlass::nvrtc::kCutlassHeaderCount,
@@ -197,18 +197,18 @@ struct Testbed {
 
     std::string gemm_kernel_instantiation =
       "test::nvrtc::kernel::thread::testbed_kernel< " + type_name + " >";
-    nvrtcAddNameExpression(program, gemm_kernel_instantiation.c_str());
+    hiprtcAddNameExpression(program, gemm_kernel_instantiation.c_str());
 
     const char *opts[] = {"--gpu-architecture=compute_75",
                           "--std=c++11",
                           "--include-path=/usr/local/cuda-10.1/include"};
 
-    result_nvrtc = nvrtcCompileProgram(program, 3, opts);
-    if (result_nvrtc != NVRTC_SUCCESS) {
+    result_nvrtc = hiprtcCompileProgram(program, 3, opts);
+    if (result_nvrtc != HIPRTC_SUCCESS) {
       size_t logSize;
-      nvrtcGetProgramLogSize(program, &logSize);
+      hiprtcGetProgramLogSize(program, &logSize);
       std::vector<char> log(logSize);
-      nvrtcGetProgramLog(program, log.data());
+      hiprtcGetProgramLog(program, log.data());
       std::cout << "Compile log:" << std::endl << log.data() << std::endl;
     }
     if (!check_nvrtc_error(result_nvrtc)) {
@@ -217,37 +217,37 @@ struct Testbed {
 
     // The lowered name is the name of the template instantiation in the generated PTX code.
     char const *gemm_kernel_lowered_name;
-    nvrtcGetLoweredName(program, gemm_kernel_instantiation.c_str(), &gemm_kernel_lowered_name);
+    hiprtcGetLoweredName(program, gemm_kernel_instantiation.c_str(), &gemm_kernel_lowered_name);
     if (!check_nvrtc_error(result_nvrtc)) {
       assert(0);
     }
 
     // Query the size of the genereated PTX so that we can allocate storage and retrieve it afterwards
     size_t ptx_size;
-    result_nvrtc = nvrtcGetPTXSize(program, &ptx_size);
+    result_nvrtc = hiprtcGetCodeSize(program, &ptx_size);
     if (!check_nvrtc_error(result_nvrtc)) {
       assert(0);
     }
 
     std::vector<char> ptx(ptx_size);
-    result_nvrtc = nvrtcGetPTX(program, ptx.data());
+    result_nvrtc = hiprtcGetCode(program, ptx.data());
     if (!check_nvrtc_error(result_nvrtc)) {
       assert(0);
     }
 
     // we do not need the nvrtc program anymore
-    //nvrtcDestroyProgram(&program);
+    //hiprtcDestroyProgram(&program);
 
-    CUmodule module;
-    CUresult result_cuda;
-    result_cuda = cuModuleLoadDataEx(&module, ptx.data(), 0, 0, 0);
-    if (result_cuda != CUDA_SUCCESS) {
+    hipModule_t module;
+    hipError_t result_cuda;
+    result_cuda = hipModuleLoadDataEx(&module, ptx.data(), 0, 0, 0);
+    if (result_cuda != hipSuccess) {
       assert(0);
     }
 
-    CUfunction kernel;
-    result_cuda = cuModuleGetFunction(&kernel, module, gemm_kernel_lowered_name);
-    if (result_cuda != CUDA_SUCCESS) {
+    hipFunction_t kernel;
+    result_cuda = hipModuleGetFunction(&kernel, module, gemm_kernel_lowered_name);
+    if (result_cuda != hipSuccess) {
       assert(0);
     }
 
@@ -257,19 +257,19 @@ struct Testbed {
     void* d_d = (void*)tensor_D_computed.device_data();
     void* args[] = { &d_d, &d_a, &d_b, &d_c };
 
-    // CUfunction f, unsigned int  gridDimX, unsigned int  gridDimY, unsigned int  gridDimZ, unsigned int  blockDimX, unsigned int  blockDimY, unsigned int  blockDimZ, unsigned int  sharedMemBytes, CUstream hStream, void** kernelParams, void** extra
-    result_cuda = cuLaunchKernel(kernel, 1, 1, 1, 1, 1, 1, 0, 0 /*cudaStreamDefault*/, args, 0);
-    if (result_cuda != CUDA_SUCCESS) {
+    // hipFunction_t f, unsigned int  gridDimX, unsigned int  gridDimY, unsigned int  gridDimZ, unsigned int  blockDimX, unsigned int  blockDimY, unsigned int  blockDimZ, unsigned int  sharedMemBytes, hipStream_t hStream, void** kernelParams, void** extra
+    result_cuda = hipModuleLaunchKernel(kernel, 1, 1, 1, 1, 1, 1, 0, 0 /*hipStreamDefault*/, args, 0);
+    if (result_cuda != hipSuccess) {
       assert(0);
     } else {
 }
 #endif
 
     // verify no errors
-    cudaError_t result = cudaDeviceSynchronize();
+    hipError_t result = hipDeviceSynchronize();
 
-    if (result != cudaSuccess) {
-      std::cout << "CUDA ERROR: " << cudaGetErrorString(result);
+    if (result != hipSuccess) {
+      std::cout << "CUDA ERROR: " << hipGetErrorString(result);
       return false;
     }
 

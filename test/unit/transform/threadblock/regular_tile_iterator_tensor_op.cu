@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -173,8 +174,8 @@ public:
       source_tensor.device_data()
     );
 
-    cudaError_t result = cudaDeviceSynchronize();
-    EXPECT_EQ(result, cudaSuccess) << " - CUDA ERROR: " << cudaGetErrorString(result);
+    hipError_t result = hipDeviceSynchronize();
+    EXPECT_EQ(result, hipSuccess) << " - CUDA ERROR: " << hipGetErrorString(result);
 
     destination_tensor.sync_host();
 

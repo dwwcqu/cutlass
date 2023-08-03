@@ -111,7 +111,7 @@ public:
   }
 
   /// Initializes Gemv state from arguments.
-  Status initialize(Arguments const &args, void *workspace = nullptr, cudaStream_t stream = nullptr) {
+  Status initialize(Arguments const &args, void *workspace = nullptr, hipStream_t stream = nullptr) {
     params_ = Params(args);
     return Status::kSuccess;
   }
@@ -122,7 +122,7 @@ public:
   }
 
   /// Runs the kernel using initialized state.
-  Status run(cudaStream_t stream = nullptr) {
+  Status run(hipStream_t stream = nullptr) {
 
     dim3 grid = get_grid_shape(params_);
     dim3 block(GemvKernel::kThreadCount, 1, 1);
@@ -135,9 +135,9 @@ public:
     //
     // Query for errors
     //
-    cudaError_t result = cudaGetLastError();
+    hipError_t result = hipGetLastError();
 
-    if (result != cudaSuccess) {
+    if (result != hipSuccess) {
       return Status::kErrorInternal;
     }
   
@@ -145,7 +145,7 @@ public:
   }
 
   /// Runs the kernel using initialized state.
-  Status operator()(cudaStream_t stream = nullptr) {
+  Status operator()(hipStream_t stream = nullptr) {
     return run(stream);
   }
 
@@ -153,7 +153,7 @@ public:
   Status operator()(
     Arguments const &args, 
     void *workspace = nullptr, 
-    cudaStream_t stream = nullptr) {
+    hipStream_t stream = nullptr) {
     
     Status status = initialize(args, workspace, stream);
     

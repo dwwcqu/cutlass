@@ -361,18 +361,18 @@ struct TestbedGemmWithReduction {
 
     int smem_size = int(sizeof(typename Gemm::GemmKernel::SharedStorage));
 
-    cudaDeviceProp properties;
+    hipDeviceProp_t properties;
     int device_idx;
-    cudaError_t result = cudaGetDevice(&device_idx);
+    hipError_t result = hipGetDevice(&device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDevice() API call failed.");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDevice() API call failed.");
     }
 
-    result = cudaGetDeviceProperties(&properties, device_idx);
+    result = hipGetDeviceProperties(&properties, device_idx);
 
-    if (result != cudaSuccess) {
-      throw std::runtime_error("cudaGetDeviceProperties() failed");
+    if (result != hipSuccess) {
+      throw std::runtime_error("hipGetDeviceProperties() failed");
     }
 
     if (properties.sharedMemPerMultiprocessor < smem_size) {
@@ -473,11 +473,11 @@ struct TestbedGemmWithReduction {
     cutlass::DeviceAllocation<typename Gemm::ElementC> profiling_tensor_Reduction(tensor_Reduction.capacity() * kWorkspaces);
     cutlass::DeviceAllocation<ElementT> profiling_tensor_Tensor(tensor_Tensor.capacity() * kWorkspaces);
 
-    cudaEvent_t events[2];
+    hipEvent_t events[2];
     for (auto & event : events) {
-      cudaError_t result = cudaEventCreate(&event);
-      if (result != cudaSuccess) {
-        EXPECT_EQ(result, cudaSuccess) << " cudaEventCreate() failed with error " << cudaGetErrorString(result);
+      hipError_t result = hipEventCreate(&event);
+      if (result != hipSuccess) {
+        EXPECT_EQ(result, hipSuccess) << " hipEventCreate() failed with error " << hipGetErrorString(result);
         return false;
         break;
       }
@@ -492,8 +492,8 @@ struct TestbedGemmWithReduction {
     }
     
 
-    cudaError_t result = cudaEventRecord(events[0]);
-    EXPECT_EQ(result, cudaSuccess);
+    hipError_t result = hipEventRecord(events[0]);
+    EXPECT_EQ(result, hipSuccess);
 
     for (int i = 0; i < kProfilingIterations; ++i) {
 
@@ -527,22 +527,22 @@ struct TestbedGemmWithReduction {
       EXPECT_TRUE(status == cutlass::Status::kSuccess) << to_string(status);
     }
 
-    result = cudaEventRecord(events[1]);
-    EXPECT_EQ(result, cudaSuccess);
+    result = hipEventRecord(events[1]);
+    EXPECT_EQ(result, hipSuccess);
 
-    result = cudaDeviceSynchronize();
-    EXPECT_EQ(result, cudaSuccess);
+    result = hipDeviceSynchronize();
+    EXPECT_EQ(result, hipSuccess);
 
     float elapsed_time = 0;
-    result = cudaEventElapsedTime(&elapsed_time, events[0], events[1]);
-    EXPECT_EQ(result, cudaSuccess);
+    result = hipEventElapsedTime(&elapsed_time, events[0], events[1]);
+    EXPECT_EQ(result, hipSuccess);
 
     double average_time = double(elapsed_time) / double(kProfilingIterations);
 
     std::cout << problem_size << ": " << average_time << " ms" << std::endl;
 
     for (auto & event : events) {
-      cudaEventDestroy(event);
+      hipEventDestroy(event);
     }
     #endif
 

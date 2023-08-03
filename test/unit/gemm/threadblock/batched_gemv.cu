@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -212,8 +213,8 @@ void batched_gemv_threadblock_test(cutlass::gemm::GemmCoord problem_size, int nu
     matrix_C_computed.device_ref()
   );
 
-  cudaError_t result = cudaDeviceSynchronize();
-  EXPECT_EQ(result, cudaSuccess) << " kernel error: " << cudaGetErrorString(result);
+  hipError_t result = hipDeviceSynchronize();
+  EXPECT_EQ(result, hipSuccess) << " kernel error: " << hipGetErrorString(result);
 
   matrix_C_computed.sync_host();
 

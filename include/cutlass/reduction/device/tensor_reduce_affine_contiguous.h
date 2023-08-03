@@ -271,7 +271,7 @@ public:
     void *device_workspace_ptr = nullptr,         ///< Device workspace
     ElementCompute reduction_identity = ElementCompute(), ///< Reduction identity element
     ReductionOp reduction_op = ReductionOp(),     ///< Reduction operator
-    cudaStream_t stream = nullptr) {              ///< CUDA Stream into which all kernels are launched
+    hipStream_t stream = nullptr) {              ///< CUDA Stream into which all kernels are launched
 
     // Initial status check
     if (!good()) {
@@ -326,7 +326,7 @@ public:
     Kernel<ReductionKernel><<< grid_shape, threadblock_shape, shared_mem_bytes, stream >>>(params);
 
     // Check error condition
-    if (cudaPeekAtLastError() == cudaSuccess) {
+    if (hipPeekAtLastError() == hipSuccess) {
       status = Status::kSuccess;
     }
     else {
@@ -339,7 +339,7 @@ public:
     }
 
     // Check error condition
-    if (cudaPeekAtLastError() == cudaSuccess) {
+    if (hipPeekAtLastError() == hipSuccess) {
       status = Status::kSuccess;
     }
     else {
@@ -358,7 +358,7 @@ public:
     void *device_workspace_ptr = nullptr,         ///< Pointer to device workspace
     ElementCompute reduction_identity = ElementCompute(), ///< Reduction identity element
     ReductionOp reduction_op = ReductionOp(),     ///< Reduction operator
-    cudaStream_t stream = nullptr) {              ///< CUDA Stream into which all kernels are launched
+    hipStream_t stream = nullptr) {              ///< CUDA Stream into which all kernels are launched
 
     return reduce(dst_ptr, dst_stride, src_ptr, src_stride, device_workspace_ptr, reduction_identity, reduction_op, stream);
   }

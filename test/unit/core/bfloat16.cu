@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -88,7 +89,7 @@ TEST(bfloat16_t, device_conversion) {
 
   convert_bf16_f32<<< dim3(1,1), dim3(N, 1) >>>(destination.device_data(), source.device_data(), N);
 
-  ASSERT_EQ(cudaGetLastError(), cudaSuccess) << "Kernel launch error.";
+  ASSERT_EQ(hipGetLastError(), hipSuccess) << "Kernel launch error.";
 
   destination.sync_host();
 
@@ -111,7 +112,7 @@ TEST(bfloat16_t, device_conversion) {
   
   convert_and_pack_bf16<<< dim3(1,1), dim3(N, 1) >>>(destination.device_data(), source.device_data(), N);
   
-  ASSERT_EQ(cudaGetLastError(), cudaSuccess) << "Kernel launch error.";
+  ASSERT_EQ(hipGetLastError(), hipSuccess) << "Kernel launch error.";
   
   destination.sync_host();
 

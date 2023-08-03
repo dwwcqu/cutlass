@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -298,7 +299,7 @@ TEST(SM80_Device_GemmGrouped_scheduler, 64x64x32_32x32x32) {
   GroupedBatchedKernel<kCtaShapeM, kCtaShapeN><<< grid, block >>>(params);
 
   // wait
-  cudaDeviceSynchronize();
+  hipDeviceSynchronize();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

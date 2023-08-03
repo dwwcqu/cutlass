@@ -218,13 +218,13 @@ public:
 
     if (smem_size <= (48 << 10)) {
 
-      cudaError_t result = cudaOccupancyMaxActiveBlocksPerMultiprocessor(
+      hipError_t result = hipOccupancyMaxActiveBlocksPerMultiprocessor(
         &max_active_blocks,
         Kernel<GemmKernel>,
         GemmKernel::kThreadCount,
         smem_size);
 
-      if (result == cudaSuccess) {
+      if (result == hipSuccess) {
         CUTLASS_TRACE_HOST("  max_active_blocks: " << max_active_blocks);
         return max_active_blocks;
       }
@@ -232,33 +232,33 @@ public:
     else {
 
       // Query assuming zero shared memory then compute occupancy limit based on SMEM
-      cudaError_t result = cudaOccupancyMaxActiveBlocksPerMultiprocessor(
+      hipError_t result = hipOccupancyMaxActiveBlocksPerMultiprocessor(
         &max_active_blocks,
         Kernel<GemmKernel>,
         GemmKernel::kThreadCount,
         0);
 
-      if (result != cudaSuccess) {
+      if (result != hipSuccess) {
 
         CUTLASS_TRACE_HOST(
-          "  cudaOccupancyMaxActiveBlocksPerMultiprocessor() returned error "
-          << cudaGetErrorString(result));
+          "  hipOccupancyMaxActiveBlocksPerMultiprocessor() returned error "
+          << hipGetErrorString(result));
 
         return -1;
       }
 
       if (smem_capacity < 0) {
         int device_idx = 0;
-        result = cudaGetDevice(&device_idx);
+        result = hipGetDevice(&device_idx);
 
-        if (result != cudaSuccess) {
+        if (result != hipSuccess) {
           return -1;
         }
 
-        cudaDeviceProp properties;
-        result = cudaGetDeviceProperties(&properties, device_idx);
+        hipDeviceProp_t properties;
+        result = hipGetDeviceProperties(&properties, device_idx);
 
-        if (result != cudaSuccess) {
+        if (result != hipSuccess) {
           return -1;
         }
 
@@ -278,7 +278,7 @@ public:
   }
 
   /// Initializes GEMM state from arguments.
-  Status initialize(Arguments const &args, void *workspace = nullptr, cudaStream_t stream = nullptr) {
+  Status initialize(Arguments const &args, void *workspace = nullptr, hipStream_t stream = nullptr) {
 
     CUTLASS_TRACE_HOST("GemmUniversalBase::initialize() - workspace " 
       << workspace << ", stream: " << (stream ? "non-null" : "null"));
@@ -297,10 +297,10 @@ public:
 
       if (args.mode == GemmUniversalMode::kGemm) {
         CUTLASS_TRACE_HOST("  clearing device workspace");
-        cudaError_t result = cudaMemsetAsync(workspace, 0, workspace_bytes, stream);
+        hipError_t result = hipMemsetAsync(workspace, 0, workspace_bytes, stream);
 
-        if (result != cudaSuccess) {
-          CUTLASS_TRACE_HOST("  cudaMemsetAsync() returned error " << cudaGetErrorString(result));
+        if (result != hipSuccess) {
+          CUTLASS_TRACE_HOST("  hipMemsetAsync() returned error " << hipGetErrorString(result));
 
           return Status::kErrorInternal;
         }
@@ -325,11 +325,11 @@ public:
     int smem_size = int(sizeof(typename GemmKernel::SharedStorage));
 
     if (smem_size >= (48 << 10)) {
-      cudaError_t result = cudaFuncSetAttribute(Kernel<GemmKernel>,
-                                    cudaFuncAttributeMaxDynamicSharedMemorySize,
+      hipError_t result = hipFuncSetAttribute(Kernel<GemmKernel>,
+                                    hipFuncAttributeMaxDynamicSharedMemorySize,
                                     smem_size);
 
-      if (result != cudaSuccess) {
+      if (result != hipSuccess) {
         return Status::kErrorInternal;
       }
     }
@@ -354,7 +354,7 @@ public:
   }
 
   /// Runs the kernel using initialized state.
-  Status run(cudaStream_t stream = nullptr) {
+  Status run(hipStream_t stream = nullptr) {
     CUTLASS_TRACE_HOST("GemmUniversalBase::run()");
 
     //
@@ -381,10 +381,10 @@ public:
     //
     // Query for errors
     //
-    cudaError_t result = cudaGetLastError();
+    hipError_t result = hipGetLastError();
 
-    if (result != cudaSuccess) {
-      CUTLASS_TRACE_HOST("  grid launch failed with error " << cudaGetErrorString(result));
+    if (result != hipSuccess) {
+      CUTLASS_TRACE_HOST("  grid launch failed with error " << hipGetErrorString(result));
       return Status::kErrorInternal;
     }
   
@@ -392,7 +392,7 @@ public:
   }
 
   /// Runs the kernel using initialized state.
-  Status operator()(cudaStream_t stream = nullptr) {
+  Status operator()(hipStream_t stream = nullptr) {
     return run(stream);
   }
 
@@ -400,7 +400,7 @@ public:
   Status operator()(
     Arguments const &args, 
     void *workspace = nullptr, 
-    cudaStream_t stream = nullptr) {
+    hipStream_t stream = nullptr) {
     
     Status status = initialize(args, workspace, stream);
     

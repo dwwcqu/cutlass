@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /***************************************************************************************************
  * Copyright (c) 2017 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -372,8 +373,8 @@ int main(int argc, const char *arg[]) {
     C.device_data()
   );
 
-  cudaError_t result = cudaDeviceSynchronize();
-  if (result != cudaSuccess) {
+  hipError_t result = hipDeviceSynchronize();
+  if (result != hipSuccess) {
     std::cerr << "Failed to synchronize device after kernel launch." << std::endl;
     return -1;
   }

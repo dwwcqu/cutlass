@@ -354,9 +354,9 @@ public:
       alpha, 
       beta);
 
-    cudaError_t result = cudaDeviceSynchronize();
-    EXPECT_EQ(result, cudaSuccess) << " device reference error: " 
-                                   << cudaGetErrorString(result);
+    hipError_t result = hipDeviceSynchronize();
+    EXPECT_EQ(result, hipSuccess) << " device reference error: " 
+                                   << hipGetErrorString(result);
 
     // sync host (copy device data to host) for dumping error output in case of mismatches
     tensor_D_reference.sync_host();
