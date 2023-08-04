@@ -667,7 +667,7 @@ Result profile(Options const &options) {
     float runtime_ms = 0;
     result.error = hipEventElapsedTime(&runtime_ms, events[0], events[1]);
     if (result.error != hipSuccess) {
-      std::cerr << "cudaEventElapsed() failed: " << hipGetErrorString(result.error) << std::endl;
+      std::cerr << "hipEventElapsed() failed: " << hipGetErrorString(result.error) << std::endl;
       return result;
     }
 

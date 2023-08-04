@@ -85,7 +85,7 @@ target_link_libraries(
   cutlass_tools_util_includes
   $<$<BOOL:${CUTLASS_ENABLE_HIPBLAS}>:roc::hipblas>
   $<$<BOOL:${CUTLASS_ENABLE_HIPDNN}>:MIOpen>
-  cudart
+  hip::host
   )
 
 install(

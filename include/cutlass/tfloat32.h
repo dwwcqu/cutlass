@@ -73,7 +73,7 @@ struct alignas(4) tfloat32_t {
   static tfloat32_t round_half_ulp_truncate(float const &s) {
     uint32_t x = reinterpret_cast<uint32_t const &>(s);
 
-    #if defined(__CUDA_ARCH__)
+    #if defined(__CUDA_ARCH__) && CUTLASS_DISABLE
     if (::isfinite(s)) {
       x += 0x1000u;
     }

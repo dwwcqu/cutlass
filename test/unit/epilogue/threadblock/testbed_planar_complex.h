@@ -73,7 +73,7 @@ __global__ void epilogue_planar_complex_threadblock(
 
   int thread_idx = threadIdx.x;
   int warp_idx = threadIdx.x / 32;
-  int lane_idx = threadIdx.x % 32;
+  int lane_idx = threadIdx.x % 64;
 
   //
   // Construct the epilogue

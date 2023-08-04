@@ -996,7 +996,7 @@ struct plus<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1029,7 +1029,7 @@ struct plus<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(half_t const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 lhs_pair = __half2half2(reinterpret_cast<__half const &>(lhs));
@@ -1061,7 +1061,7 @@ struct plus<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, half_t const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1096,7 +1096,7 @@ struct minus<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1129,7 +1129,7 @@ struct minus<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(half_t const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 lhs_pair = __half2half2(reinterpret_cast<__half const &>(lhs));
@@ -1161,7 +1161,7 @@ struct minus<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, half_t const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1196,7 +1196,7 @@ struct multiplies<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1229,7 +1229,7 @@ struct multiplies<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(half_t const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 lhs_pair = __half2half2(reinterpret_cast<__half const &>(lhs));
@@ -1264,7 +1264,7 @@ struct multiplies<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, half_t const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1302,7 +1302,7 @@ struct divides<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1338,7 +1338,7 @@ struct divides<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(half_t const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 lhs_pair = __half2half2(reinterpret_cast<__half const &>(lhs));
@@ -1373,7 +1373,7 @@ struct divides<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, half_t const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1411,7 +1411,7 @@ struct negate<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *source_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1450,7 +1450,7 @@ struct multiply_add<Array<half_t, N>, Array<half_t, N>, Array<half_t, N>> {
     Array<half_t, N> const &c) const {
     
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *a_ptr = reinterpret_cast<__half2 const *>(&a);
@@ -1496,7 +1496,7 @@ struct multiply_add<Array<half_t, N>, Array<half_t, N>, Array<half_t, N>> {
     Array<half_t, N> const &c) const {
     
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 a_pair = __half2half2(reinterpret_cast<__half const &>(a));
@@ -1540,7 +1540,7 @@ struct multiply_add<Array<half_t, N>, Array<half_t, N>, Array<half_t, N>> {
     Array<half_t, N> const &c) const {
     
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *a_ptr = reinterpret_cast<__half2 const *>(&a);
@@ -1585,7 +1585,7 @@ struct multiply_add<Array<half_t, N>, Array<half_t, N>, Array<half_t, N>> {
     half_t const &c) const {
     
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *a_ptr = reinterpret_cast<__half2 const *>(&a);
@@ -1635,7 +1635,7 @@ struct multiply_add_relu0<Array<half_t, N>, Array<half_t, N>, Array<half_t, N>> 
     Array<half_t, N> const &c) const {
     
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *a_ptr = reinterpret_cast<__half2 const *>(&a);
@@ -1682,7 +1682,7 @@ struct multiply_add_relu0<Array<half_t, N>, Array<half_t, N>, Array<half_t, N>> 
     Array<half_t, N> const &c) const {
     
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 a_pair = __half2half2(reinterpret_cast<__half const &>(a));
@@ -1727,7 +1727,7 @@ struct multiply_add_relu0<Array<half_t, N>, Array<half_t, N>, Array<half_t, N>> 
     Array<half_t, N> const &c) const {
     
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *a_ptr = reinterpret_cast<__half2 const *>(&a);
@@ -1773,7 +1773,7 @@ struct multiply_add_relu0<Array<half_t, N>, Array<half_t, N>, Array<half_t, N>> 
     half_t const &c) const {
     
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *a_ptr = reinterpret_cast<__half2 const *>(&a);
@@ -1818,7 +1818,7 @@ struct minimum<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1854,7 +1854,7 @@ struct minimum<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(half_t const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 lhs_pair = __half2half2(reinterpret_cast<__half const &>(lhs));
@@ -1889,7 +1889,7 @@ struct minimum<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, half_t const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1927,7 +1927,7 @@ struct maximum<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -1963,7 +1963,7 @@ struct maximum<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(half_t const & lhs, Array<half_t, N> const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 lhs_pair = __half2half2(reinterpret_cast<__half const &>(lhs));
@@ -1998,7 +1998,7 @@ struct maximum<Array<half_t, N>> {
   CUTLASS_HOST_DEVICE
   Array<half_t, N> operator()(Array<half_t, N> const & lhs, half_t const &rhs) const {
     Array<half_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     __half2 *result_ptr = reinterpret_cast<__half2 *>(&result);
     __half2 const *lhs_ptr = reinterpret_cast<__half2 const *>(&lhs);
@@ -2044,7 +2044,7 @@ struct multiply_add<Array<bfloat16_t, N>, Array<bfloat16_t, N>, Array<bfloat16_t
     Array<bfloat16_t, N> const &c) const {
     
     Array<bfloat16_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     unsigned *result_ptr = reinterpret_cast<unsigned *>(&result);
     unsigned const *a_ptr = reinterpret_cast<unsigned const *>(&a);
@@ -2092,7 +2092,7 @@ struct multiply_add<Array<bfloat16_t, N>, Array<bfloat16_t, N>, Array<bfloat16_t
     Array<bfloat16_t, N> const &c) const {
     
     Array<bfloat16_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     unsigned *result_ptr = reinterpret_cast<unsigned *>(&result);
 
@@ -2143,7 +2143,7 @@ struct multiply_add<Array<bfloat16_t, N>, Array<bfloat16_t, N>, Array<bfloat16_t
     Array<bfloat16_t, N> const &c) const {
     
     Array<bfloat16_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     unsigned *result_ptr = reinterpret_cast<unsigned *>(&result);
     
@@ -2194,7 +2194,7 @@ struct multiply_add<Array<bfloat16_t, N>, Array<bfloat16_t, N>, Array<bfloat16_t
     bfloat16_t const &c) const {
     
     Array<bfloat16_t, N> result;
-    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800)
+    #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 800) && CUTLASS_DISABLE
 
     unsigned *result_ptr = reinterpret_cast<unsigned *>(&result);
     

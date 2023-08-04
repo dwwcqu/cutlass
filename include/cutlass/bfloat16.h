@@ -85,7 +85,7 @@ struct alignas(2) bfloat16_t {
     #else
     uint32_t bits;
 
-    #if defined(__CUDA_ARCH__)
+    #if defined(__CUDA_ARCH__) && CUTLASS_DISABLE
     bits = reinterpret_cast<uint32_t &>(x);
     #else
     std::memcpy(&bits, &x, sizeof(bits));
@@ -121,7 +121,7 @@ struct alignas(2) bfloat16_t {
     float flt = static_cast<float>(x);
     uint32_t bits;
 
-    #if defined(__CUDA_ARCH__)
+    #if defined(__CUDA_ARCH__) && CUTLASS_DISABLE
     bits = reinterpret_cast<uint32_t &>(flt);
     #else
     std::memcpy(&bits, &flt, sizeof(bits));
@@ -134,7 +134,7 @@ struct alignas(2) bfloat16_t {
   CUTLASS_HOST_DEVICE
   operator float() const {
     unsigned bits = (unsigned(storage) << 16);
-    #if defined(__CUDA_ARCH__)
+    #if defined(__CUDA_ARCH__) && CUTLASS_DISABLE
     return reinterpret_cast<float const &>(bits);
     #else
     float flt;
@@ -267,7 +267,7 @@ bfloat16_t copysign(bfloat16_t const& a, bfloat16_t const& b) {
   uint16_t a_bits;
   uint16_t b_bits;
 
-  #if defined(__CUDA_ARCH__)
+  #if defined(__CUDA_ARCH__) && CUTLASS_DISABLE
   a_bits = reinterpret_cast<uint16_t const &>(a);
   b_bits = reinterpret_cast<uint16_t const &>(b);
   #else

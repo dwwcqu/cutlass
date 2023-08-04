@@ -103,7 +103,7 @@ __global__ void kernel_multistage_mma(cutlass::gemm::GemmCoord problem_size,
                                      {problem_size.k(), problem_size.n()},
                                      tb_thread_id, tb_offset_B);
 
-  int warp_id = __shfl_sync(0xffffffff, threadIdx.y, 0);
+  int warp_id = __shfl(threadIdx.y, 0);
   int lane_id = threadIdx.x;
 
   int partitionsK_idx = warp_id / (Mma::WarpCount::kM * Mma::WarpCount::kN);

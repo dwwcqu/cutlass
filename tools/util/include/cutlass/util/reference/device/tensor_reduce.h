@@ -327,7 +327,7 @@ ComputeType TensorTransformReduce(
 
     result = hipGetDeviceProperties(&prop, device_idx);
     if (result != hipSuccess) {
-      throw std::runtime_error("cudaGetDeviceProp() failed");
+      throw std::runtime_error("hipGetDeviceProp() failed");
     }
 
     workspace_size = int(prop.multiProcessorCount);
@@ -381,7 +381,7 @@ ComputeType TensorTransformReduce(
 
     result = hipGetDeviceProperties(&prop, device_idx);
     if (result != hipSuccess) {
-      throw std::runtime_error("cudaGetDeviceProp() failed");
+      throw std::runtime_error("hipGetDeviceProp() failed");
     }
 
     workspace_size = int(prop.multiProcessorCount);

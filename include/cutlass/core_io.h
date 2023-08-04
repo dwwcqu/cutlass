@@ -51,7 +51,7 @@
 #include "cutlass/conv/conv3d_problem_size.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+#include <hip/hip_runtime.h>
 /// Output operator for CUDA built-in dim3 type
 inline std::ostream &operator<<(std::ostream &out, dim3 d) {
   return out << d.x << ", " << d.y << ", " << d.z;

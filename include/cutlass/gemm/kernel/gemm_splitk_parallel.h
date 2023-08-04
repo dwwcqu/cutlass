@@ -188,7 +188,7 @@ struct GemmSplitKParallel {
       tb_offset_B);
 
     int warp_idx = threadIdx.x / 32;
-    int lane_idx = threadIdx.x % 32;
+    int lane_idx = threadIdx.x % 64;
 
 
     //

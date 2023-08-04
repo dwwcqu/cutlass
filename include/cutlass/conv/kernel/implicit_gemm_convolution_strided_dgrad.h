@@ -313,8 +313,8 @@ struct ImplicitGemmConvolutionStridedDgrad {
 
     // Broadcast the warp_id computed by lane 0 to ensure dependent code
     // is compiled as warp-uniform.
-    int warp_idx = __shfl_sync(0xffffffff, threadIdx.x / 32, 0);
-    int lane_idx = threadIdx.x % 32;
+    int warp_idx = __shfl(threadIdx.x / 64, 0);
+    int lane_idx = threadIdx.x % 64;
 
     // Check if CTA contributes valid MMA (Dy * w) and accumulator will be non-zero after MMA
     if (start_r < params.problem_size.R && start_s < params.problem_size.S) {

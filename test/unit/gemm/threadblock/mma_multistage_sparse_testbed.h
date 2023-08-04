@@ -109,7 +109,7 @@ __global__ void kernel_multistage_mma_sparse(cutlass::gemm::GemmCoord problem_si
        problem_size.k() / Mma::kSparse / Mma::kElementsPerElementE},
       tb_thread_id, tb_offset_E);
 
-  int warp_id = __shfl_sync(0xffffffff, threadIdx.y, 0);
+  int warp_id = __shfl(threadIdx.y, 0);
 
   // Construct thread-scoped matrix multiply
   Mma mma(*shared_storage, tb_thread_id, warp_id, threadIdx.x);

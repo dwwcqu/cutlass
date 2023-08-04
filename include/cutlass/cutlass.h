@@ -71,15 +71,35 @@ namespace cutlass {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__NVCC__) || (defined(__clang__) && defined(__CUDA__))
-#define CUTLASS_HOST_DEVICE __forceinline__ __device__ __host__
-#define CUTLASS_DEVICE __forceinline__ __device__
-#elif defined(__CUDACC_RTC__)
-#define CUTLASS_HOST_DEVICE __forceinline__ __device__
-#define CUTLASS_DEVICE __forceinline__ __device__
+#if defined(__HIPCC__) || defined(__HIP_PLATFORM_AMD__)|| defined(__HIP_PLATFORM_NVIDIA__)|| (defined(__clang__) && defined(__HIP__))
+#define CUTLASS_HOST_DEVICE __inline__ __device__ __host__
+#define CUTLASS_DEVICE __inline__ __device__
+#elif defined(__HIPCC_RTC__)
+#define CUTLASS_HOST_DEVICE __inline__ __device__
+#define CUTLASS_DEVICE __inline__ __device__
 #else
 #define CUTLASS_HOST_DEVICE inline
 #define CUTLASS_DEVICE inline
+#endif
+
+#ifndef __CUDA_ARCH__
+#define __CUDA_ARCH__ 700
+#endif
+
+#ifndef CUTLASS_ENABLE
+#define CUTLASS_ENABLE 1
+#endif
+
+#ifndef CUTLASS_DISABLE
+#define CUTLASS_DISABLE 0
+#endif
+
+#ifndef __CUDACC_VER_MAJOR__
+#define __CUDACC_VER_MAJOR__ 11
+#endif
+
+#ifndef __CUDACC_VER_MINOR__
+#define __CUDACC_VER_MINOR__ 2
 #endif
 
 /// Status code returned by CUTLASS operations
@@ -151,7 +171,7 @@ static char const* cutlassGetStatusString(cutlass::Status status) {
 
 // CUTLASS_PRAGMA_(UNROLL|NO_UNROLL) optimization directives for the CUDA compiler.
 #if defined(__CUDA_ARCH__)
-  #if defined(__CUDACC_RTC__) || (defined(__clang__) && defined(__CUDA__))
+  #if defined(__HIPCC_RTC__) || (defined(__clang__) && defined(__HIP__))
     #define CUTLASS_PRAGMA_UNROLL _Pragma("unroll")
     #define CUTLASS_PRAGMA_NO_UNROLL _Pragma("unroll 1")
   #else
@@ -171,7 +191,7 @@ static char const* cutlassGetStatusString(cutlass::Status status) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static const int NUM_THREADS_PER_WARP = 32;
+static const int NUM_THREADS_PER_WARP = 64;
 static const int NUM_THREADS_PER_HALF_WARP = NUM_THREADS_PER_WARP / 2;
 static const int NUM_THREADS_PER_QUAD = 4;
 static const int NUM_THREADS_PER_QUAD_PAIR = NUM_THREADS_PER_QUAD * 2;
@@ -180,11 +200,11 @@ static const int NUM_THREADS_PER_QUAD_PAIR = NUM_THREADS_PER_QUAD * 2;
 
 /// Helper function to return true when called by thread 0 of threadblock 0.
 CUTLASS_HOST_DEVICE bool thread0() {
-  #if defined(__CUDA_ARCH__)
-    return (!threadIdx.x && !threadIdx.y && !threadIdx.z) && (!blockIdx.x && !blockIdx.y && !blockIdx.z);
-  #else
+  // #if defined(__CUDA_ARCH__)
+    // return (!threadIdx.x && !threadIdx.y && !threadIdx.z) && (!blockIdx.x && !blockIdx.y && !blockIdx.z);
+  // #else
     return false;
-  #endif
+  // #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

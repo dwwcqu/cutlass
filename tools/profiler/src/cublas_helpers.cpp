@@ -229,7 +229,7 @@ bool get_cublas_diag_type(hipblasDiagType_t& diag, DiagType diag_type) {
 /// Gets the cublas algorithm given threadblock tile dimensions and math opcode class
 hipblasGemmAlgo_t get_cublas_gemm_algo(int cta_m, int cta_n, int cta_k, library::OpcodeClassID opcode_class) {
   return (opcode_class == library::OpcodeClassID::kSimt ? 
-    HIPBLAS_GEMM_DEFAULT : CUBLAS_GEMM_DEFAULT_TENSOR_OP);
+    HIPBLAS_GEMM_DEFAULT : HIPBLAS_GEMM_DEFAULT);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -280,7 +280,7 @@ cublasGemmExDispatcher::cublasGemmExDispatcher(
 
   // cuBLAS introduces a separate cublasComputeType enumerant to more precisely describe
   // internal numerical data types used in the computation.
-#if (__CUDACC_VER_MAJOR__ >= 11)
+#if (__CUDACC_VER_MAJOR__ >= 11) && CUTLASS_DISABLE
   library::OpcodeClassID const & opcode_class =
     op_desc.tile_description.math_instruction.opcode_class;
 

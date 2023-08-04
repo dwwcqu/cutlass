@@ -37,21 +37,21 @@
 // CUTLASS WMMA does not support clang at present.
 #if !(defined(__clang__) && defined(__CUDA__))
 
-#if (__CUDACC_VER_MAJOR__ >= 9)
+#if (__CUDACC_VER_MAJOR__ >= 9) && CUTLASS_DISABLE
 #if (!defined(__CUDA_ARCH__) || (__CUDA_ARCH__ >= 700))
 #define CUTLASS_ARCH_WMMA_ENABLED
 #define CUTLASS_ARCH_WMMA_SM70_ENABLED
 #endif
 #endif
 
-#if (__CUDACC_VER_MAJOR__ >= 10)
+#if (__CUDACC_VER_MAJOR__ >= 10) && CUTLASS_DISABLE
 #if (!defined(__CUDA_ARCH__) || (__CUDA_ARCH__ >= 720))
 #define CUTLASS_ARCH_INTEGER_MATRIX_MULTIPLY_ENABLED
 #define CUTLASS_ARCH_WMMA_SM72_ENABLED
 #endif
 #endif
 
-#if (__CUDACC_VER_MAJOR__ >= 10)
+#if (__CUDACC_VER_MAJOR__ >= 10) && CUTLASS_DISABLE
 #if (!defined(__CUDA_ARCH__) || (__CUDA_ARCH__ >= 750))
 #define CUTLASS_SUBBYTE_INTEGER_MATRIX_MULTIPLY_ENABLED
 #define CUTLASS_ARCH_WMMA_SM75_ENABLED
@@ -60,7 +60,7 @@
 
 #endif //!(defined(__clang__) && defined(__CUDA__))
 
-#if defined(CUTLASS_ARCH_WMMA_ENABLED)
+#if defined(CUTLASS_ARCH_WMMA_ENABLED) && CUTLASS_DISABLE
 
 #include <mma.h>
 #include "cutlass/arch/mma.h"

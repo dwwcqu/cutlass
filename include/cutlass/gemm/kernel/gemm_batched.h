@@ -204,9 +204,9 @@ struct GemmBatched {
 
       // Broadcast the warp_id computed by lane 0 to ensure dependent code
       // is compiled as warp-uniform.
-      int warp_idx = __shfl_sync(0xffffffff, threadIdx.x / 32, 0);
+      int warp_idx = __shfl(threadIdx.x / 64, 0);
 
-      int lane_idx = threadIdx.x % 32;
+      int lane_idx = threadIdx.x % 64;
       
       Mma mma(shared_storage.main_loop, thread_idx, warp_idx, lane_idx);
 

@@ -83,7 +83,7 @@ struct ArrayMaximum<half_t, ElementsPerAccess> {
 
     Array<half_t, ElementsPerAccess> result;
 
-    #if __CUDA_ARCH__ >= 800
+    #if __CUDA_ARCH__ >= 800 && CUTLASS_DISABLE
     int const kVectorCount = ElementsPerAccess / 2;
 
 
@@ -118,7 +118,7 @@ struct ArrayMaximum<half_t, ElementsPerAccess> {
 
     Array<half_t, ElementsPerAccess> result;
 
-    #if __CUDA_ARCH__ >= 800
+    #if __CUDA_ARCH__ >= 800 && CUTLASS_DISABLE
     int const kVectorCount = ElementsPerAccess / 2;
 
 

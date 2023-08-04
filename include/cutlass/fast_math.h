@@ -31,8 +31,8 @@
 
 #pragma once
 
-#if defined(__CUDACC_RTC__)
-#include <cuda/std/cstdint>
+#if defined(__HIPCC_RTC__)
+#include <cstdint>
 #else
 #include <cstdint>
 #include <cmath>
@@ -229,7 +229,7 @@ void find_divisor(unsigned int& mul, unsigned int& shr, unsigned int denom) {
 CUTLASS_HOST_DEVICE 
 void fast_divmod(int& quo, int& rem, int src, int div, unsigned int mul, unsigned int shr) {
 
-  #if defined(__CUDA_ARCH__)
+  #if defined(__CUDA_ARCH__) && CUTLASS_DISABLE
   // Use IMUL.HI if div != 1, else simply copy the source.
   quo = (div != 1) ? __umulhi(src, mul) >> shr : src;
   #else
@@ -244,7 +244,7 @@ void fast_divmod(int& quo, int& rem, int src, int div, unsigned int mul, unsigne
 CUTLASS_HOST_DEVICE
 void fast_divmod(int& quo, int64_t& rem, int64_t src, int div, unsigned int mul, unsigned int shr) {
 
-  #if defined(__CUDA_ARCH__)
+  #if defined(__CUDA_ARCH__) && CUTLASS_DISABLE
   // Use IMUL.HI if div != 1, else simply copy the source.
   quo = (div != 1) ? __umulhi(src, mul) >> shr : src;
   #else
@@ -399,7 +399,7 @@ struct FastDivmodU64 {
   uint64_t divide(uint64_t dividend) const {
     uint64_t quotient = 0;
 
-    #ifdef __CUDA_ARCH__
+    #if defined(__CUDA_ARCH__) && CUTLASS_DISABLE
       uint64_t x = dividend;
       if (multiplier) {
         x = __umul64hi(dividend + round_up, multiplier);
@@ -719,7 +719,7 @@ double fast_exp(double x) {
 
 CUTLASS_HOST_DEVICE
 float fast_exp(half_t x) {
-  #if defined(__CUDA_ARCH__) && (__CUDACC_VER_MAJOR__ >= 10) && (__CUDA_ARCH__ >= 750)
+  #if defined(__CUDA_ARCH__) && CUTLASS_ENABLE
       return ::hexp(x.to_half());
   #else
       return fast_exp(float(x));
@@ -790,7 +790,7 @@ struct fast_exp_op {
   }
 };
 
-#if defined(__CUDA_ARCH__) && (__CUDACC_VER_MAJOR__ >= 10) && (__CUDA_ARCH__ >= 750)
+#if defined(__CUDA_ARCH__) && CUTLASS_ENABLE
 template <int N>
 struct fast_exp_op<Array<half_t, N>> {
   CUTLASS_DEVICE

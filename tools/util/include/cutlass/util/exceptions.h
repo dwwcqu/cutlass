@@ -51,7 +51,7 @@ class cuda_exception : public std::exception {
   cuda_exception(const char* msg = "", hipError_t err = hipErrorUnknown) : msg(msg), err(err) {}
 
   /// Returns the underlying CUDA \p hipError_t
-  hipError_t hipError_t() const { return err; }
+  hipError_t hipError() const { return err; }
 
  protected:
   /// Explanatory string
@@ -63,7 +63,7 @@ class cuda_exception : public std::exception {
 
 /// Writes a cuda_exception instance to an output stream
 inline std::ostream& operator<<(std::ostream& out, cuda_exception const& e) {
-  return out << e.what() << ": " << hipGetErrorString(e.hipError_t());
+  return out << e.what() << ": " << hipGetErrorString(e.hipError());
 }
 
 }  // namespace cutlass

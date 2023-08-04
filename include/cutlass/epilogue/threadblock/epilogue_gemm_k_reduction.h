@@ -162,8 +162,8 @@ public:
 
       CUTLASS_PRAGMA_UNROLL
       for (int i = 0; i < kIterations; ++i) {
-        sum[i] += __shfl_xor_sync(0xffffffff, sum[i], 1);
-        sum[i] += __shfl_xor_sync(0xffffffff, sum[i], 2);
+        sum[i] += __shfl_xor(sum[i], 1);
+        sum[i] += __shfl_xor(sum[i], 2);
       }
 
       Array<ElementAccumulator, kIterations / 4> intermediate;

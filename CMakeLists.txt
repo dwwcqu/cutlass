@@ -173,6 +173,9 @@ list(APPEND CUTLASS_HIPCC_FLAGS -DCUTLASS_DEBUG_TRACE_LEVEL=${CUTLASS_DEBUG_TRAC
 set(CUTLASS_ENABLE_TENSOR_CORE_MMA ${CUTLASS_ENABLE_TENSOR_CORE_MMA_DEFAULT} CACHE BOOL
   "Enable PTX mma instruction for collective matrix multiply operations.")
 
+if (CUTLASS_ENABLE_TENSOR_CORE_MMA)
+  list(APPEND CUTLASS_HIPCC_FLAGS -DCUTLASS_ENABLE_TENSOR_CORE_MMA=1)
+endif()
 #
 # NOTE: running with asan and CUDA requires the following environment variable:
 #
@@ -217,8 +220,8 @@ if (CUTLASS_ENABLE_F16C AND NOT CMAKE_CROSSCOMPILING)
   endif()
 endif()
 
-list(APPEND CUTLASS_HIPCC_FLAGS $<$<BOOL:${UNIX}>:-Xclang=-Wconversion>)
-list(APPEND CUTLASS_HIPCC_FLAGS $<$<BOOL:${UNIX}>:-Xclang=-fno-strict-aliasing>)
+# list(APPEND CUTLASS_HIPCC_FLAGS $<$<BOOL:${UNIX}>:-Xclang=-Wconversion>)
+# list(APPEND CUTLASS_HIPCC_FLAGS $<$<BOOL:${UNIX}>:-Xclang=-fno-strict-aliasing>)
 
 # Don't leak lineinfo in release builds
 if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
@@ -335,6 +338,13 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/include/cutlass/version.h
   @ONLY)
 
+target_include_directories(
+  CUTLASS
+  INTERFACE
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CUTLASS_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+  )
 install(
   DIRECTORY
   ${CUTLASS_INCLUDE_DIR}/

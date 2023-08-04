@@ -140,7 +140,7 @@ void Options::Device::print_device_info(std::ostream &out) const {
   result = hipGetDeviceCount(&num_devices);
 
   if (result != hipSuccess) {
-    throw std::runtime_error("cudaGetNumDevices() failed");
+    throw std::runtime_error("hipGetNumDevices() failed");
   }
 
   out << "Device Name,SM,CUDA Device ID,Phy Device ID" << std::endl;
@@ -157,7 +157,7 @@ void Options::Device::print_device_info(std::ostream &out) const {
     }
 
     out << props.name << "," << props.major << props.minor << ","
-      << device << "," << props.multiGpuBoardGroupID << std::endl;
+      << device << std::endl;
 
   }
 }
