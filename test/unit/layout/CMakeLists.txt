@@ -28,7 +28,7 @@
 
 cutlass_test_unit_add_executable(
   cutlass_test_unit_layout
-  matrix.cu
-  tensor.cu
-  tensor_nhwc.cu
+  matrix.cpp
+  tensor.cpp
+  tensor_nhwc.cpp
   )

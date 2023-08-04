@@ -28,7 +28,7 @@
 
 cutlass_test_unit_add_executable(
   cutlass_test_unit_reduction_device
-  tensor_reduce_strided.cu
-  tensor_reduce_contiguous.cu
+  tensor_reduce_strided.cpp
+  tensor_reduce_contiguous.cpp
 )
 

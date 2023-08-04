@@ -54,7 +54,7 @@ foreach(FUSION_CONV_EXAMPLE
 
   cutlass_example_add_executable(
     13_${FUSION_CONV_EXAMPLE}
-    ${FUSION_CONV_EXAMPLE}.cu
+    ${FUSION_CONV_EXAMPLE}.cpp
   )
 
   add_dependencies(13_fused_two_convs 13_${FUSION_CONV_EXAMPLE})
@@ -73,7 +73,7 @@ foreach(FUSION_GEMM_EXAMPLE
 )
   cutlass_example_add_executable(
     13_${FUSION_GEMM_EXAMPLE}
-    ${FUSION_GEMM_EXAMPLE}.cu
+    ${FUSION_GEMM_EXAMPLE}.cpp
   )
 
   add_dependencies(13_fused_two_gemms 13_${FUSION_GEMM_EXAMPLE})

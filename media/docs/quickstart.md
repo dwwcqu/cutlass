@@ -50,8 +50,8 @@ $ cmake .. -DCUTLASS_NVCC_ARCHS=80 -DCUTLASS_LIBRARY_KERNELS=s16816gemm,s16816fp
 See more examples on selectively compiling CUTLASS GEMM and convolution kernels [here](quickstart.md#example-cmake-commands).
 
 You may explicitly exclude cuBLAS and cuDNN as dependencies with the following CMake flags.
-- `-DCUTLASS_ENABLE_CUBLAS=OFF`
-- `-DCUTLASS_ENABLE_CUDNN=OFF`
+- `-DCUTLASS_ENABLE_HIPBLAS=OFF`
+- `-DCUTLASS_ENABLE_HIPDNN=OFF`
 
 
 ## Build and run the CUTLASS Profiler
@@ -363,8 +363,8 @@ for dense matrix computations on NVIDIA GPUs.
 The CUTLASS Library is used by the CUTLASS Profiler to manage kernel instances, and it is also used
 by several SDK examples.
 
-* [10_planar_complex](/examples/10_planar_complex/planar_complex.cu)
-* [11_planar_complex_array](/examples/11_planar_complex_array/planar_complex_array.cu)
+* [10_planar_complex](/examples/10_planar_complex/planar_complex.cpp)
+* [11_planar_complex_array](/examples/11_planar_complex_array/planar_complex_array.cpp)
 
 The CUTLASS Library defines enumerated types describing numeric data types, matrix and tensor
 layouts, math operation classes, complex transformations, and more. 

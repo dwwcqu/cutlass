@@ -30,6 +30,6 @@
 
 cutlass_example_add_executable(
   00_basic_gemm
-  basic_gemm.cu
+  basic_gemm.cpp
 )
   

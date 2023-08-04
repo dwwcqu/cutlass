@@ -28,7 +28,7 @@
 
 cutlass_test_unit_add_executable(
   cutlass_test_unit_nvrtc_thread
-  gemm_nvrtc.cu
+  gemm_nvrtc.cpp
   testbed.h
   )
 

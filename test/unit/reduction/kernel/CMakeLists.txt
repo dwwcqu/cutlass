@@ -28,5 +28,5 @@
 
 cutlass_test_unit_add_executable(
   cutlass_test_unit_reduction_kernel
-  reduce_splitk.cu
+  reduce_splitk.cpp
   )

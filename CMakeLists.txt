@@ -41,12 +41,6 @@ message(STATUS "CMake Version: ${CMAKE_VERSION}")
 project(CUTLASS VERSION 2.9.0 LANGUAGES CXX)
 include(${CMAKE_CURRENT_SOURCE_DIR}/HIP.cmake)
 
-# if (CUDA_VERSION VERSION_LESS 10.2)
-#   message(WARNING "CUTLASS ${CUTLASS_VERSION} requires CUDA 10.2 or higher, and strongly recommends CUDA 11.0 or higher.")
-# elseif (CUDA_VERSION VERSION_LESS 11.0)
-#   message(WARNING "CUTLASS ${CUTLASS_VERSION} support for CUDA ${CUDA_VERSION} is deprecated, please use CUDA 11.0 or higher.")
-# endif()
-
 find_package(Doxygen QUIET)
 
 #
@@ -56,13 +50,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# if(CUTLASS_NATIVE_CUDA)
-#   set(CMAKE_CUDA_STANDARD 11)
-#   set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-# else()
-#   list(APPEND CUTLASS_HIPCC_FLAGS --std=c++11)
-# endif()
-list(APPEND CUTLASS_HIPCC_FLAGS --std=c++11)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(CMAKE_INSTALL_PREFIX install CACHE PATH "Default installation location." FORCE)
 endif()
@@ -100,31 +87,6 @@ if (CUTLASS_ENABLE_TESTS)
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/googletest.cmake)
 endif()
 
-# set(CUTLASS_NVCC_ARCHS_SUPPORTED "")
-# if (NOT CUDA_VERSION VERSION_LESS 7.5)
-#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 53)
-# endif()
-# if (NOT CUDA_VERSION VERSION_LESS 8.0)
-#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 60 61)
-# endif()
-# if (NOT CUDA_VERSION VERSION_LESS 9.0)
-#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 70)
-# endif()
-# if (NOT CUDA_VERSION VERSION_LESS 9.2)
-#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 72)
-# endif()
-# if (NOT CUDA_VERSION VERSION_LESS 10.0)
-#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 75)
-# endif()
-# if (NOT CUDA_VERSION VERSION_LESS 11.0)
-#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 80)
-# endif()
-# if (NOT CUDA_VERSION VERSION_LESS 11.1 AND NOT CUDA_COMPILER MATCHES "[Cc]lang")
-#   list(APPEND CUTLASS_NVCC_ARCHS_SUPPORTED 86)
-# endif()
-# set(CUTLASS_NVCC_ARCHS ${CUTLASS_NVCC_ARCHS_SUPPORTED} CACHE STRING "The SM architectures requested.")
-# set(CUTLASS_NVCC_ARCHS_ENABLED ${CUTLASS_NVCC_ARCHS} CACHE STRING "The SM architectures to build code for.")
-
 # Special policy introduced in CMake 3.13
 if (POLICY CMP0076)
   cmake_policy(SET CMP0076 NEW)
@@ -132,7 +94,6 @@ endif()
 
 include(GNUInstallDirs)
 
-# link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib64/stubs)
 
 ###################################################################################################
 #
@@ -161,20 +122,6 @@ if(WIN32)
   set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib" FORCE)
 endif()
 
-# if (WIN32)
-#   # Enable more warnings and treat as errors
-#   list(APPEND CUTLASS_HIPCC_FLAGS -Xcompiler=/W3 -Xcompiler=/WX)
-
-#   # Disable warning on Unicode characters
-#   list(APPEND CUTLASS_HIPCC_FLAGS -Xcompiler=/wd4819)
-
-#   # Disable excess x86 floating point precision that can lead to results being labeled incorrectly
-#   list(APPEND CUTLASS_HIPCC_FLAGS -Xcompiler=/fp:strict)
-# endif(WIN32)
-
-# if (${CUTLASS_NVCC_VERBOSE})
-#   list(APPEND CUTLASS_HIPCC_FLAGS -v)
-# endif()
 
 #
 # CUTLASS NAMESPACE 
@@ -249,12 +196,8 @@ endif()
 #
 ###################################################################################################
 
-if(CUTLASS_NVCC_EMBED_PTX)
-  list(APPEND CUTLASS_CUDA_CLANG_FLAGS --cuda-include-ptx=all)
-endif()
-
 if (CUTLASS_ENABLE_TENSOR_CORE_MMA)
-  list(APPEND CUTLASS_CUDA_FLAGS -DCUTLASS_ENABLE_TENSOR_CORE_MMA=1)
+  list(APPEND CUTLASS_HIP_FLAGS -DCUTLASS_ENABLE_TENSOR_CORE_MMA=1)
 endif()
 
 if (NOT MSVC AND CUTLASS_NVCC_KEEP)
@@ -268,66 +211,23 @@ endif()
 if (CUTLASS_ENABLE_F16C AND NOT CMAKE_CROSSCOMPILING)
   list(APPEND CUTLASS_HIPCC_FLAGS -DCUTLASS_ENABLE_F16C=1)
   if ((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
-    list(APPEND CUTLASS_HIPCC_FLAGS -Xcompiler=-mf16c)
+    list(APPEND CUTLASS_HIPCC_FLAGS -Xclang=-mf16c)
   elseif((CMAKE_CXX_COMPILER_ID MATCHES "MSVC"))
-    list(APPEND CUTLASS_HIPCC_FLAGS -Xcompiler=/arch:AVX2)
+    list(APPEND CUTLASS_HIPCC_FLAGS -Xclang=/arch:AVX2)
   endif()
 endif()
 
-list(APPEND CUTLASS_HIPCC_FLAGS $<$<BOOL:${UNIX}>:-Xcompiler=-Wconversion>)
-list(APPEND CUTLASS_HIPCC_FLAGS $<$<BOOL:${UNIX}>:-Xcompiler=-fno-strict-aliasing>)
+list(APPEND CUTLASS_HIPCC_FLAGS $<$<BOOL:${UNIX}>:-Xclang=-Wconversion>)
+list(APPEND CUTLASS_HIPCC_FLAGS $<$<BOOL:${UNIX}>:-Xclang=-fno-strict-aliasing>)
 
 # Don't leak lineinfo in release builds
 if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
-  list(APPEND CUTLASS_CUDA_CLANG_FLAGS -gmlt)
   list(APPEND CUTLASS_HIPCC_FLAGS -lineinfo)
 endif()
 
 #Report CUDA build flags
-if (CMAKE_CXX_COMPILER MATCHES "[Cc]lang")
-  if(CUTLASS_HIPCC_FLAGS)
-    message(STATUS "Using NVCC flags: ${CUTLASS_HIPCC_FLAGS}")
-  endif()
-else()
-  if(CUTLASS_CUDA_CLANG_FLAGS)
-    message(STATUS "Using CLANG flags: ${CUTLASS_CUDA_CLANG_FLAGS}")
-  endif()
-endif()
-
-if(CMAKE_CXX_COMPILER MATCHES "[Cc]lang")
-  if( NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
-    message(FATAL_ERROR "Clang CUDA compilation requires Clang CXX compilation. Currently CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER_ID}" )
-  endif()
-
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
-    message(FATAL_ERROR "Clang 7.0+ required for GPU compilation")
-  endif()
-
-  # There are numerous Clang versions that can work with each CUDA toolkit and the 
-  # the checks are not very useful so we are turning them off and using testing to 
-  # ensure the various combinations work properly.
-
-  list(APPEND CUTLASS_CUDA_CLANG_FLAGS --cuda-path=${CUDA_TOOLKIT_ROOT_DIR})
-  list(APPEND CUTLASS_CUDA_CLANG_FLAGS -D__NV_NO_HOST_COMPILER_CHECK=1)
-  list(APPEND CUTLASS_CUDA_CLANG_FLAGS -Wno-unknown-cuda-version)
-
-  list(APPEND CUTLASS_CUDA_CLANG_FLAGS -mllvm -pragma-unroll-threshold=100000)
-  list(APPEND CUTLASS_CUDA_CLANG_FLAGS -mllvm -unroll-threshold=5000)
-  list(APPEND CUTLASS_CUDA_CLANG_FLAGS -Wno-unused-command-line-argument)
-
-  string(REPLACE "." ";" CUDA_VERSION_PARTS ${CMAKE_CUDA_COMPILER_VERSION})
-  list(GET CUDA_VERSION_PARTS 0 CUDA_VERSION_MAJOR)
-  list(GET CUDA_VERSION_PARTS 1 CUDA_VERSION_MINOR)
-  list(APPEND CUTLASS_CUDA_CLANG_FLAGS -D__CUDACC_VER_MAJOR__=${CUDA_VERSION_MAJOR} -D__CUDACC_VER_MINOR__=${CUDA_VERSION_MINOR})
-
-
-  # needed for libcublasLt.so in case it's installed in the same location as libcudart.so
-  # dynamic linker can find it if linker sets RPATH (forced by --disable-new-tags)
-  # Otherwise linker uses RUNPATH and that does not propagate to loaded libs.
-  list(APPEND CUTLASS_CUDA_CLANG_FLAGS -Wl,--disable-new-dtags)
-
-  link_libraries(nvidia::cudart)
-endif()
+message(STATUS "Using HIPCC flags: ${CUTLASS_HIPCC_FLAGS}")
+link_libraries(hip::host hip::device)
 
 # Support for 128-bit integers if using NVIDIA C++ compiler 
 if (${CMAKE_CXX_COMPILER_ID} MATCHES "PGI" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "NVHPC")
@@ -342,26 +242,15 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18)
 endif()
 
 function(cutlass_apply_cuda_gencode_flags TARGET)
-  set(CLANG_FLAGS)
-  if (CMAKE_CXX_COMPILER MATCHES "[Cc]lang")
-    target_compile_options(
-      ${TARGET}
-      PRIVATE
-      $<$<COMPILE_LANGUAGE:CXX>:${CLANG_FLAGS}>
-      )
-  endif()
+  ### NULL
 endfunction()
 
 # Cache the flags so they are available when the function below is called anywhere globally. 
 
-set(__CUTLASS_CUDA_FLAGS ${CUTLASS_CUDA_FLAGS} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_FLAGS_RELEASE ${CUTLASS_CUDA_FLAGS_RELEASE} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_FLAGS_RELWITHDEBINFO ${CUTLASS_CUDA_FLAGS_RELWITHDEBINFO} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_FLAGS_DEBUG ${CUTLASS_CUDA_FLAGS_DEBUG} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_CLANG_FLAGS ${CUTLASS_CUDA_CLANG_FLAGS} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_CLANG_FLAGS_RELEASE ${CUTLASS_CUDA_CLANG_FLAGS_RELEASE} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_CLANG_FLAGS_RELWITHDEBINFO ${CUTLASS_CUDA_CLANG_FLAGS_RELWITHDEBINFO} CACHE INTERNAL "")
-set(__CUTLASS_CUDA_CLANG_FLAGS_DEBUG ${CUTLASS_CUDA_CLANG_FLAGS_DEBUG} CACHE INTERNAL "")
+set(__CUTLASS_HIP_FLAGS ${CUTLASS_HIP_FLAGS} CACHE INTERNAL "")
+set(__CUTLASS_HIP_FLAGS_RELEASE ${CUTLASS_HIP_FLAGS_RELEASE} CACHE INTERNAL "")
+set(__CUTLASS_HIP_FLAGS_RELWITHDEBINFO ${CUTLASS_HIP_FLAGS_RELWITHDEBINFO} CACHE INTERNAL "")
+set(__CUTLASS_HIP_FLAGS_DEBUG ${CUTLASS_HIP_FLAGS_DEBUG} CACHE INTERNAL "")
 set(__CUTLASS_HIPCC_FLAGS ${CUTLASS_HIPCC_FLAGS} CACHE INTERNAL "")
 set(__CUTLASS_HIPCC_FLAGS_RELEASE ${CUTLASS_HIPCC_FLAGS_RELEASE} CACHE INTERNAL "")
 set(__CUTLASS_HIPCC_FLAGS_RELWITHDEBINFO ${CUTLASS_HIPCC_FLAGS_RELWITHDEBINFO} CACHE INTERNAL "")
@@ -369,29 +258,21 @@ set(__CUTLASS_HIPCC_FLAGS_DEBUG ${CUTLASS_HIPCC_FLAGS_DEBUG} CACHE INTERNAL "")
 
 function(cutlass_apply_standard_compile_options TARGET)
 
-  if(CUDA_COMPILER MATCHES "[Cc]lang")
-    set(CUDA_COMPILE_LANGUAGE CXX)
-    set(_FLAGS ${__CUTLASS_CUDA_FLAGS} ${__CUTLASS_CUDA_CLANG_FLAGS})
-    set(_FLAGS_RELEASE ${__CUTLASS_CUDA_FLAGS_RELEASE} ${__CUTLASS_CUDA_CLANG_FLAGS_RELEASE})
-    set(_FLAGS_RELWITHDEBINFO ${__CUTLASS_CUDA_FLAGS_RELWITHDEBINFO} ${__CUTLASS_CUDA_CLANG_FLAGS_RELWITHDEBINFO})
-    set(_FLAGS_DEBUG ${__CUTLASS_CUDA_FLAGS_DEBUG} ${__CUTLASS_CUDA_CLANG_FLAGS_DEBUG})
-  else()
-    set(CUDA_COMPILE_LANGUAGE CUDA)
-    set(_FLAGS ${__CUTLASS_CUDA_FLAGS} ${__CUTLASS_HIPCC_FLAGS})
-    set(_FLAGS_RELEASE ${__CUTLASS_CUDA_FLAGS_RELEASE} ${__CUTLASS_HIPCC_FLAGS_RELEASE})
-    set(_FLAGS_RELWITHDEBINFO ${__CUTLASS_CUDA_FLAGS_RELWITHDEBINFO} ${__CUTLASS_HIPCC_FLAGS_RELWITHDEBINFO})
-    set(_FLAGS_DEBUG ${__CUTLASS_CUDA_FLAGS_DEBUG} ${__CUTLASS_HIPCC_FLAGS_DEBUG})
-  endif()
+  set(_FLAGS ${__CUTLASS_HIP_FLAGS} ${__CUTLASS_HIPCC_FLAGS})
+  set(_FLAGS_RELEASE ${__CUTLASS_HIP_FLAGS_RELEASE} ${__CUTLASS_HIPCC_FLAGS_RELEASE})
+  set(_FLAGS_RELWITHDEBINFO ${__CUTLASS_HIP_FLAGS_RELWITHDEBINFO} ${__CUTLASS_HIPCC_FLAGS_RELWITHDEBINFO})
+  set(_FLAGS_DEBUG ${__CUTLASS_HIP_FLAGS_DEBUG} ${__CUTLASS_HIPCC_FLAGS_DEBUG})
 
   target_link_libraries(${TARGET} PRIVATE CUTLASS)
 
   target_compile_options(
     ${TARGET}
+
     PRIVATE
-    $<$<COMPILE_LANGUAGE:${CUDA_COMPILE_LANGUAGE}>:${_FLAGS}>
-    $<$<COMPILE_LANGUAGE:${CUDA_COMPILE_LANGUAGE}>:$<$<CONFIG:RELEASE>:${_FLAGS_RELEASE}>>
-    $<$<COMPILE_LANGUAGE:${CUDA_COMPILE_LANGUAGE}>:$<$<CONFIG:RELWITHDEBINFO>:${_FLAGS_RELWITHDEBINFO}>>
-    $<$<COMPILE_LANGUAGE:${CUDA_COMPILE_LANGUAGE}>:$<$<CONFIG:DEBUG>:${_FLAGS_DEBUG}>>
+    $<$<COMPILE_LANGUAGE:CXX>:${_FLAGS}>
+    $<$<COMPILE_LANGUAGE:CXX>:$<$<CONFIG:RELEASE>:${_FLAGS_RELEASE}>>
+    $<$<COMPILE_LANGUAGE:CXX>:$<$<CONFIG:RELWITHDEBINFO>:${_FLAGS_RELWITHDEBINFO}>>
+    $<$<COMPILE_LANGUAGE:CXX>:$<$<CONFIG:DEBUG>:${_FLAGS_DEBUG}>>
     )
 
 endfunction()
@@ -414,6 +295,7 @@ file(GLOB_RECURSE CUTLASS_NVRTC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/test test/u
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include REGULAR_EXPRESSION ".*\.h")
 
 add_library(CUTLASS INTERFACE)
+target_link_libraries(CUTLASS INTERFACE hip::host hip::device)
 add_library(nvidia::cutlass::cutlass ALIAS CUTLASS)
 set_target_properties(CUTLASS PROPERTIES EXPORT_NAME cutlass)
 
@@ -452,15 +334,6 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/cutlass/version.h
   @ONLY)
-
-target_include_directories(
-  CUTLASS
-  INTERFACE
-  $<INSTALL_INTERFACE:include>
-  $<BUILD_INTERFACE:${CUTLASS_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-  $<BUILD_INTERFACE:${CUDA_TOOLKIT_ROOT_DIR}/include>
-  )
 
 install(
   DIRECTORY
@@ -509,8 +382,6 @@ if(NOT WIN32)
     "-Wl,-rpath,'$ORIGIN'"
     "-Wl,-rpath,'$ORIGIN/../lib64'"
     "-Wl,-rpath,'$ORIGIN/../lib'"
-    "-Wl,-rpath,'${CUDA_TOOLKIT_ROOT_DIR}/lib64'"
-    "-Wl,-rpath,'${CUDA_TOOLKIT_ROOT_DIR}/lib'"
     )
 endif()
 
@@ -541,12 +412,14 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/hipBLAS.cmake)
 
 if (CUTLASS_ENABLE_HIPBLAS)
   target_compile_definitions(CUTLASS INTERFACE CUTLASS_ENABLE_HIPBLAS=1)
+  target_link_libraries(CUTLASS INTERFACE roc::hipblas)
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/hipDNN.cmake)
 
 if (CUTLASS_ENABLE_HIPDNN)
   target_compile_definitions(CUTLASS INTERFACE CUTLASS_ENABLE_HIPDNN=1)
+  target_link_libraries(CUTLASS INTERFACE MIOpen)
 endif()
 
 ################################################################################

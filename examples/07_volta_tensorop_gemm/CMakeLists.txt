@@ -30,6 +30,6 @@
 
 cutlass_example_add_executable(
   07_volta_tensorop_gemm
-  volta_tensorop_gemm.cu
+  volta_tensorop_gemm.cpp
   )
 

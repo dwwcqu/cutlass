@@ -31,6 +31,6 @@
 
 cutlass_example_add_executable(
   22_quaternion_conv
-  quaternion_conv.cu 
+  quaternion_conv.cpp 
   )
 

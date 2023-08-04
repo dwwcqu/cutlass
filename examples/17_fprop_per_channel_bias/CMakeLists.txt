@@ -31,6 +31,6 @@
 
 cutlass_example_add_executable(
   17_fprop_per_channel_bias 
-  fprop_per_channel_bias.cu
+  fprop_per_channel_bias.cpp
   )
 

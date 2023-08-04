@@ -45,6 +45,8 @@ if(NOT TARGET hiprtc AND HIPRTC_LIBRARY)
 
   message(STATUS "HIPRTC: ${HIPRTC_LIBRARY}")
 
+  add_library(hiprtc SHARED IMPORTED GLOBAL)
+
   add_library(amd::hiprtc ALIAS hiprtc)
 
   set_property(
@@ -66,13 +68,11 @@ endif()
 include_directories(SYSTEM ${hip_INCLUDE_DIRS})
 
 function(cutlass_correct_source_file_language_property)
-  if(CMAKE_CXX_COMPILER MATCHES "[Cc]lang")
-    foreach(File ${ARGN})
-      if(File MATCHES ".*\.cpp$")
-        set_source_files_properties(${File} PROPERTIES LANGUAGE CXX)
-      endif()
-    endforeach()
-  endif()
+  foreach(File ${ARGN})
+    if(File MATCHES ".*\.cpp$")
+      set_source_files_properties(${File} PROPERTIES LANGUAGE CXX)
+    endif()
+  endforeach()
 endfunction()
 
 if (MSVC OR CUTLASS_LIBRARY_KERNELS MATCHES "all")
@@ -151,13 +151,10 @@ function(cutlass_add_library NAME)
 
   cutlass_unify_source_files(TARGET_SOURCE_ARGS ${__UNPARSED_ARGUMENTS})
 
-  if(CMAKE_CXX_COMPILER MATCHES "clang")
-    cutlass_correct_source_file_language_property(${TARGET_SOURCE_ARGS})
-    add_library(${NAME} ${TARGET_SOURCE_ARGS})
-  endif()
+  cutlass_correct_source_file_language_property(${TARGET_SOURCE_ARGS})
+  add_library(${NAME} ${TARGET_SOURCE_ARGS})
 
   cutlass_apply_standard_compile_options(${NAME})
-  cutlass_apply_cuda_gencode_flags(${NAME})
 
   target_compile_features(
    ${NAME}
@@ -182,13 +179,10 @@ function(cutlass_add_executable NAME)
 
   cutlass_unify_source_files(TARGET_SOURCE_ARGS ${__UNPARSED_ARGUMENTS})
 
-  if(CMAKE_CXX_COMPILER MATCHES "clang")
-    cutlass_correct_source_file_language_property(${TARGET_SOURCE_ARGS})
-    add_executable(${NAME} ${TARGET_SOURCE_ARGS})
-  endif()
+  cutlass_correct_source_file_language_property(${TARGET_SOURCE_ARGS})
+  add_executable(${NAME} ${TARGET_SOURCE_ARGS})
 
   cutlass_apply_standard_compile_options(${NAME})
-  cutlass_apply_cuda_gencode_flags(${NAME})
 
   target_compile_features(
    ${NAME}

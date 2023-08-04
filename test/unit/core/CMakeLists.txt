@@ -28,17 +28,17 @@
 
 cutlass_test_unit_add_executable(
   cutlass_test_unit_core
-  array.cu
-  half.cu
-  bfloat16.cu
-  tfloat32.cu
-  complex.cu
-  quaternion.cu
-  matrix.cu
-  predicate_vector.cu
-  tensor_ref.cu
-  tensor_view.cu
-  matrix_coord.cu
-  numeric_conversion.cu
-  functional.cu
+  array.cpp
+  half.cpp
+  bfloat16.cpp
+  tfloat32.cpp
+  complex.cpp
+  quaternion.cpp
+  matrix.cpp
+  predicate_vector.cpp
+  tensor_ref.cpp
+  tensor_view.cpp
+  matrix_coord.cpp
+  numeric_conversion.cpp
+  functional.cpp
   )

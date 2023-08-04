@@ -31,6 +31,6 @@
 
 cutlass_example_add_executable(
   16_ampere_tensorop_conv2dfprop
-  ampere_tensorop_conv2dfprop.cu
+  ampere_tensorop_conv2dfprop.cpp
   )
 

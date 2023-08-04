@@ -76,7 +76,7 @@ These components are described in the following sections.
 ## Device-wide GEMM API
 
 The device-level GEMM API is intended to streamline instantiation and execution of the standard
-GEMM computation across the GPU. This operator is intended to be used in host-side .cu code and
+GEMM computation across the GPU. This operator is intended to be used in host-side .cpp code and
 has semantics similar to cuBLAS.
 
 The device-wide GEMM API is embodied by the following operators:

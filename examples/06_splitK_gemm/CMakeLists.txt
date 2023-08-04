@@ -30,6 +30,6 @@
 
 cutlass_example_add_executable(
   06_splitK_gemm
-  splitk_gemm.cu
+  splitk_gemm.cpp
   )
 

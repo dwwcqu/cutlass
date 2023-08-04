@@ -30,6 +30,6 @@
 
 cutlass_example_add_executable(
   19_tensorop_canonical
-  tensorop_canonical.cu
+  tensorop_canonical.cpp
 )
 

@@ -28,6 +28,6 @@
 
 cutlass_test_unit_add_executable(
   cutlass_test_unit_gemm_thread_host
-  gemm_sm60_host.cu
+  gemm_sm60_host.cpp
   testbed_host.h
   )

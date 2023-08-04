@@ -31,6 +31,6 @@
 
 cutlass_example_add_executable(
   18_ampere_fp64_tensorop_affine2_gemm
-  ampere_fp64_tensorop_affine2_gemm.cu
+  ampere_fp64_tensorop_affine2_gemm.cpp
   )
 

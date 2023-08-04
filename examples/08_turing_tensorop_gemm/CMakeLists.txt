@@ -30,6 +30,6 @@
 
 cutlass_example_add_executable(
   08_turing_tensorop_gemm
-  turing_tensorop_gemm.cu
+  turing_tensorop_gemm.cpp
   )
 

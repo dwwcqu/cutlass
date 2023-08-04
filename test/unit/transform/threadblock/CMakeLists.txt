@@ -28,6 +28,6 @@
 
 cutlass_test_unit_add_executable(
   cutlass_test_unit_transform_threadblock
-  regular_tile_iterator_tensor_op.cu
-  predicated_tile_iterator.cu
+  regular_tile_iterator_tensor_op.cpp
+  predicated_tile_iterator.cpp
   )

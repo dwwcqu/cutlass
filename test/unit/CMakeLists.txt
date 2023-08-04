@@ -39,9 +39,8 @@ target_link_libraries(
   PUBLIC
   CUTLASS
   cutlass_tools_util_includes
-  $<$<BOOL:${CUTLASS_ENABLE_HIPBLAS}>:nvidia::cublas>
+  $<$<BOOL:${CUTLASS_ENABLE_HIPBLAS}>:roc::hipblas>
   gtest
-  cudart
   )
 
 cutlass_add_library(
@@ -108,7 +107,7 @@ set(SUBDIRS
   util
   )
 
-if(TARGET nvidia::nvrtc AND TARGET nvidia::cuda_driver)
+if(TARGET amd::hiprtc)
   set(CUTLASS_NVRTC_ENABLE_INIT ON)
 else()
   set(CUTLASS_NVRTC_ENABLE_INIT OFF)

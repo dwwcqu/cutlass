@@ -30,6 +30,6 @@
 
 cutlass_example_add_executable(
   29_ampere_3xtf32_fast_accurate_tensorop_complex_gemm
-  29_ampere_3xtf32_fast_accurate_tensorop_complex_gemm.cu
+  29_ampere_3xtf32_fast_accurate_tensorop_complex_gemm.cpp
   )
 

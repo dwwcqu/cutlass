@@ -31,6 +31,6 @@
 
 cutlass_example_add_executable(
   23_ampere_gemm_operand_reduction_fusion
-  ampere_gemm_operand_reduction_fusion.cu
+  ampere_gemm_operand_reduction_fusion.cpp
   )
 

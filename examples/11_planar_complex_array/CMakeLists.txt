@@ -32,7 +32,7 @@
 # Planar Complex Array GEMM example
 cutlass_example_add_executable(
   11_planar_complex_array
-  planar_complex_array.cu
+  planar_complex_array.cpp
 )
 
 

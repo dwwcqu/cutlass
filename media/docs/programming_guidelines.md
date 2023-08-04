@@ -215,7 +215,7 @@ private:
 
 ### File Names
 
-Files should be named using `snake_case` with extension `.h` for header files, `.cu` for CUDA sources,
+Files should be named using `snake_case` with extension `.h` for header files, `.cpp` for CUDA sources,
 and `.cpp` for C++ host-only source files.
 
 ### Use scoped enums

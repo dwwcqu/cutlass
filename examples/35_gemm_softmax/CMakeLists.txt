@@ -31,6 +31,6 @@
 
 cutlass_example_add_executable(
   35_gemm_softmax
-  gemm_softmax.cu
+  gemm_softmax.cpp
   )
 

@@ -31,5 +31,5 @@
 
 cutlass_example_add_executable(
   30_wgrad_split_k
-  30_wgrad_split_k.cu
+  30_wgrad_split_k.cpp
   )

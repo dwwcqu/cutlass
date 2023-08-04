@@ -1,10 +1,11 @@
 ## Created by dwwcqu
 
 if(DEFINED HIPDNN_ENABLED)
-    set(CUTLASS_ENABLE_HIPDNN ${CUDNN_ENABLED} CACHE BOOL "Enable CUTLASS to build with hipDNN library.")
+    set(CUTLASS_ENABLE_HIPDNN ${HIPDNN_ENABLED} CACHE BOOL "Enable CUTLASS to build with hipDNN library.")
 endif()
 
 if(DEFINED CUTLASS_ENABLE_HIPDNN AND NOT CUTLASS_ENABLE_HIPDNN)
+  message(STATUS "MIOpen Disabled")
   return()
 endif()
 

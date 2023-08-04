@@ -101,7 +101,7 @@ target_include_directories(
   PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
   )
 
-target_link_libraries(cutlass_nvrtc PUBLIC nvidia::nvrtc nvidia::cuda_driver)
+target_link_libraries(cutlass_nvrtc PUBLIC amd::hiprtc hip::host hip::device)
 
 add_subdirectory(thread)
 

@@ -53,7 +53,7 @@ function(cutlass_example_add_executable NAME)
     PRIVATE
     CUTLASS
     cutlass_tools_util_includes
-    $<$<BOOL:${CUTLASS_ENABLE_HIPBLAS}>:nvidia::cublas>
+    $<$<BOOL:${CUTLASS_ENABLE_HIPBLAS}>:roc::hipblas>
     )
 
   target_include_directories(

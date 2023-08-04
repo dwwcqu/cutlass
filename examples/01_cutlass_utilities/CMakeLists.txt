@@ -30,5 +30,5 @@
 
 cutlass_example_add_executable(
   01_cutlass_utilities
-  cutlass_utilities.cu
+  cutlass_utilities.cpp
   )

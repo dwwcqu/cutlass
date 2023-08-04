@@ -31,6 +31,6 @@
 
 cutlass_example_add_executable(
   25_ampere_fprop_mainloop_fusion
-  ampere_fprop_mainloop_fusion.cu
+  ampere_fprop_mainloop_fusion.cpp
   )
 

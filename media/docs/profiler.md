@@ -169,7 +169,7 @@ The CUTLASS Profiler is capable of executing GEMM and Sparse GEMM problems.
 
 The CUTLASS Profiler can be built with cuBLAS enabled to use as a reference implementation. If CMake detects
 the cuBLASS library available in the system, it is included as a dependency. This may be explicitly overridden
-with CMake flag `CUTLASS_ENABLE_CUBLAS`. 
+with CMake flag `CUTLASS_ENABLE_HIPBLAS`. 
 
 ## GEMM Arguments
 
@@ -351,10 +351,10 @@ oeprator variants.
 
 The CUTLASS Profiler can be built with cuDNN enabled to use as a reference implementation. If CMake detects
 the cuDNN library available in the system, it is included as a dependency. This may be explicitly overridden
-with CMake flag `CUTLASS_ENABLE_CUDNN`. 
+with CMake flag `CUTLASS_ENABLE_HIPDNN`. 
 
 ```bash
-$ cmake .. -DCUTLASS_LIBRARY_OPERATIONS=conv2d -DCUTLASS_ENABLE_CUDNN=OFF
+$ cmake .. -DCUTLASS_LIBRARY_OPERATIONS=conv2d -DCUTLASS_ENABLE_HIPDNN=OFF
 ...
 $ make -j16 cutlass_profiler
 ```

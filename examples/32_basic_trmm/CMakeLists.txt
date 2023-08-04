@@ -30,6 +30,6 @@
 
 cutlass_example_add_executable(
   32_basic_trmm
-  basic_trmm.cu
+  basic_trmm.cpp
 )
   

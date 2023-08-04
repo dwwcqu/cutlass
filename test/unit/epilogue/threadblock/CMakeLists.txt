@@ -29,14 +29,14 @@
 cutlass_test_unit_add_executable(
   cutlass_test_unit_epilogue_threadblock
   
-  predicated_tile_iterator.cu
-  output_tile_threadmap.cu
-  epilogue_simt.cu
-  epilogue_simt_sm60.cu
-  epilogue_simt_sm61.cu
-  epilogue_tensor_op.cu
-  epilogue_volta_tensor_op.cu
-  epilogue_wmma_tensor_op_sm70.cu
-  epilogue_planar_complex.cu
-  epilogue_with_reduction_tensor_op.cu
+  predicated_tile_iterator.cpp
+  output_tile_threadmap.cpp
+  epilogue_simt.cpp
+  epilogue_simt_sm60.cpp
+  epilogue_simt_sm61.cpp
+  epilogue_tensor_op.cpp
+  epilogue_volta_tensor_op.cpp
+  epilogue_wmma_tensor_op_sm70.cpp
+  epilogue_planar_complex.cpp
+  epilogue_with_reduction_tensor_op.cpp
 )

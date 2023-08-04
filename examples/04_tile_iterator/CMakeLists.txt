@@ -30,5 +30,5 @@
 
 cutlass_example_add_executable(
   04_tile_iterator
-  tile_iterator.cu
+  tile_iterator.cpp
   )

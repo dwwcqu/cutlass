@@ -34,7 +34,7 @@ set(TEST_COMMAND_01 \"ColumnMajorInterleaved<4>\" --extent=32,8 --output-shape=1
 cutlass_example_add_executable(
   03_visualize_layout
   visualize_layout.cpp
-  register_layout.cu
+  register_layout.cpp
   TEST_COMMAND_OPTIONS
   TEST_COMMAND_00
   TEST_COMMAND_01

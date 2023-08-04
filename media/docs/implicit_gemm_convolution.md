@@ -165,7 +165,7 @@ This enables 128-bit vector memory acceses which lead to efficient CUDA kernels.
 CUTLASS defines CUDA C++ templates accepting numerous template arguments to specialize the resulting
 kernel by operation, data type, tile configuration, math instruction, and fused output operation.
 
-In [turing_tensorop_conv2dfprop.cu](/examples/09_turing_tensorop_conv2dfprop/turing_tensorop_conv2dfprop.cu), a convolution
+In [turing_tensorop_conv2dfprop.cpp](/examples/09_turing_tensorop_conv2dfprop/turing_tensorop_conv2dfprop.cpp), a convolution
 operation is defined as follows.
 
 ```c++
@@ -656,13 +656,13 @@ convenient environment to (a.) inspect the template definition, (b.) showcase in
 in device code, and (c.) assert functional correctness.
 
 **Convolution unit tests**
-- Device-wide convolution operator: [conv2d_fprop_implicit_gemm_s4nhwc_s4nhwc_s32nhwc_tensor_op_s32_sm75.cu](/test/unit/conv/device/conv2d_fprop_implicit_gemm_s4nhwc_s4nhwc_s32nhwc_tensor_op_s32_sm75.cu)
+- Device-wide convolution operator: [conv2d_fprop_implicit_gemm_s4nhwc_s4nhwc_s32nhwc_tensor_op_s32_sm75.cpp](/test/unit/conv/device/conv2d_fprop_implicit_gemm_s4nhwc_s4nhwc_s32nhwc_tensor_op_s32_sm75.cpp)
 
 **GEMM unit tests**
-- Warp-scoped matrix multiply for Turing Tensor Cores: [gemm_sm75.cu](/test/unit/gemm/warp/gemm_sm75.cu)
+- Warp-scoped matrix multiply for Turing Tensor Cores: [gemm_sm75.cpp](/test/unit/gemm/warp/gemm_sm75.cpp)
 
 **Epilogue unit tests**
-- Epilogue for Turing Tensor Cores: [epilogue_tensor_op.cu](/test/unit/epilogue/threadblock/epilogue_tensor_op.cu)
+- Epilogue for Turing Tensor Cores: [epilogue_tensor_op.cpp](/test/unit/epilogue/threadblock/epilogue_tensor_op.cpp)
 
 
 # Convolution Example
@@ -674,7 +674,7 @@ of Implicit GEMM Convolution.
 
 Example `09_turing_tensorop_conv2dfprop` computes a forward convolutional layer in which inputs and
 outputs are 4-b integers. The example source is visible in 
-[examples/09_turing_tensorop_conv2dfprop/turing_tensorop_conv2dfprop.cu](/examples/09_turing_tensorop_conv2dfprop/turing_tensorop_conv2dfprop.cu).
+[examples/09_turing_tensorop_conv2dfprop/turing_tensorop_conv2dfprop.cpp](/examples/09_turing_tensorop_conv2dfprop/turing_tensorop_conv2dfprop.cpp).
 
 
 Before building the example, first perform the prerequisite steps for building any CUTLASS component [described here](/media/docs/quickstart.md).

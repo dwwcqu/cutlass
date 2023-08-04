@@ -30,5 +30,5 @@
 
 cutlass_example_add_executable(
   02_dump_reg_shmem 
-  dump_reg_shmem.cu
+  dump_reg_shmem.cpp
 )

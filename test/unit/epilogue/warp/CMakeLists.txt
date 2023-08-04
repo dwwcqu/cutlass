@@ -28,7 +28,7 @@
 
 cutlass_test_unit_add_executable(
   cutlass_test_unit_epilogue_warp
-  fragment_iterator_tensor_op.cu
-  fragment_iterator_volta_tensor_op.cu
-  fragment_iterator_wmma_tensor_op.cu
+  fragment_iterator_tensor_op.cpp
+  fragment_iterator_volta_tensor_op.cpp
+  fragment_iterator_wmma_tensor_op.cpp
   )

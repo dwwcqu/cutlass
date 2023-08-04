@@ -30,6 +30,6 @@
 
 cutlass_example_add_executable(
   31_basic_syrk
-  basic_syrk.cu
+  basic_syrk.cpp
 )
   

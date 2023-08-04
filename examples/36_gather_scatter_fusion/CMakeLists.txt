@@ -28,5 +28,5 @@
 
 cutlass_example_add_executable(
   36_gather_scatter_fusion
-  gather_scatter_fusion.cu
+  gather_scatter_fusion.cpp
   )

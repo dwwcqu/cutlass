@@ -31,5 +31,5 @@
 
 cutlass_example_add_executable(
   28_ampere_3xtf32_fast_accurate_tensorop_fprop
-  ampere_3xtf32_fast_accurate_tensorop_fprop.cu
+  ampere_3xtf32_fast_accurate_tensorop_fprop.cpp
   )

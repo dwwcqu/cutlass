@@ -30,6 +30,6 @@
 
 cutlass_example_add_executable(
   15_ampere_sparse_tensorop_gemm
-  ampere_sparse_tensorop_gemm.cu
+  ampere_sparse_tensorop_gemm.cpp
   )
 

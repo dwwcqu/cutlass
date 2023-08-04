@@ -28,9 +28,9 @@
 
 cutlass_test_unit_add_executable(
   cutlass_test_unit_gemm_thread
-  gemm_sm50.cu
-  gemm_sm60.cu
-  gemm_sm61.cu
+  gemm_sm50.cpp
+  gemm_sm60.cpp
+  gemm_sm61.cpp
   testbed.h
   )
 

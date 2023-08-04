@@ -32,25 +32,25 @@
 
 set(CUTLASS_TOOLS_PROFILER_SOURCES
   src/main.cpp
-  src/cutlass_profiler.cu
-  src/options.cu
+  src/cutlass_profiler.cpp
+  src/options.cpp
   src/performance_report.cpp
   src/enumerated_types.cpp
   src/gpu_timer.cpp
-  src/device_allocation.cu
-  src/device_context.cu
-  src/cublas_helpers.cu             
+  src/device_allocation.cpp
+  src/device_context.cpp
+  src/cublas_helpers.cpp             
   src/cudnn_helpers.cpp                   
   src/problem_space.cpp
-  src/operation_profiler.cu
-  src/gemm_operation_profiler.cu
-  src/rank_k_operation_profiler.cu
-  src/rank_2k_operation_profiler.cu
-  src/trmm_operation_profiler.cu
-  src/symm_operation_profiler.cu
-  src/conv2d_operation_profiler.cu          
-  src/conv3d_operation_profiler.cu          
-  src/sparse_gemm_operation_profiler.cu
+  src/operation_profiler.cpp
+  src/gemm_operation_profiler.cpp
+  src/rank_k_operation_profiler.cpp
+  src/rank_2k_operation_profiler.cpp
+  src/trmm_operation_profiler.cpp
+  src/symm_operation_profiler.cpp
+  src/conv2d_operation_profiler.cpp          
+  src/conv3d_operation_profiler.cpp          
+  src/sparse_gemm_operation_profiler.cpp
 )
 
 #
@@ -83,8 +83,8 @@ target_link_libraries(
   PRIVATE 
   cutlass_lib
   cutlass_tools_util_includes
-  $<$<BOOL:${CUTLASS_ENABLE_HIPBLAS}>:nvidia::cublas>
-  $<$<BOOL:${CUTLASS_ENABLE_HIPDNN}>:nvidia::cudnn>
+  $<$<BOOL:${CUTLASS_ENABLE_HIPBLAS}>:roc::hipblas>
+  $<$<BOOL:${CUTLASS_ENABLE_HIPDNN}>:MIOpen>
   cudart
   )
 

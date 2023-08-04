@@ -976,7 +976,7 @@ public:
     // Prepare batched GEMM environment
     //
 
-    int32_t effective_streams = (options.cuda_streams ? options.cuda_streams : 1);
+    int32_t effective_streams = (options.cppda_streams ? options.cppda_streams : 1);
 
     // Array of leading dimensions used by batched GEMM calls
     std::vector<cutlass::gemm::GemmCoord> bin_problem_sizes;
@@ -1060,8 +1060,8 @@ public:
     //
 
 
-    if (options.cuda_streams) {
-      for (int i = 0; i < options.cuda_streams; ++i) {
+    if (options.cppda_streams) {
+      for (int i = 0; i < options.cppda_streams; ++i) {
         hipStream_t stream;
 
         result.error = hipStreamCreate(&stream);

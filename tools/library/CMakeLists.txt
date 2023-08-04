@@ -60,23 +60,23 @@ install(
 cutlass_add_library(
   cutlass_library_objs
   OBJECT
-  src/handle.cu
+  src/handle.cpp
   src/manifest.cpp
-  src/operation_table.cu
-  src/singleton.cu
-  src/util.cu
+  src/operation_table.cpp
+  src/singleton.cpp
+  src/util.cpp
 
-  src/reference/gemm.cu
-  src/reference/initialize_reference_operations.cu
+  src/reference/gemm.cpp
+  src/reference/initialize_reference_operations.cpp
 
 
   # cutlass reduction instances in cutlass library
-  src/reduction/reduction_device.cu
-  src/reduction/init_reduction_operations.cu
+  src/reduction/reduction_device.cpp
+  src/reduction/init_reduction_operations.cpp
   
   # cutlass conv reference instances in cutlass library
-  src/reference/conv2d.cu
-  src/reference/conv3d.cu
+  src/reference/conv2d.cpp
+  src/reference/conv3d.cpp
 
   )
 
