@@ -1,2 +1,5 @@
 # PyCache files
 __pycache__/
+build/*
+ports/*
+cmake_build/*
