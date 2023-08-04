@@ -79,7 +79,7 @@ Now, we have two different flavors of SSYMM in the profiler for Ampere:
 
 #include "helper.h"
 
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
 #include <hipblas.h>
 #endif
 
@@ -360,7 +360,7 @@ bool run(Options &options) {
   cutlass::HostTensor<float, LayoutOutput> tensor_d_1xTF32(problem_size.mn());  // <- Create matrix D with dimensions M x N
   // Symm output (D) for SYMM_F64
   cutlass::HostTensor<double, LayoutOutput> tensor_d_F64(problem_size.mn());  // <- Create matrix D with dimensions M x N
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
   // Symm output (D) for SYMM_cublasF32
   cutlass::HostTensor<float, LayoutOutput> tensor_d_cublasF32(problem_size.mn());  // <- Create matrix D with dimensions M x N
 #endif
@@ -372,7 +372,7 @@ bool run(Options &options) {
   cutlass::reference::host::TensorCopy(tensor_d_F64.host_view(), tensor_d_F32.host_view());
   cutlass::reference::host::TensorCopy(tensor_d_3xTF32.host_view(), tensor_d_F32.host_view());
   cutlass::reference::host::TensorCopy(tensor_d_1xTF32.host_view(), tensor_d_F32.host_view());
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
   cutlass::reference::host::TensorCopy(tensor_d_cublasF32.host_view(), tensor_d_F32.host_view());
 #endif
   
@@ -383,7 +383,7 @@ bool run(Options &options) {
   tensor_d_F64.sync_device();
   tensor_d_3xTF32.sync_device();
   tensor_d_1xTF32.sync_device();
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
   tensor_d_cublasF32.sync_device();
 #endif
 
@@ -544,7 +544,7 @@ bool run(Options &options) {
   /// 6. Run cuBLAS SSYMM kernel
   ////////////////////////////////////////////////////////////////////////////////
 
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
   hipblasStatus_t cublas_status;
   hipblasHandle_t handle;
 
@@ -579,7 +579,7 @@ bool run(Options &options) {
   /// 7. Compute l2 norms 
   ////////////////////////////////////////////////////////////////////////////////
 
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
   // l2 norm cuBLAS F32 vs F64
   cutlass::HostTensor<double, LayoutOutput> tensor_d_cublasF32_in_F64(problem_size.mn());
   cutlass::reference::host::TensorCopy(tensor_d_cublasF32_in_F64.host_view(), tensor_d_cublasF32.host_view());
@@ -600,7 +600,7 @@ bool run(Options &options) {
   double l2_norm_1xtf32_vs_f64 = cutlass::reference::host::TensorRelativeErrorMetric(
     tensor_d_1xTF32_in_F64.host_view(), tensor_d_F64.host_view());
 
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
   // l2 norm 3xTF32 vs cuBLAS F32
   double l2_norm_3xtf32_vs_cublasf32 = cutlass::reference::host::TensorRelativeErrorMetric(
     tensor_d_3xTF32.host_view(), tensor_d_cublasF32.host_view());
@@ -619,12 +619,12 @@ bool run(Options &options) {
   std::cout << "Normalized L2 norm of" << std::endl;
   std::cout.precision(8);
   std::cout << std::scientific 
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
             << " - cuBLAS F32 error with F64 reference    : " << l2_norm_cublasf32_vs_f64 << std::endl
 #endif
             << " - 3xTF32 error with F64 reference        : " << l2_norm_3xtf32_vs_f64 << std::endl
             << " - 1xTF32 error with F64 reference        : " << l2_norm_1xtf32_vs_f64 << std::endl
-#if CUTLASS_ENABLE_CUBLAS
+#if CUTLASS_ENABLE_HIPBLAS
             << " - 3xTF32 error with cuBLAS F32 reference : " << l2_norm_3xtf32_vs_cublasf32 << std::endl
 #endif
             << " - 3xTF32 error with 1xTF32 reference     : " << l2_norm_3xtf32_vs_1xtf32 << std::endl;
